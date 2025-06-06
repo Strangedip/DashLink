@@ -1,0 +1,20 @@
+<p-card styleClass="link-card" (click)="onView()">
+  <ng-template pTemplate="header">
+    <div class="p-d-flex p-ai-center">
+      <i class="pi pi-link link-icon"></i>
+      <div class="p-ml-3">
+        <div class="p-card-title">{{ link.name }}</div>
+        <div class="p-card-subtitle">{{ link.url }}</div>
+      </div>
+      <span class="p-spacer"></span>
+      <button type="button" pButton icon="pi pi-ellipsis-v" (click)="menu.toggle($event); $event.stopPropagation();" class="p-button-text p-button-secondary"></button>
+      <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
+    </div>
+  </ng-template>
+  @if (link.description) {
+    <ng-template pTemplate="content">
+      <p>{{ link.description }}</p>
+    </ng-template>
+  }
+</p-card>
+<p-confirmPopup></p-confirmPopup>

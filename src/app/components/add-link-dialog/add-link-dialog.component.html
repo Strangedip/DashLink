@@ -1,0 +1,34 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>Add New Link</h2>
+  <div [formGroup]="linkForm">
+    <div class="p-field">
+      <label for="name">Link Name</label>
+      <input id="name" type="text" pInputText formControlName="name" required>
+      @if (linkForm.get('name')?.invalid && linkForm.get('name')?.touched) {
+        <p-message severity="error" text="Link Name is required."></p-message>
+      }
+    </div>
+
+    <div class="p-field">
+      <label for="url">URL</label>
+      <input id="url" type="url" pInputText formControlName="url" required>
+      @if (linkForm.get('url')?.invalid && linkForm.get('url')?.touched) {
+        @if (linkForm.get('url')?.errors?.['required']) {
+          <p-message severity="error" text="URL is required."></p-message>
+        }
+        @if (linkForm.get('url')?.errors?.['pattern']) {
+          <p-message severity="error" text="Please enter a valid URL (e.g., https://example.com)."></p-message>
+        }
+      }
+    </div>
+
+    <div class="p-field">
+      <label for="description">Description (Optional)</label>
+      <textarea id="description" pInputTextarea formControlName="description"></textarea>
+    </div>
+  </div>
+  <div class="p-dialog-footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
+    <p-button label="Add" icon="pi pi-check" (click)="onSubmit()" [disabled]="!linkForm.valid"></p-button>
+  </div>
+</div>

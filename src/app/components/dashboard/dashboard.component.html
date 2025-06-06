@@ -1,0 +1,49 @@
+<div class="dashboard-container">
+  <p-card styleClass="header-actions">
+    <ng-template pTemplate="header">
+      @if (currentCollectionId) {
+        <p-button icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" styleClass="p-button-text"></p-button>
+      }
+      <h2>{{ currentCollection?.name || 'My Collections' }}</h2>
+    </ng-template>
+  </p-card>
+
+  @if ((collections$ | async)?.length === 0 && (links$ | async)?.length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-folder-open empty-state-icon"></i>
+      <p>No collections or links yet. Start by adding a new one!</p>
+    </div>
+  } @else {
+    <div class="p-grid p-nogutter">
+      <p-dataView #dv [value]="(collections$ | async) || []" layout="grid">
+        <ng-template pTemplate="grid" let-collection>
+          <div class="p-col-12 p-md-6 p-lg-4 p-xl-3">
+            <app-collection-card
+              [collection]="collection"
+              (viewCollection)="goToCollection($event)"
+              (editCollection)="editCollection($event)"
+              (deleteCollection)="deleteCollection($event)"
+            ></app-collection-card>
+          </div>
+        </ng-template>
+      </p-dataView>
+
+      <p-dataView #dvLinks [value]="(links$ | async) || []" layout="grid">
+        <ng-template pTemplate="grid" let-link>
+          <div class="p-col-12 p-md-6 p-lg-4 p-xl-3">
+            <app-link-card
+              [link]="link"
+              (editLink)="editLink($event)"
+              (deleteLink)="deleteLink($event)"
+            ></app-link-card>
+          </div>
+        </ng-template>
+      </p-dataView>
+    </div>
+  }
+
+  <div class="p-fixed p-bottom-0 p-right-0 p-mb-4 p-mr-4">
+    <p-button icon="pi pi-plus" (click)="menu.toggle($event)" pTooltip="Add New" styleClass="p-button-rounded p-button-success p-button-lg"></p-button>
+    <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
+  </div>
+</div>

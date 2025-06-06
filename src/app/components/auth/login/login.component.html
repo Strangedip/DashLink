@@ -1,0 +1,42 @@
+<div class="auth-container">
+  <p-card header="Login to DashLink">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="p-field">
+        <label for="email">Email</label>
+        <p-iconField iconPosition="left">
+          <p-inputIcon><i class="pi pi-envelope"></i></p-inputIcon>
+          <input pInputText id="email" type="email" formControlName="email" required>
+        </p-iconField>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          @if (loginForm.get('email')?.errors?.['required']) {
+            <p-message severity="error" text="Email is required."></p-message>
+          }
+          @if (loginForm.get('email')?.errors?.['email']) {
+            <p-message severity="error" text="Please enter a valid email address."></p-message>
+          }
+        }
+      </div>
+
+      <div class="p-field">
+        <label for="password">Password</label>
+        <p-iconField iconPosition="left">
+          <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
+          <input pInputText id="password" type="password" formControlName="password" required>
+        </p-iconField>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <p-message severity="error" text="Password is required."></p-message>
+        }
+      </div>
+
+      @if (messages.length > 0) {
+        <p-messages [value]="messages" [enableService]="false"></p-messages>
+      }
+
+      <p-button label="Login" type="submit" [disabled]="!loginForm.valid"></p-button>
+    </form>
+    <p-button label="Sign in with Google" icon="pi pi-google" (click)="signInWithGoogle()" styleClass="p-button-secondary p-mt-3"></p-button>
+    <div class="p-card-footer">
+      <p>Don't have an account? <a style="cursor: pointer;" routerLink="/auth/register">Register here</a></p>
+    </div>
+  </p-card>
+</div>

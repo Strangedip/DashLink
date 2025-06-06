@@ -1,0 +1,132 @@
+.link-card {
+  width: 100%; /* Ensure it takes full width of grid tile */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  padding: 15px;
+  gap: 10px;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .p-card-header {
+    padding-bottom: 0;
+  }
+
+  .link-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+  }
+
+  .p-card-title {
+    font-size: 1.25em;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .p-card-subtitle {
+    font-size: 0.875em;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .p-spacer {
+    flex: 1 1 auto;
+  }
+
+  .p-card-content {
+    padding: 0 16px 16px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    flex-grow: 1;
+  }
+
+  h3 {
+    margin: 0;
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  p {
+    font-size: 0.9em;
+    color: var(--text-color);
+    flex-grow: 1;
+  }
+
+  mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    button {
+      padding: 8px 12px;
+      font-size: 0.9em;
+    }
+  }
+}
+
+mat-card-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.link-icon {
+  background-color: #007bff; /* A nice blue for links */
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.link-icon mat-icon {
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+}
+
+mat-card-title {
+  font-size: 1.25em;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+mat-card-subtitle {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.875em;
+  /* Make sure URL doesn't break out of line */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-card-content {
+  padding: 0 16px 16px;
+  font-size: 0.9em;
+  color: var(--text-color);
+  flex-grow: 1;
+}

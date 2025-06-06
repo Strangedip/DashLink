@@ -1,0 +1,90 @@
+.collection-card {
+  width: 100%; /* Ensure it takes full width of grid tile */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  /* Removed background-color, border-radius, and box-shadow as Material handles these */
+  /* background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow); */
+  padding: 15px;
+  gap: 10px;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .p-card-header {
+    padding-bottom: 0;
+  }
+
+  h3 {
+    margin: 0;
+    /* color: var(--primary-dark-color); */ /* Material theming handles this */
+  }
+
+  p {
+    font-size: 0.9em;
+    /* color: var(--text-color); */ /* Material theming handles this */
+    flex-grow: 1;
+  }
+
+  mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    button {
+      padding: 8px 12px;
+      font-size: 0.9em;
+    }
+  }
+}
+
+/* Removed mat-card-header styling as Material handles this */
+/*
+mat-card-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+*/
+
+.collection-icon {
+  /* background-color: #673ab7; */ /* Material theming handles this */
+  /* color: white; */ /* Material theming handles this */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+  font-size: 2.5rem;
+  color: var(--primary-color);
+}
+
+.collection-icon mat-icon {
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+}
+
+.p-card-title {
+  font-size: 1.25em;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.p-card-subtitle {
+  /* color: rgba(0, 0, 0, 0.54); */ /* Material theming handles this */
+  font-size: 0.875em;
+  color: var(--text-color-secondary);
+}
+
+.p-spacer {
+  flex: 1 1 auto;
+}

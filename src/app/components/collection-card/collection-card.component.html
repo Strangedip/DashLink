@@ -1,0 +1,20 @@
+<p-card styleClass="collection-card">
+  <ng-template pTemplate="header">
+    <div class="p-d-flex p-ai-center">
+      <i class="pi pi-folder collection-icon"></i>
+      <div class="p-ml-3">
+        <div class="p-card-title">{{ collection.name }}</div>
+        <div class="p-card-subtitle">{{ collection.description }}</div>
+      </div>
+      <span class="p-spacer"></span>
+      <button type="button" pButton icon="pi pi-ellipsis-v" (click)="menu.toggle($event)" class="p-button-text p-button-secondary"></button>
+      <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="p-d-flex p-jc-end">
+      <p-button label="View" icon="pi pi-eye" (click)="onView()" styleClass="p-button-sm p-button-text"></p-button>
+    </div>
+  </ng-template>
+</p-card>
+<p-confirmPopup></p-confirmPopup>

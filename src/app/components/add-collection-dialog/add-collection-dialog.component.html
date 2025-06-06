@@ -1,0 +1,20 @@
+<div class="dialog-container">
+  <div [formGroup]="collectionForm">
+    <div class="p-field">
+      <label for="name">Collection Name</label>
+      <input id="name" type="text" pInputText formControlName="name" required>
+      @if (collectionForm.get('name')?.invalid && collectionForm.get('name')?.touched) {
+        <p-message severity="error" text="Collection Name is required."></p-message>
+      }
+    </div>
+
+    <div class="p-field">
+      <label for="description">Description (Optional)</label>
+      <textarea id="description" pInputTextarea formControlName="description"></textarea>
+    </div>
+  </div>
+  <div class="p-dialog-footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
+    <p-button label="Add" icon="pi pi-check" (click)="onSubmit()" [disabled]="!collectionForm.valid"></p-button>
+  </div>
+</div>

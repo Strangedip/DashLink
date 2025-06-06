@@ -1,0 +1,98 @@
+/* Remove old header styles */
+header {
+  display: none;
+}
+
+/* Basic styling for the main content area */
+main {
+  padding: 20px;
+}
+
+.sidenav-container {
+  height: calc(100vh - 64px); /* Adjust based on toolbar height */
+}
+
+.sidenav {
+  width: 200px;
+}
+
+.sidenav mat-nav-list a {
+  color: inherit; /* Ensure link color adapts to theme */
+  text-decoration: none;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Remove old footer styles */
+footer {
+  display: none;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-menubar {
+  height: 64px; /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-left: 1rem;
+}
+
+.app-content {
+  flex-grow: 1;
+  padding: 1rem;
+}
+
+.p-panelmenu-sidebar .p-menuitem-content {
+  padding: 0.75rem 1.25rem;
+}
+
+.p-panelmenu-sidebar .p-menuitem-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+}
+
+.p-panelmenu-sidebar .p-menuitem-link:hover {
+  background-color: var(--surface-100);
+}
+
+.p-panelmenu-sidebar .p-menuitem-text {
+  margin-left: 0.5rem;
+}
+
+.p-sidebar .p-sidebar-header {
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.p-sidebar .p-sidebar-content {
+  padding-top: 0;
+}
+
+/* Responsive adjustments for overall layout */
+@media screen and (max-width: 768px) {
+  .app-menubar .app-title {
+    display: none;
+  }
+}

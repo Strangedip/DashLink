@@ -1,0 +1,51 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    margin-left: 10px; /* Space between back button and title */
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-color-secondary);
+
+  .empty-state-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    color: var(--surface-400);
+  }
+
+  p {
+    font-size: 1.2em;
+  }
+}
+
+.p-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -1rem; /* Adjust for PrimeFlex column gutter */
+  margin-left: -1rem; /* Adjust for PrimeFlex column gutter */
+}
+
+.p-col-12,
+.p-md-6,
+.p-lg-4,
+.p-xl-3 {
+  padding: 1rem; /* PrimeFlex gutter */
+}
+
+/* Responsive adjustments for overall layout */
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+}

@@ -1,0 +1,36 @@
+.dialog-container {
+  padding: 1rem;
+}
+
+.p-field {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+
+  input.p-inputtext,
+  textarea.p-inputtextarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+  }
+
+  textarea.p-inputtextarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+}
+
+.p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+  margin-top: 1.5rem;
+}
