@@ -62,4 +62,8 @@ export class LoginComponent {
       this.messages = [{ severity: 'error', summary: 'Google Sign-in Error', detail: error.message }];
     }
   }
+
+  goToRegister(): void {
+    this.router.navigate(['/auth/register']);
+  }
 }

@@ -20,7 +20,6 @@ import { SidebarModule } from 'primeng/sidebar';
   imports: [
     RouterOutlet,
     CommonModule,
-    MenubarModule,
     ButtonModule,
     TieredMenuModule,
     AvatarModule,
@@ -47,18 +46,14 @@ export class AppComponent {
           { label: 'Logout', icon: 'pi pi-sign-out', command: () => this.logout() }
         ];
         this.sidebarMenuItems = [
-          { label: 'Home', icon: 'pi pi-home', routerLink: '/' },
           { label: 'Dashboard', icon: 'pi pi-chart-line', routerLink: '/dashboard' },
-          { label: 'Profile', icon: 'pi pi-user', routerLink: '/profile' },
-          { label: 'Showcase', icon: 'pi pi-prime', routerLink: '/material-showcase' } // Renamed for now
+          { label: 'Profile', icon: 'pi pi-user', routerLink: '/profile' }
         ];
       } else {
         this.userMenuItems = [];
         this.sidebarMenuItems = [
-          { label: 'Home', icon: 'pi pi-home', routerLink: '/' },
-          { label: 'Login', icon: 'pi pi-sign-in', routerLink: '/login' },
-          { label: 'Register', icon: 'pi pi-user-plus', routerLink: '/register' },
-          { label: 'Showcase', icon: 'pi pi-prime', routerLink: '/material-showcase' } // Renamed for now
+          { label: 'Login', icon: 'pi pi-sign-in', routerLink: '/auth/login' },
+          { label: 'Register', icon: 'pi pi-user-plus', routerLink: '/auth/register' }
         ];
       }
     });
@@ -67,7 +62,7 @@ export class AppComponent {
   async logout(): Promise<void> {
     try {
       await this.authService.logout();
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
     } catch (error) {
       console.error('Error logging out:', error);
     }

@@ -1,42 +1,42 @@
-<div class="auth-container">
-  <p-card header="Login to DashLink">
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+<div class="auth-container flex align-items-center justify-content-center">
+  <p-card header="Login to DashLink" styleClass="p-card-login shadow-8 border-round-lg w-full max-w-25rem">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
       <div class="p-field">
-        <label for="email">Email</label>
-        <p-iconField iconPosition="left">
+        <label for="email" class="block text-900 font-medium mb-2">Email</label>
+        <p-iconField iconPosition="left" class="w-full">
           <p-inputIcon><i class="pi pi-envelope"></i></p-inputIcon>
-          <input pInputText id="email" type="email" formControlName="email" required>
+          <input pInputText id="email" type="email" formControlName="email" required class="w-full">
         </p-iconField>
         @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
           @if (loginForm.get('email')?.errors?.['required']) {
-            <p-message severity="error" text="Email is required."></p-message>
+            <p-message severity="error" text="Email is required." class="block mt-2"></p-message>
           }
           @if (loginForm.get('email')?.errors?.['email']) {
-            <p-message severity="error" text="Please enter a valid email address."></p-message>
+            <p-message severity="error" text="Please enter a valid email address." class="block mt-2"></p-message>
           }
         }
       </div>
 
       <div class="p-field">
-        <label for="password">Password</label>
-        <p-iconField iconPosition="left">
+        <label for="password" class="block text-900 font-medium mb-2">Password</label>
+        <p-iconField iconPosition="left" class="w-full">
           <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
-          <input pInputText id="password" type="password" formControlName="password" required>
+          <input pInputText id="password" type="password" formControlName="password" required class="w-full">
         </p-iconField>
         @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <p-message severity="error" text="Password is required."></p-message>
+          <p-message severity="error" text="Password is required." class="block mt-2"></p-message>
         }
       </div>
 
       @if (messages.length > 0) {
-        <p-messages [value]="messages" [enableService]="false"></p-messages>
+        <p-messages [value]="messages" [enableService]="false" class="block mb-3"></p-messages>
       }
 
-      <p-button label="Login" type="submit" [disabled]="!loginForm.valid"></p-button>
+      <p-button label="Login" type="submit" [disabled]="!loginForm.valid" styleClass="w-full"></p-button>
     </form>
-    <p-button label="Sign in with Google" icon="pi pi-google" (click)="signInWithGoogle()" styleClass="p-button-secondary p-mt-3"></p-button>
-    <div class="p-card-footer">
-      <p>Don't have an account? <a style="cursor: pointer;" routerLink="/auth/register">Register here</a></p>
+    <p-button label="Sign in with Google" icon="pi pi-google" (click)="signInWithGoogle()" styleClass="p-button-secondary w-full mt-3"></p-button>
+    <div class="p-card-footer text-center mt-3 pt-3 border-top-1 surface-border">
+      <p>Don't have an account? <a style="cursor: pointer;" (click)="goToRegister()" class="text-primary-500 font-medium">Register here</a></p>
     </div>
   </p-card>
 </div>

@@ -1,26 +1,15 @@
-<div class="layout-wrapper">
-  <p-menubar [model]="sidebarMenuItems" class="app-menubar">
-    <ng-template pTemplate="start">
-      <button pButton type="button" icon="pi pi-bars" class="p-button-text" (click)="sidebarVisible = true"></button>
-      <span class="app-title">DashLink</span>
-    </ng-template>
-    <ng-template pTemplate="end">
-      @if (authService.user$ | async) {
-        <p-avatar [label]="((authService.user$ | async)?.email?.charAt(0) || '').toUpperCase()" styleClass="mr-2" size="large" shape="circle"></p-avatar>
-        <p-tieredMenu #userMenu [model]="userMenuItems" [popup]="true"></p-tieredMenu>
-        <button pButton type="button" icon="pi pi-angle-down" class="p-button-text" (click)="userMenu.toggle($event)"></button>
-      }
-    </ng-template>
-  </p-menubar>
+<div class="layout-wrapper flex flex-column">
+  <nav class="app-menubar">
+    <div class="nav-actions">
+      <div class="app-title">DashLink</div>
+      <button *ngIf="authService.user$ | async" pButton type="button" icon="pi pi-sign-out"
+        (click)="logout()" class="p-button-text ml-auto p-button-plain"></button>
+    </div>
+  </nav>
 
-  <p-sidebar [(visible)]="sidebarVisible" [baseZIndex]="10000" class="app-sidebar">
-    <ng-template pTemplate="header">
-        <h3>Navigation</h3>
-    </ng-template>
-    <p-panelMenu [model]="sidebarMenuItems" styleClass="p-panelmenu-sidebar"></p-panelMenu>
-  </p-sidebar>
-
-  <main class="app-content">
-    <router-outlet></router-outlet>
-  </main>
+  <div class="main-container flex flex-grow-1 min-h-screen lg:flex-row">
+    <main class="app-content flex-grow-1 p-3 mx-auto max-w-screen-xl">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>
