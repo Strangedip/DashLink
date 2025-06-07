@@ -2,14 +2,18 @@
   <div class="search-container w-full px-3 p-1 surface-0 border-round shadow-1 mb-2 flex align-items-center">
     <i class="pi pi-search" style="display: inline;"></i>
     <span class="p-input-icon-left flex-grow-1">
-      <input type="text" pInputText placeholder="Search..." [formControl]="searchControl" class="w-full">
+      <input type="text" pInputText [placeholder]="isGlobalSearch ? 'Search globally...' : 'Search current collection...'" [formControl]="searchControl" class="w-full">
     </span>
-    <button pButton
-            [icon]="isGlobalSearch ? 'pi pi-database' : 'pi pi-folder'"
-            [pTooltip]="isGlobalSearch ? 'Searching Globally' : 'Searching Current Collection'"
-            class="p-button-text p-button-sm ml-2"
-            (click)="toggleSearchMode()">
-    </button>
+    <p-toggleswitch
+      [(ngModel)]="isGlobalSearch"
+      (ngModelChange)="toggleSearchMode($event)"
+      class="ml-2"
+      [ngStyle]="{'width': '3.5rem', 'height': '2rem'}"
+    >
+      <ng-template #handle let-checked="checked">
+        <i [ngClass]="['!text-xs', 'pi', checked ? 'pi-globe' : 'pi-folder']" style="font-size: 1rem;"></i>
+      </ng-template>
+    </p-toggleswitch>
   </div>
 
   <header class="dashboard-header flex flex-column w-full p-2 mb-3 surface-0 border-round shadow-1">
@@ -29,6 +33,10 @@
     <div class="header-breadcrumb-row w-full">
       <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
     </div>
+    } @else {
+      <div class="global-search-active flex align-items-center justify-content-center w-full p-1">
+        <h2 class="text-xl font-bold m-0">Global Search is Active</h2>
+      </div>
     }
   </header>
 
