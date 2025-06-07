@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, getDocs, CollectionReference, Query, DocumentReference } from '@angular/fire/firestore';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, switchMap, combineLatest, of, map } from 'rxjs';
 import { Collection, Link } from '../models/data.model';
 
 @Injectable({
@@ -44,6 +44,25 @@ export class FirebaseService {
     const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/links`) as CollectionReference<Link>;
     return collectionData(linksRef, { idField: 'id' }).pipe(
       tap(data => { })
+    ) as Observable<Link[]>;
+  }
+
+  getAllLinks(userId: string): Observable<Link[]> {
+    const collectionsRef = collection(this.firestore, `users/${userId}/collections`);
+    const links: Link[] = [];
+    return collectionData(collectionsRef, { idField: 'id' }).pipe(
+      switchMap(collections => {
+        if (collections.length === 0) {
+          return of([]);
+        }
+        const linkObservables = collections.map(collectionItem => {
+          const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionItem.id}/links`) as CollectionReference<Link>;
+          return collectionData(linksRef, { idField: 'id' });
+        });
+        return combineLatest(linkObservables).pipe(
+          map(linkArrays => linkArrays.flat())
+        );
+      })
     ) as Observable<Link[]>;
   }
 

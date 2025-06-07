@@ -33,7 +33,8 @@ export class AddLinkDialogComponent implements OnInit {
   linkForm = new FormGroup({
     name: new FormControl('', Validators.required),
     url: new FormControl('', [Validators.required]),
-    description: new FormControl(null as string | null)
+    description: new FormControl(null as string | null),
+    tag: new FormControl(null as string | null)
   });
 
   constructor(
@@ -46,7 +47,8 @@ export class AddLinkDialogComponent implements OnInit {
       this.linkForm.patchValue({
         name: this.config.data.link.name,
         url: this.config.data.link.url,
-        description: this.config.data.link.description || null
+        description: this.config.data.link.description || null,
+        tag: this.config.data.link.tag || null
       });
     }
     if (this.config.data && this.config.data.collectionId) {
@@ -60,6 +62,7 @@ export class AddLinkDialogComponent implements OnInit {
         name: this.linkForm.value.name as string,
         url: this.linkForm.value.url as string,
         description: this.linkForm.value.description as string | null,
+        tag: this.linkForm.value.tag as string | null,
         collectionId: this.collectionId
       });
     }

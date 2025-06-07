@@ -6,6 +6,7 @@ export interface Collection {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  tag?: string;
 }
 
 export interface Link {
@@ -17,4 +18,5 @@ export interface Link {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  tag?: string;
 } 

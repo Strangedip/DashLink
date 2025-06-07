@@ -10,8 +10,10 @@ import { LinkCardComponent } from '../link-card/link-card.component';
 import { AddCollectionDialogComponent } from '../add-collection-dialog/add-collection-dialog.component';
 import { AddLinkDialogComponent } from '../add-link-dialog/add-link-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 // PrimeNG Imports
 import { MenuItem } from 'primeng/api';
@@ -21,12 +23,14 @@ import { CardModule } from 'primeng/card';
 import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { DataViewModule } from 'primeng/dataview';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     CollectionCardComponent,
     LinkCardComponent,
     AddCollectionDialogComponent,
@@ -36,7 +40,9 @@ import { DataViewModule } from 'primeng/dataview';
     CardModule,
     MenuModule,
     TooltipModule,
-    DataViewModule
+    DataViewModule,
+    InputTextModule,
+    BreadcrumbModule
   ],
   providers: [],
   templateUrl: './dashboard.component.html',
@@ -45,14 +51,22 @@ import { DataViewModule } from 'primeng/dataview';
 export class DashboardComponent implements OnInit {
   private currentUserIdSubject = new BehaviorSubject<string | null>(null);
   private currentCollectionIdSubject = new BehaviorSubject<string | null>(null);
+  private isGlobalSearchSubject = new BehaviorSubject<boolean>(false);
 
   currentUserId: string | null = null;
   currentCollectionId: string | null = null;
+  isGlobalSearch: boolean = false;
 
   currentCollection: Collection | undefined;
   additionalMenuItems: MenuItem[] = [];
   dashboardItems$: Observable<(Collection | Link)[]> | undefined;
   showBackButton: boolean = false;
+
+  searchControl = new FormControl('');
+  private _searchFilter: string = '';
+
+  breadcrumbItems: MenuItem[] = [];
+  home: MenuItem | undefined;
 
   @ViewChild('additionalMenu') additionalMenu: any;
 
@@ -81,67 +95,89 @@ export class DashboardComponent implements OnInit {
       this.currentUserIdSubject.next(uid);
     });
 
+    this.home = { icon: 'pi pi-home', routerLink: '/' };
+
     this.route.paramMap.pipe(
       tap(params => console.log('Route paramMap changed:', params.get('collectionId'))),
-      switchMap(params => {
-        const routeCollectionId = params.get('collectionId');
-        if (routeCollectionId) {
-          return this.currentUserIdSubject.pipe(
-            filter(uid => !!uid),
-            take(1),
-            switchMap(uid => this.firebaseService.getCollection(uid!, routeCollectionId).pipe(
-              take(1),
-              map(collection => {
-                this.currentCollection = collection;
-                console.log('Current Collection (with routeId):', this.currentCollection);
-                this.showBackButton = !!this.currentCollection.parentCollectionId && this.currentCollection.parentCollectionId !== '';
-                console.log('showBackButton (with routeId):', this.showBackButton);
-                return routeCollectionId;
-              })
-            ))
-          );
-        } else {
-          return this.currentUserIdSubject.pipe(
-            filter(uid => !!uid),
-            take(1),
-            switchMap(async uid => {
-              const defaultCollection = await this.firebaseService.ensureDefaultUserCollection(uid!);
-              if (defaultCollection) {
-                this.currentCollection = defaultCollection;
-                this.router.navigate(['/collections', defaultCollection.id], { replaceUrl: true });
-                console.log('Current Collection (default/root):', this.currentCollection);
-                this.showBackButton = false; 
-                console.log('showBackButton (default/root):', this.showBackButton);
-                return defaultCollection.id!;
-              } else {
-                this.currentCollection = undefined;
-                this.showBackButton = false; // No collection, no back button
-                console.log('showBackButton (no collection):', this.showBackButton);
-                return null;
-              }
-            })
-          );
-        }
+      switchMap(params => this.isGlobalSearchSubject.pipe(
+        switchMap(isGlobal => {
+          if (isGlobal) {
+            return of(null);
+          } else {
+            const routeCollectionId = params.get('collectionId');
+            if (routeCollectionId) {
+              return this.currentUserIdSubject.pipe(
+                filter(uid => !!uid),
+                take(1),
+                switchMap(uid => this.firebaseService.getCollection(uid!, routeCollectionId).pipe(
+                  take(1),
+                  tap(collection => {
+                    this.currentCollection = collection;
+                    console.log('Current Collection (with routeId):', this.currentCollection);
+                    this.showBackButton = !!this.currentCollection.parentCollectionId && this.currentCollection.parentCollectionId !== '';
+                    console.log('showBackButton (with routeId):', this.showBackButton);
+                  }),
+                  map(collection => routeCollectionId)
+                ))
+              );
+            } else {
+              return this.currentUserIdSubject.pipe(
+                filter(uid => !!uid),
+                take(1),
+                switchMap(async uid => {
+                  const defaultCollection = await this.firebaseService.ensureDefaultUserCollection(uid!);
+                  if (defaultCollection) {
+                    this.currentCollection = defaultCollection;
+                    this.router.navigate(['/collections', defaultCollection.id], { replaceUrl: true });
+                    console.log('Current Collection (default/root):', this.currentCollection);
+                    this.showBackButton = false; 
+                    console.log('showBackButton (default/root):', this.showBackButton);
+                    return defaultCollection.id!;
+                  } else {
+                    this.currentCollection = undefined;
+                    this.showBackButton = false;
+                    console.log('showBackButton (no collection):', this.showBackButton);
+                    return null;
+                  }
+                })
+              );
+            }
+          }
+        })
+      )),
+      tap(collectionId => {
+        this.currentCollectionId = collectionId;
+        this.currentCollectionIdSubject.next(collectionId);
+        this.updateBreadcrumbs();
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(collectionId => {
-      this.currentCollectionId = collectionId;
-      this.currentCollectionIdSubject.next(collectionId);
-    });
+    ).subscribe();
 
     this.dashboardItems$ = combineLatest([
       this.currentUserIdSubject.pipe(filter(uid => !!uid)),
-      this.currentCollectionIdSubject
+      this.currentCollectionIdSubject,
+      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
+      this.isGlobalSearchSubject
     ]).pipe(
-      tap(([userId, collectionId]) => console.log('Combining for data fetch:', { userId, collectionId })),
-      switchMap(([userId, collectionId]) => {
-        const collectionsObs: Observable<Collection[]> = collectionId
-          ? this.firebaseService.getSubCollections(userId!, collectionId)
-          : this.firebaseService.getSubCollections(userId!, null);
+      tap(([userId, collectionId, searchTerm, isGlobal]) => console.log('Combining for data fetch with search:', { userId, collectionId, searchTerm, isGlobalSearch: isGlobal })),
+      switchMap(([userId, collectionId, searchTerm, isGlobal]) => {
+        this._searchFilter = searchTerm || '';
 
-        const linksObs: Observable<Link[]> = collectionId
-          ? this.firebaseService.getLinks(userId!, collectionId)
-          : of([]);
+        let collectionsObs: Observable<Collection[]>;
+        let linksObs: Observable<Link[]>;
+
+        if (isGlobal) {
+          collectionsObs = this.firebaseService.getCollections(userId!);
+          linksObs = this.firebaseService.getAllLinks(userId!);
+        } else {
+          collectionsObs = collectionId
+            ? this.firebaseService.getSubCollections(userId!, collectionId)
+            : this.firebaseService.getSubCollections(userId!, null);
+
+          linksObs = collectionId
+            ? this.firebaseService.getLinks(userId!, collectionId)
+            : of([]);
+        }
 
         return combineLatest([collectionsObs, linksObs]).pipe(
           map(([collections, links]) => {
@@ -155,11 +191,70 @@ export class DashboardComponent implements OnInit {
               return (a.name || '').localeCompare(b.name || '');
             });
           }),
-          tap(data => console.log('Dashboard items for rendering (after combined):', data))
+          map(items => {
+            if (!this._searchFilter) {
+              return items;
+            }
+            const filter = this._searchFilter.toLowerCase();
+            return items.filter(item => {
+              if (item.type === 'collection') {
+                return (item.name && item.name.toLowerCase().includes(filter)) ||
+                       (item.description && item.description.toLowerCase().includes(filter)) ||
+                       (item.tag && item.tag.toLowerCase().includes(filter));
+              } else {
+                return (item.name && item.name.toLowerCase().includes(filter)) ||
+                       (item.url && item.url.toLowerCase().includes(filter)) ||
+                       (item.description && item.description.toLowerCase().includes(filter)) ||
+                       (item.tag && item.tag.toLowerCase().includes(filter));
+              }
+            });
+          }),
+          tap(data => console.log('Dashboard items for rendering (after combined and filtered):', data))
         );
       }),
       takeUntilDestroyed(this.destroyRef)
     );
+  }
+
+  async updateBreadcrumbs(): Promise<void> {
+    if (!this.currentCollectionId || !this.currentUserId || this.isGlobalSearch) {
+      this.breadcrumbItems = [];
+      return;
+    }
+
+    let path: MenuItem[] = [];
+    let currentId: string | null | undefined = this.currentCollectionId;
+    let tempCollection: Collection | undefined = this.currentCollection;
+
+    while (currentId) {
+      if (!tempCollection || tempCollection.id !== currentId) {
+        try {
+          tempCollection = await lastValueFrom(this.firebaseService.getCollection(this.currentUserId, currentId).pipe(take(1)));
+        } catch (error) {
+          console.error('Error fetching collection for breadcrumb:', error);
+          break;
+        }
+      }
+
+      if (tempCollection) {
+        if (tempCollection.name === 'My Collections' && tempCollection.parentCollectionId === null) {
+          currentId = null;
+          continue;
+        }
+
+        const item: MenuItem = {
+          label: tempCollection.name,
+          routerLink: `/collections/${tempCollection.id}`
+        };
+        path.unshift(item);
+
+        currentId = tempCollection.parentCollectionId;
+        tempCollection = undefined; 
+      } else {
+        break;
+      }
+    }
+    this.breadcrumbItems = path;
   }
 
   trackByItemId(index: number, item: any): string {
@@ -171,6 +266,9 @@ export class DashboardComponent implements OnInit {
   }
 
   goToCollection(collectionId: string): void {
+    if (this.isGlobalSearch) {
+      this.isGlobalSearchSubject.next(false);
+    }
     this.router.navigate(['/collections', collectionId]);
   }
 
@@ -183,6 +281,10 @@ export class DashboardComponent implements OnInit {
   }
 
   openAddCollectionDialog(): void {
+    if (this.isGlobalSearch) {
+      this.toastService.showInfo('Information', 'Cannot add collection in global search mode. Please navigate to a specific collection.');
+      return;
+    }
     if (!this.currentUserId) {
       this.toastService.showError('Error', 'No user ID available to add collection.');
       return;
@@ -209,6 +311,10 @@ export class DashboardComponent implements OnInit {
   }
 
   openAddLinkDialog(): void {
+    if (this.isGlobalSearch) {
+      this.toastService.showInfo('Information', 'Cannot add link in global search mode. Please navigate to a specific collection.');
+      return;
+    }
     if (!this.currentCollectionId || !this.currentUserId) {
       this.toastService.showError('Error', 'Please navigate into a collection and ensure you are logged in to add a link.');
       return;
@@ -295,6 +401,10 @@ export class DashboardComponent implements OnInit {
   }
 
   confirmDeleteItem(id: string, type: 'collection' | 'link', target: HTMLElement): void {
+    if (this.isGlobalSearch) {
+      this.toastService.showInfo('Information', 'Cannot delete items in global search mode. Please navigate to a specific collection or item.');
+      return;
+    }
     const header = type === 'collection' ? 'Delete Collection' : 'Delete Link';
     const message = type === 'collection'
       ? 'Are you sure you want to delete this collection and all its sub-collections and links?'
@@ -325,5 +435,22 @@ export class DashboardComponent implements OnInit {
         }
       }
     });
+  }
+
+  toggleSearchMode(): void {
+    this.isGlobalSearch = !this.isGlobalSearch;
+    this.isGlobalSearchSubject.next(this.isGlobalSearch);
+
+    if (this.isGlobalSearch) {
+      this.currentCollectionIdSubject.next(null);
+    } else {
+      // If toggling back to local search, restore the actual currentCollectionId if it exists.
+      // The route.paramMap will eventually set it, but proactively setting it here can prevent a momentary flicker.
+      // However, relying on route.paramMap is generally safer.
+      // For now, let's rely on the route.paramMap to set it back.
+      // This.currentCollectionIdSubject.next(this.currentCollectionId);
+    }
+
+    this.searchControl.setValue('');
   }
 }

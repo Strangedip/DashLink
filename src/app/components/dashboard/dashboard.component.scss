@@ -16,17 +16,36 @@
 
 .dashboard-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   background-color: var(--surface-0);
   color: var(--text-color);
   border-bottom: 1px solid var(--surface-border);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  padding: 1rem 1.5rem;
+  padding: 0;
 
   @media screen and (max-width: 576px) {
-    padding: 0.75rem 0.5rem;
+    padding: 0;
+  }
+
+  .header-breadcrumb-row {
+    padding: 0.4rem;
+    @media screen and (max-width: 576px) {
+      padding: 0.5rem 0.5rem;
+    }
+    .p-breadcrumb {
+      padding: 0;
+      ol.p-breadcrumb-list {
+        margin: 0;
+      }
+    }
+  }
+
+  .header-content-row {
+    padding: 0.5rem 1.5rem;
+    @media screen and (max-width: 576px) {
+      padding: 0.5rem 0.5rem;
+    }
   }
 }
 
@@ -36,6 +55,18 @@
   align-items: center;
   flex-shrink: 1;
   min-width: 0;
+
+  @media screen and (max-width: 576px) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    .p-input-icon-left {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    input[pInputText] {
+      width: 100%;
+    }
+  }
 }
 
 .collection-name {
@@ -128,5 +159,30 @@ p-card.mb-3,
   .p-button-icon-only {
     width: 2rem;
     height: 2rem;
+  }
+}
+
+.search-container {
+  background-color: var(--surface-0);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Lighter shadow for subtle look */
+  padding: 0.5rem 1.5rem; /* Reduced padding */
+
+  .p-input-icon-left {
+    width: 100%;
+    .p-inputtext {
+      width: 100%;
+      border: none; /* Remove border */
+      background-color: transparent;
+      box-shadow: none; /* Remove shadow */
+      padding: 0.5rem 0.75rem; /* Adjust height */
+      &:focus {
+        box-shadow: none; /* Ensure no focus shadow */
+      }
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 0.5rem 0.5rem;
   }
 }

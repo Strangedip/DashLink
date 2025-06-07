@@ -12,6 +12,11 @@
       <label for="description">Description (Optional)</label>
       <textarea id="description" pTextarea formControlName="description"></textarea>
     </div>
+
+    <div class="p-field">
+      <label for="tag">Tag (Optional)</label>
+      <input id="tag" type="text" pInputText formControlName="tag">
+    </div>
   </div>
   <div class="p-dialog-footer">
     <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
