@@ -10,5 +10,5 @@ export const routes: Routes = [
   { path: 'auth/register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'collections/:collectionId', component: DashboardComponent, canActivate: [authGuard] },
-  { path: '**', redirectTo: 'dashboard' } // Wildcard route for any unmatched URLs
+  { path: '**', redirectTo: 'dashboard' }
 ];

@@ -1,20 +1,15 @@
-<p-card styleClass="collection-card">
-  <ng-template pTemplate="header">
-    <div class="p-d-flex p-ai-center">
-      <i class="pi pi-folder collection-icon"></i>
-      <div class="p-ml-3">
-        <div class="p-card-title">{{ collection.name }}</div>
-        <div class="p-card-subtitle">{{ collection.description }}</div>
-      </div>
-      <span class="p-spacer"></span>
-      <button type="button" pButton icon="pi pi-ellipsis-v" (click)="menu.toggle($event)" class="p-button-text p-button-secondary"></button>
-      <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
+<div class="collection-item flex align-items-center justify-content-between p-3 border-round-md cursor-pointer" (click)="onView()">
+  <div class="flex align-items-center flex-grow-1 min-w-0">
+    <i class="pi pi-folder text-2xl mr-3 flex-shrink-0"></i>
+    <div class="flex flex-column overflow-hidden flex-grow-1 min-w-0">
+      <span class="font-medium text-lg text-overflow-ellipsis">{{ collection.name }}</span>
+      @if (collection.description) {
+        <span class="text-sm text-500 text-overflow-ellipsis">{{ collection.description }}</span>
+      }
     </div>
-  </ng-template>
-  <ng-template pTemplate="content">
-    <div class="p-d-flex p-jc-end">
-      <p-button label="View" icon="pi pi-eye" (click)="onView()" styleClass="p-button-sm p-button-text"></p-button>
-    </div>
-  </ng-template>
-</p-card>
-<p-confirmPopup></p-confirmPopup>
+  </div>
+  <div class="actions flex-shrink-0">
+    <button #deleteButton type="button" pButton icon="pi pi-ellipsis-v" (click)="onMenuToggle($event)" class="p-button-text p-button-secondary p-button-sm"></button>
+    <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+  </div>
+</div>

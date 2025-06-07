@@ -7,12 +7,11 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
-import { MessagesModule } from 'primeng/messages';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { MessageService, ToastMessageOptions } from 'primeng/api';
 
 import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
 import { Router } from '@angular/router';
 
 // Custom validator function
@@ -22,7 +21,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): {
   const confirmPassword = form.get('confirmPassword');
   
   if (!password || !confirmPassword) {
-    return null; // Don't validate if controls are not present
+    return null;
   }
 
   return password.value !== confirmPassword.value ? { 'passwordMismatch': true } : null;
@@ -38,7 +37,6 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): {
     InputTextModule,
     ButtonModule,
     MessageModule,
-    MessagesModule,
     IconFieldModule,
     InputIconModule
   ],
@@ -51,18 +49,17 @@ export class RegisterComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
     confirmPassword: new FormControl('', Validators.required)
   }, { validators: passwordMatchValidator });
-  messages: ToastMessageOptions[] = [];
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private toastService: ToastService) { }
 
   async onSubmit(): Promise<void> {
     if (this.registerForm.valid) {
-      this.messages = [];
       try {
         await this.authService.register(this.registerForm.value.email as string, this.registerForm.value.password as string);
+        this.toastService.showSuccess('Registration Successful', 'You have been successfully registered.');
         this.router.navigate(['/dashboard']);
       } catch (error: any) {
-        this.messages = [{ severity: 'error', summary: 'Registration Error', detail: error.message }];
+        this.toastService.showError('Registration Failed', error.message || 'An unknown error occurred during registration.');
       }
     }
   }
@@ -70,10 +67,11 @@ export class RegisterComponent {
   async signInWithGoogle(): Promise<void> {
     try {
       await this.authService.signInWithGoogle();
+      this.toastService.showSuccess('Google Sign-up Successful', 'You have been successfully signed up with Google.');
       this.router.navigate(['/']);
     } catch (error: any) {
       console.error('Error signing in with Google:', error);
-      this.messages = [{ severity: 'error', summary: 'Google Sign-in Error', detail: error.message }];
+      this.toastService.showError('Google Sign-up Failed', error.message || 'An unknown error occurred during Google sign-in.');
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -28,14 +28,13 @@ import { Link } from '../../models/data.model';
   styleUrl: './add-link-dialog.component.scss'
 })
 export class AddLinkDialogComponent implements OnInit {
-  @Input() collectionId!: string; // This might not be strictly needed with DynamicDialogConfig
-  @Output() closeDialog = new EventEmitter<void>(); // This might not be needed with DynamicDialogRef
-  @Output() addLink = new EventEmitter<{ name: string; url: string; description: string | null; collectionId: string }>();
+  collectionId!: string;
 
   linkForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    url: new FormControl('', [Validators.required, Validators.pattern('https?://.+')]),
-    description: new FormControl(null as string | null)
+    url: new FormControl('', [Validators.required]),
+    description: new FormControl(null as string | null),
+    tag: new FormControl(null as string | null)
   });
 
   constructor(
@@ -48,10 +47,10 @@ export class AddLinkDialogComponent implements OnInit {
       this.linkForm.patchValue({
         name: this.config.data.link.name,
         url: this.config.data.link.url,
-        description: this.config.data.link.description || null
+        description: this.config.data.link.description || null,
+        tag: this.config.data.link.tag || null
       });
     }
-    // Assign collectionId from config data if available
     if (this.config.data && this.config.data.collectionId) {
       this.collectionId = this.config.data.collectionId;
     }
@@ -63,6 +62,7 @@ export class AddLinkDialogComponent implements OnInit {
         name: this.linkForm.value.name as string,
         url: this.linkForm.value.url as string,
         description: this.linkForm.value.description as string | null,
+        tag: this.linkForm.value.tag as string | null,
         collectionId: this.collectionId
       });
     }

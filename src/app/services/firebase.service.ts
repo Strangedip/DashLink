@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, getDocs, CollectionReference, Query, DocumentReference } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, tap, switchMap, combineLatest, of, map } from 'rxjs';
 import { Collection, Link } from '../models/data.model';
 
 @Injectable({
@@ -42,7 +42,28 @@ export class FirebaseService {
 
   getLinks(userId: string, collectionId: string): Observable<Link[]> {
     const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/links`) as CollectionReference<Link>;
-    return collectionData(linksRef, { idField: 'id' }) as Observable<Link[]>;
+    return collectionData(linksRef, { idField: 'id' }).pipe(
+      tap(data => { })
+    ) as Observable<Link[]>;
+  }
+
+  getAllLinks(userId: string): Observable<Link[]> {
+    const collectionsRef = collection(this.firestore, `users/${userId}/collections`);
+    const links: Link[] = [];
+    return collectionData(collectionsRef, { idField: 'id' }).pipe(
+      switchMap(collections => {
+        if (collections.length === 0) {
+          return of([]);
+        }
+        const linkObservables = collections.map(collectionItem => {
+          const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionItem.id}/links`) as CollectionReference<Link>;
+          return collectionData(linksRef, { idField: 'id' });
+        });
+        return combineLatest(linkObservables).pipe(
+          map(linkArrays => linkArrays.flat())
+        );
+      })
+    ) as Observable<Link[]>;
   }
 
   getLink(userId: string, collectionId: string, linkId: string): Observable<Link> {
@@ -70,7 +91,9 @@ export class FirebaseService {
   getSubCollections(userId: string, parentCollectionId: string | null): Observable<Collection[]> {
     const collectionsRef = collection(this.firestore, `users/${userId}/collections`) as CollectionReference<Collection>;
     const q = query(collectionsRef, where('parentCollectionId', '==', parentCollectionId)) as Query<Collection>;
-    return collectionData(q, { idField: 'id' }) as Observable<Collection[]>;
+    return collectionData(q, { idField: 'id' }).pipe(
+      tap(data => { })
+    ) as Observable<Collection[]>;
   }
 
   async ensureDefaultUserCollection(userId: string): Promise<Collection> {
@@ -79,7 +102,6 @@ export class FirebaseService {
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      console.log('No top-level collections found, creating default.');
       const newCollection: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'> = {
         name: 'My Collections',
         userId: userId,
@@ -87,13 +109,9 @@ export class FirebaseService {
       };
       const now = new Date();
       const docRef = await addDoc(collectionsRef, { ...newCollection, createdAt: now, updatedAt: now });
-      console.log('Default collection created with ID:', docRef.id);
       return { id: docRef.id, ...newCollection, createdAt: now, updatedAt: now };
     } else {
-      console.log('Top-level collection found, returning first one.');
       const firstDoc = querySnapshot.docs[0];
-      console.log('firstDoc (from querySnapshot.docs[0]):', firstDoc);
-      console.log('firstDoc.data():', firstDoc.data());
       return { id: firstDoc.id, ...firstDoc.data() as Omit<Collection, 'id'> };
     }
   }

@@ -29,12 +29,13 @@ import { Collection } from '../../models/data.model';
 })
 export class AddCollectionDialogComponent implements OnInit {
   @Input() parentCollectionId: string | null = null;
-  @Output() closeDialog = new EventEmitter<void>(); // This might not be needed with DynamicDialogRef
+  @Output() closeDialog = new EventEmitter<void>();
   @Output() addCollection = new EventEmitter<{ name: string; description: string | null; parentCollectionId: string | null }>();
 
   collectionForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    description: new FormControl(null as string | null)
+    description: new FormControl(null as string | null),
+    tag: new FormControl(null as string | null)
   });
 
   constructor(
@@ -46,10 +47,10 @@ export class AddCollectionDialogComponent implements OnInit {
     if (this.config.data && this.config.data.collection) {
       this.collectionForm.patchValue({
         name: this.config.data.collection.name,
-        description: this.config.data.collection.description || null
+        description: this.config.data.collection.description || null,
+        tag: this.config.data.collection.tag || null
       });
     }
-    // Assign parentCollectionId from config data if available
     if (this.config.data && this.config.data.parentCollectionId !== undefined) {
       this.parentCollectionId = this.config.data.parentCollectionId;
     }
@@ -60,6 +61,7 @@ export class AddCollectionDialogComponent implements OnInit {
       this.ref.close({
         name: this.collectionForm.value.name as string,
         description: this.collectionForm.value.description as string | null,
+        tag: this.collectionForm.value.tag as string | null,
         parentCollectionId: this.parentCollectionId
       });
     }

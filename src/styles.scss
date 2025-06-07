@@ -1,5 +1,60 @@
 // Add PrimeFlex for utility classes
 @import "primeflex/primeflex.scss";
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Custom PrimeNG Theme Variables */
+:root {
+  --p-dark-grey-100: #343a40; /* A darker grey */
+  --p-dark-grey-200: #212529; /* Even darker grey */
+  --p-green-500: #4CAF50; /* A typical PrimeNG-like green */
+  --p-green-600: #43A047; /* Slightly darker green for hover */
+  --p-green-700: #388E3C; /* Even darker green for active/hover */
+
+  /* Override PrimeNG default colors if needed, using the new custom colors */
+  --p-primary-color: var(--p-green-500) !important;
+  --p-primary-color-text: #ffffff !important;
+  --p-surface-card: var(--p-dark-grey-100) !important;
+  --p-surface-ground: var(--p-dark-grey-200) !important;
+  --p-surface-hover: var(--p-dark-grey-200) !important; /* For hover effect on cards */
+  --p-surface-border: #495057 !important; /* A border color that fits the dark theme */
+  --p-text-color: #dee2e6 !important; /* Light text on dark background */
+  --p-text-color-secondary: #adb5bd !important; /* Slightly darker text *
+
+  /* PrimeNG Button Overrides */
+  --p-button-primary-background: var(--p-primary-color) !important;
+  --p-button-primary-hover-background: var(--p-green-600) !important;
+  --p-button-primary-active-background: var(--p-green-700) !important;
+  --p-button-primary-color: var(--p-primary-color-text) !important;
+  --p-button-primary-hover-color: var(--p-primary-color-text) !important;
+  --p-button-primary-active-color: var(--p-primary-color-text) !important;
+  --p-button-primary-border-color: var(--p-primary-color) !important;
+  --p-button-primary-hover-border-color: var(--p-green-600) !important;
+  --p-button-primary-active-border-color: var(--p-green-700) !important;
+  --p-dataview-content-padding:0.25rem !important;
+  --p-breadcrumb-padding:0.15rem !important;
+}
+
+html, body {
+  height: 100%;
+  /* Removed: overflow: hidden; */ /* Allow body to scroll */
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+@media screen and (max-width: 768px) {
+  .p-toast {
+    width: 90% !important;
+    max-width: 300px !important; /* Adjust as needed */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+#description{
+  min-width: 100% !important;
+  resize: vertical !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1rem;
+  padding: 0.6em;
+}

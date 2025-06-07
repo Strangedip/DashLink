@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
+import { ToastService } from './services/toast.service';
 
 // PrimeNG Imports
 import { MenubarModule } from 'primeng/menubar';
@@ -13,6 +14,7 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { DialogModule } from 'primeng/dialog';
 import { SidebarModule } from 'primeng/sidebar';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +30,8 @@ import { SidebarModule } from 'primeng/sidebar';
     RouterLink,
     DialogModule,
     SidebarModule,
+    ToastModule,
+    MenubarModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -39,7 +43,7 @@ export class AppComponent {
   sidebarMenuItems: MenuItem[] = [];
   sidebarVisible: boolean = false; // For responsive sidebar
 
-  constructor(public authService: AuthService, private router: Router) {
+  constructor(public authService: AuthService, private router: Router, private toastService: ToastService) {
     this.authService.user$.subscribe(user => {
       if (user) {
         this.userMenuItems = [
@@ -63,7 +67,9 @@ export class AppComponent {
     try {
       await this.authService.logout();
       this.router.navigate(['/auth/login']);
+      this.toastService.showSuccess('Logged Out', 'You have been successfully logged out.');
     } catch (error) {
+      this.toastService.showError('Logout Failed', 'There was an error logging out. Please try again.');
       console.error('Error logging out:', error);
     }
   }

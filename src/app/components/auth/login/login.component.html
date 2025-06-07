@@ -28,10 +28,6 @@
         }
       </div>
 
-      @if (messages.length > 0) {
-        <p-messages [value]="messages" [enableService]="false" class="block mb-3"></p-messages>
-      }
-
       <p-button label="Login" type="submit" [disabled]="!loginForm.valid" styleClass="w-full"></p-button>
     </form>
     <p-button label="Sign in with Google" icon="pi pi-google" (click)="signInWithGoogle()" styleClass="p-button-secondary w-full mt-3"></p-button>

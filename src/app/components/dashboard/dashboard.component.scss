@@ -1,72 +1,188 @@
-.dashboard-container {
-  /* Padding is now handled by PrimeFlex p-3 on app-content and other elements */
-  /*
-  padding: 20px;
-  */
+/* Variables for consistency */
+:root {
+  --prime-gutter: 0.5rem;
+  --header-padding-y: 0.75rem;
+  --header-padding-x: 1rem;
+  --header-gap: 1rem;
+  --card-margin-bottom: 1.5rem;
+  --empty-state-icon-size: 7rem;
+  --empty-state-text-color: var(--surface-500);
+  --empty-state-heading-size: 1.25rem;
 }
 
-/* Removed redundant header-actions styles as they are now handled by PrimeFlex classes in HTML */
-/*
-.header-actions {
+.dashboard-container {
+  width: 100%;
+}
+
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-0);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  padding: 0;
+
+  @media screen and (max-width: 576px) {
+    padding: 0;
+  }
+
+  .header-breadcrumb-row {
+    padding: 0.4rem;
+    @media screen and (max-width: 576px) {
+      padding: 0.5rem 0.5rem;
+    }
+    .p-breadcrumb {
+      padding: 0;
+      ol.p-breadcrumb-list {
+        margin: 0;
+      }
+    }
+  }
+
+  .header-content-row {
+    padding: 0.5rem 1.5rem;
+    @media screen and (max-width: 576px) {
+      padding: 0.5rem 0.5rem;
+    }
+  }
+}
+
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  flex-shrink: 1;
+  min-width: 0;
 
-  h2 {
-    margin: 0;
-    margin-left: 10px;
+  @media screen and (max-width: 576px) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    .p-input-icon-left {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    input[pInputText] {
+      width: 100%;
+    }
   }
 }
-*/
+
+.collection-name {
+  flex-grow: 2;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 2rem;
+
+  @media screen and (max-width: 768px) {
+    font-size: 1.5rem;
+    max-width: 20em;
+  }
+
+  @media screen and (max-width: 576px) {
+    font-size: 1.2rem;
+    max-width: 15em;
+    min-width: 0;
+  }
+}
+
+.dashboard-header .flex-grow-1 {
+  flex-grow: 1;
+}
+
+.collection-header,
+p-card.mb-3,
+.p-card-body {
+  display: none;
+}
+
+.grid {
+  margin-left: 0;
+  margin-right: 0;
+
+  min-height: 0;
+}
+
+.p-dataView {
+
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.p-dataView .p-dataview-content {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.p-dataView .p-dataview-content>div {
+  padding: var(--prime-gutter);
+}
+
+.dashboard-list-items .p-dataview-content > div {
+  padding: 0.5rem;
+}
 
 .empty-state {
-  /* All styles now handled by PrimeFlex classes in HTML */
-  /*
-  text-align: center;
-  padding: 50px 20px;
-  color: var(--text-color-secondary);
-  */
+  padding: 2rem;
+}
 
-  .empty-state-icon {
-    /* Font size, margin-bottom, and color now handled by PrimeFlex classes in HTML */
-    /*
-    font-size: 80px;
-    margin-bottom: 20px;
-    color: var(--surface-400);
-    */
-  }
+.empty-state-icon {
+  color: var(--surface-400);
+  font-size: var(--empty-state-icon-size);
+  margin-bottom: var(--card-margin-bottom);
+}
 
-  p {
-    /* Font size now handled by PrimeFlex text-xl in HTML */
-    /*
-    font-size: 1.2em;
-    */
+.empty-state p {
+  color: var(--empty-state-text-color);
+  font-size: var(--empty-state-heading-size);
+}
+
+@media screen and (max-width: 576px) {
+  .empty-state p {
+    font-size: 1rem;
   }
 }
 
-/* The .p-grid, .p-col-12, .p-md-6, .p-lg-4, .p-xl-3 classes are replaced by PrimeFlex grid classes */
-/*
-.p-grid {
-  display: flex;
-  flex-wrap: wrap;
-  margin-right: -1rem;
-  margin-left: -1rem;
-}
+@media screen and (max-width: 576px) {
+  .p-button.p-button-sm {
+    padding: 0.3rem;
+    font-size: 0.8rem;
+  }
 
-.p-col-12,
-.p-md-6,
-.p-lg-4,
-.p-xl-3 {
-  padding: 1rem;
-}
-*/
-
-/* Responsive adjustments for overall layout */
-/* This media query for dashboard-container padding is now handled by PrimeFlex p-3 on app-content */
-/*
-@media screen and (max-width: 768px) {
-  .dashboard-container {
-    padding: 10px;
+  .p-button-icon-only {
+    width: 2rem;
+    height: 2rem;
   }
 }
-*/
+
+.search-container {
+  background-color: var(--surface-0);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Lighter shadow for subtle look */
+  padding: 0.5rem 1.5rem; /* Reduced padding */
+
+  .p-input-icon-left {
+    width: 100%;
+    .p-inputtext {
+      width: 100%;
+      border: none; /* Remove border */
+      background-color: transparent;
+      box-shadow: none; /* Remove shadow */
+      padding: 0.5rem 0.75rem; /* Adjust height */
+      &:focus {
+        box-shadow: none; /* Ensure no focus shadow */
+      }
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 0.5rem 0.5rem;
+  }
+}

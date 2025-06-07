@@ -1,51 +1,65 @@
-<div class="dashboard-container flex flex-column h-full">
-  <p-card class="mb-3">
-    <ng-template pTemplate="header">
-      <div class="flex align-items-center relative w-full">
-        @if (currentCollectionId) {
-          <p-button icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" styleClass="p-button-text p-button-sm absolute left-0"></p-button>
-        }
-        <h2 class="text-2xl font-semibold m-0 text-center flex-grow-1">{{ currentCollection?.name || 'My Collections' }}</h2>
-      </div>
-    </ng-template>
-  </p-card>
+<div class="dashboard-container flex flex-column">
+  <div class="search-container w-full px-3 p-1 surface-0 border-round shadow-1 mb-2 flex align-items-center">
+    <i class="pi pi-search" style="display: inline;"></i>
+    <span class="p-input-icon-left flex-grow-1">
+      <input type="text" pInputText placeholder="Search..." [formControl]="searchControl" class="w-full">
+    </span>
+    <button pButton
+            [icon]="isGlobalSearch ? 'pi pi-database' : 'pi pi-folder'"
+            [pTooltip]="isGlobalSearch ? 'Searching Globally' : 'Searching Current Collection'"
+            class="p-button-text p-button-sm ml-2"
+            (click)="toggleSearchMode()">
+    </button>
+  </div>
 
-  @if ((collections$ | async)?.length === 0 && (links$ | async)?.length === 0) {
+  <header class="dashboard-header flex flex-column w-full p-2 mb-3 surface-0 border-round shadow-1">
+    @if (!isGlobalSearch) {
+    <div class="header-content-row flex align-items-center justify-content-between w-full p-2">
+      <div class="header-left flex align-items-center" >
+        @if (showBackButton) {
+          <button pButton icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" class="p-button-text p-button-sm mr-2"></button>
+        }
+        <h2 class="collection-name text-2xl font-bold m-0">{{ currentCollection?.name || 'My Collections' }}</h2>
+      </div>
+      <div class="header-right flex align-items-center">
+        <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button p-button-plain mr-2"></button>
+        <p-menu #additionalMenu [model]="additionalMenuItems" [popup]="true" appendTo="body"></p-menu>
+      </div>
+    </div>
+    <div class="header-breadcrumb-row w-full">
+      <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
+    </div>
+    }
+  </header>
+
+  @if ((dashboardItems$ | async)?.length === 0) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
       <i class="pi pi-folder-open empty-state-icon text-7xl text-400 mb-4"></i>
       <p class="text-xl text-500">No collections or links yet. Start by adding a new one!</p>
     </div>
   } @else {
     <div class="grid">
-      <p-dataView #dv [value]="(collections$ | async) || []" layout="grid" class="col-12">
-        <ng-template pTemplate="grid" let-collection>
-          <div class="col-12 sm:col-6 md:col-4 lg:col-3 mb-4">
-            <app-collection-card
-              [collection]="collection"
-              (viewCollection)="goToCollection($event)"
-              (editCollection)="editCollection($event)"
-              (deleteCollection)="deleteCollection($event)"
-            ></app-collection-card>
-          </div>
-        </ng-template>
-      </p-dataView>
-
-      <p-dataView #dvLinks [value]="(links$ | async) || []" layout="grid" class="col-12">
-        <ng-template pTemplate="grid" let-link>
-          <div class="col-12 sm:col-6 md:col-4 lg:col-3 mb-4">
-            <app-link-card
-              [link]="link"
-              (editLink)="editLink($event)"
-              (deleteLink)="deleteLink($event)"
-            ></app-link-card>
+      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items my-2" [trackBy]="trackByItemId">
+        <ng-template #list let-items>
+          <div *ngFor="let item of items" class="col-12 flex-grow-1 p-1">
+            <ng-container *ngIf="item.type === 'collection'">
+              <app-collection-card
+                [collection]="item"
+                (viewCollection)="goToCollection(item.id)"
+                (editCollection)="editCollection(item)"
+                (deleteCollectionRequest)="confirmDeleteItem(item.id, 'collection', $event.target)"
+              ></app-collection-card>
+            </ng-container>
+            <ng-container *ngIf="item.type === 'link'">
+              <app-link-card
+                [link]="item"
+                (editLink)="editLink(item)"
+                (deleteLinkRequest)="confirmDeleteItem(item.id, 'link', $event.target)"
+              ></app-link-card>
+            </ng-container>
           </div>
         </ng-template>
       </p-dataView>
     </div>
   }
-
-  <div class="p-fixed bottom-0 right-0 m-4">
-    <p-button icon="pi pi-plus" (click)="menu.toggle($event)" pTooltip="Add New" styleClass="p-button-rounded p-button-success p-button-lg"></p-button>
-    <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
-  </div>
 </div>
