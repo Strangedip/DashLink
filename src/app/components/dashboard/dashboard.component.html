@@ -10,34 +10,31 @@
     </ng-template>
   </p-card>
 
-  @if ((collections$ | async)?.length === 0 && (links$ | async)?.length === 0) {
+  @if ((dashboardItems$ | async)?.length === 0) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
       <i class="pi pi-folder-open empty-state-icon text-7xl text-400 mb-4"></i>
       <p class="text-xl text-500">No collections or links yet. Start by adding a new one!</p>
     </div>
   } @else {
     <div class="grid">
-      <p-dataView #dv [value]="(collections$ | async) || []" layout="grid" class="col-12">
-        <ng-template pTemplate="grid" let-collection>
-          <div class="col-12 sm:col-6 md:col-4 lg:col-3 mb-4">
-            <app-collection-card
-              [collection]="collection"
-              (viewCollection)="goToCollection($event)"
-              (editCollection)="editCollection($event)"
-              (deleteCollection)="deleteCollection($event)"
-            ></app-collection-card>
-          </div>
-        </ng-template>
-      </p-dataView>
-
-      <p-dataView #dvLinks [value]="(links$ | async) || []" layout="grid" class="col-12">
-        <ng-template pTemplate="grid" let-link>
-          <div class="col-12 sm:col-6 md:col-4 lg:col-3 mb-4">
-            <app-link-card
-              [link]="link"
-              (editLink)="editLink($event)"
-              (deleteLink)="deleteLink($event)"
-            ></app-link-card>
+      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12" [trackBy]="trackByItemId">
+        <ng-template #list let-items>
+          <div *ngFor="let item of items" class="col-12">
+            <ng-container *ngIf="item.type === 'collection'">
+              <app-collection-card
+                [collection]="item"
+                (viewCollection)="goToCollection(item.id)"
+                (editCollection)="editCollection(item)"
+                (deleteCollection)="deleteCollection(item.id)"
+              ></app-collection-card>
+            </ng-container>
+            <ng-container *ngIf="item.type === 'link'">
+              <app-link-card
+                [link]="item"
+                (editLink)="editLink(item)"
+                (deleteLink)="deleteLink(item.id)"
+              ></app-link-card>
+            </ng-container>
           </div>
         </ng-template>
       </p-dataView>

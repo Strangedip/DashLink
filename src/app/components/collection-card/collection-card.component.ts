@@ -36,6 +36,7 @@ export class CollectionCardComponent {
   constructor(private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
+    console.log("&&", this.collection)
     this.menuItems = [
       { label: 'Edit', icon: 'pi pi-pencil', command: () => this.onEdit() },
       { label: 'Delete', icon: 'pi pi-trash', command: (event) => this.confirmDelete(event) }

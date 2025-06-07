@@ -1,5 +1,38 @@
+.link-item {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem; /* Adjusted padding for a more compact list item */
+  margin-bottom: 0.25rem; /* Small margin between items */
+  transition: background-color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--primary-color);
+  }
+
+  .link-icon {
+    color: var(--primary-color);
+  }
+
+  .text-sm {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+
+  .text-xs {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+/* Removed unused styles related to p-card and mat-card */
+/*
 .link-card {
-  width: 100%; /* Ensure it takes full width of grid tile */
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -88,7 +121,7 @@ mat-card-header {
 }
 
 .link-icon {
-  background-color: #007bff; /* A nice blue for links */
+  background-color: #007bff;
   color: white;
   border-radius: 50%;
   width: 40px;
@@ -114,7 +147,6 @@ mat-card-title {
 mat-card-subtitle {
   color: rgba(0, 0, 0, 0.54);
   font-size: 0.875em;
-  /* Make sure URL doesn't break out of line */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -130,3 +162,4 @@ mat-card-content {
   color: var(--text-color);
   flex-grow: 1;
 }
+*/

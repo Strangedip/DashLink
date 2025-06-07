@@ -1,55 +1,92 @@
+.collection-item {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem; /* Adjusted padding for a more compact list item */
+  margin-bottom: 0.25rem; /* Small margin between items */
+  transition: background-color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--primary-color);
+  }
+
+  .collection-icon {
+    color: var(--primary-color);
+  }
+
+  /* Further refined text styles */
+  .font-medium {
+    font-size: 1rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+/* Removed unused styles related to p-card */
+/*
 .collection-card {
-  width: 100%; /* Ensure it takes full width of grid tile */
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-  /* Removed background-color, border-radius, and box-shadow as Material handles these */
-  /* background-color: var(--surface-color);
-  border-radius: 8px;
-  box-shadow: var(--box-shadow); */
   padding: 15px;
   gap: 10px;
 
   &:hover {
     transform: translateY(-5px);
   }
+}
 
-  .p-card-header {
-    padding-bottom: 0;
-  }
+.p-card-header {
+  padding-bottom: 0;
+}
 
-  h3 {
-    margin: 0;
-    /* color: var(--primary-dark-color); */ /* Material theming handles this */
-  }
+h3 {
+  margin: 0;
+}
 
-  p {
+p {
+  font-size: 0.9em;
+  flex-grow: 1;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    padding: 8px 12px;
     font-size: 0.9em;
-    /* color: var(--text-color); */ /* Material theming handles this */
-    flex-grow: 1;
-  }
-
-  mat-card-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-
-    button {
-      padding: 8px 12px;
-      font-size: 0.9em;
-    }
   }
 }
 
-/* Removed mat-card-header styling as Material handles this */
-/*
-mat-card-header {
-  padding: 16px;
-  display: flex;
-  align-items: center;
+.collection-icon mat-icon {
+  font-size: 24px;
+  height: 24px;
+  width: 24px;
+}
+
+.p-card-title {
+  font-size: 1.25em;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.p-card-subtitle {
+  font-size: 0.875em;
+  color: var(--text-color-secondary);
+}
+
+.p-spacer {
+  flex: 1 1 auto;
 }
 */
 

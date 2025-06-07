@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, getDocs, CollectionReference, Query, DocumentReference } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Collection, Link } from '../models/data.model';
 
 @Injectable({
@@ -42,7 +42,10 @@ export class FirebaseService {
 
   getLinks(userId: string, collectionId: string): Observable<Link[]> {
     const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/links`) as CollectionReference<Link>;
-    return collectionData(linksRef, { idField: 'id' }) as Observable<Link[]>;
+    console.log('Querying links for collectionId:', collectionId);
+    return collectionData(linksRef, { idField: 'id' }).pipe(
+      tap(data => console.log('Fetched links:', data))
+    ) as Observable<Link[]>;
   }
 
   getLink(userId: string, collectionId: string, linkId: string): Observable<Link> {
@@ -70,7 +73,10 @@ export class FirebaseService {
   getSubCollections(userId: string, parentCollectionId: string | null): Observable<Collection[]> {
     const collectionsRef = collection(this.firestore, `users/${userId}/collections`) as CollectionReference<Collection>;
     const q = query(collectionsRef, where('parentCollectionId', '==', parentCollectionId)) as Query<Collection>;
-    return collectionData(q, { idField: 'id' }) as Observable<Collection[]>;
+    console.log('Querying sub-collections with parentCollectionId:', parentCollectionId);
+    return collectionData(q, { idField: 'id' }).pipe(
+      tap(data => console.log('Fetched sub-collections:', data))
+    ) as Observable<Collection[]>;
   }
 
   async ensureDefaultUserCollection(userId: string): Promise<Collection> {
