@@ -1,13 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // PrimeNG Imports
-import { CardModule } from 'primeng/card';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ConfirmationService } from 'primeng/api';
 
 import { Link } from '../../models/data.model';
 
@@ -16,29 +13,29 @@ import { Link } from '../../models/data.model';
   standalone: true,
   imports: [
     CommonModule,
-    CardModule,
     ButtonModule,
-    MenuModule,
-    ConfirmPopupModule
+    MenuModule
   ],
-  providers: [ConfirmationService],
+  providers: [],
   templateUrl: './link-card.component.html',
   styleUrl: './link-card.component.scss'
 })
-export class LinkCardComponent {
+export class LinkCardComponent implements OnInit {
   @Input() link!: Link;
   @Output() editLink = new EventEmitter<Link>();
-  @Output() deleteLink = new EventEmitter<string>();
+  @Output() deleteLinkRequest = new EventEmitter<{ id: string, target: HTMLElement }>();
+
+  @ViewChild('deleteButton') deleteButton!: ElementRef;
 
   menuItems: MenuItem[] = [];
 
-  constructor(private confirmationService: ConfirmationService) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.menuItems = [
       { label: 'Open Link', icon: 'pi pi-external-link', command: () => this.onView() },
-      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.onEdit() },
-      { label: 'Delete', icon: 'pi pi-trash', command: (event:any) => this.confirmDelete(event) }
+      { label: 'Edit', icon: 'pi pi-pencil', command: (event) => { if (event.originalEvent) event.originalEvent.stopPropagation(); this.onEdit(); } },
+      { label: 'Delete', icon: 'pi pi-trash', command: (event) => { if (event.originalEvent) event.originalEvent.stopPropagation(); this.onDeleteRequest(); } }
     ];
   }
 
@@ -50,17 +47,7 @@ export class LinkCardComponent {
     this.editLink.emit(this.link);
   }
 
-  confirmDelete(event: any): void {
-    this.confirmationService.confirm({
-      target: event.target,
-      message: 'Are you sure you want to delete this link?',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.deleteLink.emit(this.link.id);
-      },
-      reject: () => {
-        // Do nothing on reject
-      }
-    });
+  onDeleteRequest(): void {
+    this.deleteLinkRequest.emit({ id: this.link.id!, target: this.deleteButton.nativeElement });
   }
 }

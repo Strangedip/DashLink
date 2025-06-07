@@ -1,13 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // PrimeNG Imports
-import { CardModule } from 'primeng/card';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ConfirmationService } from 'primeng/api';
 
 import { Collection } from '../../models/data.model';
 
@@ -16,30 +13,29 @@ import { Collection } from '../../models/data.model';
   standalone: true,
   imports: [
     CommonModule,
-    CardModule,
     ButtonModule,
-    MenuModule,
-    ConfirmPopupModule
+    MenuModule
   ],
-  providers: [ConfirmationService],
+  providers: [],
   templateUrl: './collection-card.component.html',
   styleUrl: './collection-card.component.scss'
 })
-export class CollectionCardComponent {
+export class CollectionCardComponent implements OnInit {
   @Input() collection!: Collection;
   @Output() viewCollection = new EventEmitter<string>();
   @Output() editCollection = new EventEmitter<Collection>();
-  @Output() deleteCollection = new EventEmitter<string>();
+  @Output() deleteCollectionRequest = new EventEmitter<{ id: string, target: HTMLElement }>();
+
+  @ViewChild('deleteButton') deleteButton!: ElementRef;
 
   menuItems: MenuItem[] = [];
 
-  constructor(private confirmationService: ConfirmationService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    console.log("&&", this.collection)
     this.menuItems = [
-      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.onEdit() },
-      { label: 'Delete', icon: 'pi pi-trash', command: (event) => this.confirmDelete(event) }
+      { label: 'Edit', icon: 'pi pi-pencil', command: (event) => { if (event.originalEvent) event.originalEvent.stopPropagation(); this.onEdit(); } },
+      { label: 'Delete', icon: 'pi pi-trash', command: (event) => { if (event.originalEvent) event.originalEvent.stopPropagation(); this.onDeleteRequest(); } }
     ];
   }
 
@@ -51,17 +47,7 @@ export class CollectionCardComponent {
     this.editCollection.emit(this.collection);
   }
 
-  confirmDelete(event: any): void {
-    this.confirmationService.confirm({
-      target: event.target,
-      message: 'Are you sure you want to delete this collection?',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.deleteCollection.emit(this.collection.id);
-      },
-      reject: () => {
-        // Do nothing on reject
-      }
-    });
+  onDeleteRequest(): void {
+    this.deleteCollectionRequest.emit({ id: this.collection.id!, target: this.deleteButton.nativeElement });
   }
 }

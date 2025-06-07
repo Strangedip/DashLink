@@ -1,14 +1,16 @@
 <div class="dashboard-container flex flex-column h-full">
-  <p-card class="mb-3">
-    <ng-template pTemplate="header">
-      <div class="flex align-items-center relative w-full">
-        @if (currentCollectionId) {
-          <p-button icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" styleClass="p-button-text p-button-sm absolute left-0"></p-button>
-        }
-        <h2 class="text-2xl font-semibold m-0 text-center flex-grow-1">{{ currentCollection?.name || 'My Collections' }}</h2>
-      </div>
-    </ng-template>
-  </p-card>
+  <header class="dashboard-header flex align-items-center justify-content-between w-full p-3 mb-3 surface-0 border-round shadow-1">
+    <div class="header-left flex align-items-center">
+      @if (showBackButton) {
+        <button pButton icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" class="p-button-text p-button-sm mr-2"></button>
+      }
+      <h2 class="collection-name text-2xl font-bold m-0">{{ currentCollection?.name || 'My Collections' }}</h2>
+    </div>
+    <div class="header-right flex align-items-center">
+      <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button-text p-button-plain mr-2"></button>
+      <p-menu #additionalMenu [model]="additionalMenuItems" [popup]="true" appendTo="body"></p-menu>
+    </div>
+  </header>
 
   @if ((dashboardItems$ | async)?.length === 0) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
@@ -19,20 +21,20 @@
     <div class="grid">
       <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12" [trackBy]="trackByItemId">
         <ng-template #list let-items>
-          <div *ngFor="let item of items" class="col-12">
+          <div *ngFor="let item of items" class="col-12 flex-grow-1 p-3">
             <ng-container *ngIf="item.type === 'collection'">
               <app-collection-card
                 [collection]="item"
                 (viewCollection)="goToCollection(item.id)"
                 (editCollection)="editCollection(item)"
-                (deleteCollection)="deleteCollection(item.id)"
+                (deleteCollectionRequest)="confirmDeleteItem(item.id, 'collection', $event.target)"
               ></app-collection-card>
             </ng-container>
             <ng-container *ngIf="item.type === 'link'">
               <app-link-card
                 [link]="item"
                 (editLink)="editLink(item)"
-                (deleteLink)="deleteLink(item.id)"
+                (deleteLinkRequest)="confirmDeleteItem(item.id, 'link', $event.target)"
               ></app-link-card>
             </ng-container>
           </div>
@@ -40,9 +42,4 @@
       </p-dataView>
     </div>
   }
-
-  <div class="p-fixed bottom-0 right-0 m-4">
-    <p-button icon="pi pi-plus" (click)="menu.toggle($event)" pTooltip="Add New" styleClass="p-button-rounded p-button-success p-button-lg"></p-button>
-    <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
-  </div>
 </div>

@@ -1,0 +1,130 @@
+/* Variables for consistency */
+:root {
+    --prime-gutter: 0.5rem;
+    --header-padding-y: 0.75rem;
+    --header-padding-x: 1rem;
+    --header-gap: 1rem;
+    --card-margin-bottom: 1.5rem;
+    --empty-state-icon-size: 7rem;
+    --empty-state-text-color: var(--surface-500);
+    --empty-state-heading-size: 1.25rem;
+  }
+  
+  .dashboard-container {
+    /* Ensures the container fills the available height and manages its children */
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Hide overflow of the main container */
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--surface-0); /* PrimeNG surface color */
+    color: var(--text-color); /* PrimeNG text color */
+    border-bottom: 1px solid var(--surface-border); /* PrimeNG border color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    flex-shrink: 0; /* Prevent header from shrinking */
+    padding: 1rem 1.5rem; /* Consistent padding */
+
+    @media screen and (max-width: 576px) { /* For smaller phone screens */
+      padding: 0.75rem 0.5rem; /* Reduced padding */
+    }
+  }
+  
+  .header-left,
+  .header-right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  
+  .collection-name {
+    flex-grow: 2;
+    max-width: 300px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left; 
+    font-size: 2rem; /* Base font size for collection name */
+
+    @media screen and (max-width: 768px) {
+      font-size: 1.5rem; /* Medium screens */
+      max-width: 20em; /* Adjust max-width */
+    }
+
+    @media screen and (max-width: 576px) { /* For smaller phone screens */
+      font-size: 1.2rem; /* Smaller font size */
+      max-width: 15em; /* More aggressive max-width to allow space for buttons */
+      min-width: 0; /* Allow text to shrink */
+    }
+  }
+  
+  /* General styling for flex containers within the header for alignment */
+  .dashboard-header .flex-grow-1 {
+    flex-grow: 1;
+  }
+  
+  /* Removed old header related styles */
+  .collection-header,
+  p-card.mb-3,
+  .p-card-body {
+    display: none; /* Hide old elements */
+  }
+  
+  /* Grid Layout for Items */
+  .grid {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  .p-dataView {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+  }
+  
+  .p-dataView .p-dataview-content {
+      flex-grow: 1;
+      overflow-y: auto;
+  }
+  
+  .p-dataView .p-dataview-content > div {
+    padding: var(--prime-gutter);
+  }
+  
+  /* Empty State Styling */
+  .empty-state {
+    padding: 2rem;
+  }
+  
+  .empty-state-icon {
+    color: var(--surface-400);
+    font-size: var(--empty-state-icon-size);
+    margin-bottom: var(--card-margin-bottom);
+  }
+  
+  .empty-state p {
+    color: var(--empty-state-text-color);
+    font-size: var(--empty-state-heading-size);
+  }
+  
+  @media screen and (max-width: 576px) {
+    .empty-state p {
+      font-size: 1rem;
+    }
+  }
+
+  /* Ensure buttons are compact on mobile if needed, check PrimeNG styles for button sizes */
+  @media screen and (max-width: 576px) {
+    .p-button.p-button-sm {
+      padding: 0.3rem; /* Further reduced padding for small buttons on phone */
+      font-size: 0.8rem; /* Smaller font size for button text/icon */
+    }
+    .p-button-icon-only {
+      width: 2rem;
+      height: 2rem;
+    }
+  }

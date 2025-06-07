@@ -1,16 +1,15 @@
 <div class="collection-item flex align-items-center justify-content-between p-3 border-round-md mb-2 cursor-pointer" (click)="onView()">
-  <div class="flex align-items-center flex-grow-1">
-    <i class="pi pi-folder text-2xl mr-3"></i>
-    <div class="flex flex-column">
-      <span class="font-medium text-lg">{{ collection.name }}</span>
+  <div class="flex align-items-center flex-grow-1 min-w-0">
+    <i class="pi pi-folder text-2xl mr-3 flex-shrink-0"></i>
+    <div class="flex flex-column overflow-hidden flex-grow-1 min-w-0">
+      <span class="font-medium text-lg text-overflow-ellipsis">{{ collection.name }}</span>
       @if (collection.description) {
-        <span class="text-sm text-500">{{ collection.description }}</span>
+        <span class="text-sm text-500 text-overflow-ellipsis">{{ collection.description }}</span>
       }
     </div>
   </div>
   <div class="actions flex-shrink-0">
-    <button type="button" pButton icon="pi pi-ellipsis-v" (click)="menu.toggle($event); $event.stopPropagation();" class="p-button-text p-button-secondary p-button-sm"></button>
+    <button #deleteButton type="button" pButton icon="pi pi-ellipsis-v" (click)="menu.toggle($event); $event.stopPropagation();" class="p-button-text p-button-secondary p-button-sm"></button>
     <p-menu #menu [model]="menuItems" [popup]="true"></p-menu>
   </div>
 </div>
-<p-confirmPopup></p-confirmPopup>

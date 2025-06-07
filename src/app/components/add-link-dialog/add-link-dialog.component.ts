@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -28,9 +28,7 @@ import { Link } from '../../models/data.model';
   styleUrl: './add-link-dialog.component.scss'
 })
 export class AddLinkDialogComponent implements OnInit {
-  @Input() collectionId!: string; // This might not be strictly needed with DynamicDialogConfig
-  @Output() closeDialog = new EventEmitter<void>(); // This might not be needed with DynamicDialogRef
-  @Output() addLink = new EventEmitter<{ name: string; url: string; description: string | null; collectionId: string }>();
+  collectionId!: string;
 
   linkForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -51,7 +49,6 @@ export class AddLinkDialogComponent implements OnInit {
         description: this.config.data.link.description || null
       });
     }
-    // Assign collectionId from config data if available
     if (this.config.data && this.config.data.collectionId) {
       this.collectionId = this.config.data.collectionId;
     }

@@ -9,6 +9,8 @@ import Lara from '@primeng/themes/lara';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +24,8 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Lara
       }
-    })
+    }),
+    MessageService,
+    DialogService
   ]
 };

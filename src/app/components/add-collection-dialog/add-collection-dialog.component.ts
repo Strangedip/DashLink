@@ -29,7 +29,7 @@ import { Collection } from '../../models/data.model';
 })
 export class AddCollectionDialogComponent implements OnInit {
   @Input() parentCollectionId: string | null = null;
-  @Output() closeDialog = new EventEmitter<void>(); // This might not be needed with DynamicDialogRef
+  @Output() closeDialog = new EventEmitter<void>();
   @Output() addCollection = new EventEmitter<{ name: string; description: string | null; parentCollectionId: string | null }>();
 
   collectionForm = new FormGroup({
@@ -49,7 +49,6 @@ export class AddCollectionDialogComponent implements OnInit {
         description: this.config.data.collection.description || null
       });
     }
-    // Assign parentCollectionId from config data if available
     if (this.config.data && this.config.data.parentCollectionId !== undefined) {
       this.parentCollectionId = this.config.data.parentCollectionId;
     }

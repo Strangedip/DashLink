@@ -1,15 +1,15 @@
-<div class="layout-wrapper flex flex-column">
-  <nav class="app-menubar">
-    <div class="nav-actions">
-      <div class="app-title">DashLink</div>
-      <button *ngIf="authService.user$ | async" pButton type="button" icon="pi pi-sign-out"
-        (click)="logout()" class="ml-auto p-button-plain"></button>
-    </div>
-  </nav>
-
-  <div class="main-container flex flex-grow-1 min-h-screen lg:flex-row">
-    <main class="app-content flex-grow-1 p-3 mx-auto max-w-screen-xl">
-      <router-outlet></router-outlet>
-    </main>
+<nav class="fixed-navbar">
+  <div class="navbar-content">
+    <div class="app-logo">DashLink</div>
+    <button *ngIf="authService.user$ | async" pButton type="button" icon="pi pi-sign-out"
+      (click)="logout()" class="p-button-plain" title="Logout"></button>
   </div>
+</nav>
+
+<div class="workspace-wrapper">
+  <p-toast></p-toast>
+
+  <main class="main-content-area">
+    <router-outlet></router-outlet>
+  </main>
 </div>
