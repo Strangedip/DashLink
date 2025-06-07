@@ -12,6 +12,7 @@ yarn-error.log
 package-lock.json
 
 # IDEs and editors
+.fiebase/
 .idea/
 .project
 .classpath

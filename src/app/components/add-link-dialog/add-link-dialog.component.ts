@@ -32,7 +32,7 @@ export class AddLinkDialogComponent implements OnInit {
 
   linkForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    url: new FormControl('', [Validators.required, Validators.pattern('https?://.+')]),
+    url: new FormControl('', [Validators.required]),
     description: new FormControl(null as string | null)
   });
 

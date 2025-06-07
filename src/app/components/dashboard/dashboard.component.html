@@ -1,4 +1,4 @@
-<div class="dashboard-container flex flex-column h-full">
+<div class="dashboard-container flex flex-column">
   <header class="dashboard-header flex align-items-center justify-content-between w-full p-3 mb-3 surface-0 border-round shadow-1">
     <div class="header-left flex align-items-center">
       @if (showBackButton) {
@@ -7,7 +7,7 @@
       <h2 class="collection-name text-2xl font-bold m-0">{{ currentCollection?.name || 'My Collections' }}</h2>
     </div>
     <div class="header-right flex align-items-center">
-      <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button-text p-button-plain mr-2"></button>
+      <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button p-button-plain mr-2"></button>
       <p-menu #additionalMenu [model]="additionalMenuItems" [popup]="true" appendTo="body"></p-menu>
     </div>
   </header>
@@ -19,9 +19,9 @@
     </div>
   } @else {
     <div class="grid">
-      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12" [trackBy]="trackByItemId">
+      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items my-2" [trackBy]="trackByItemId">
         <ng-template #list let-items>
-          <div *ngFor="let item of items" class="col-12 flex-grow-1 p-3">
+          <div *ngFor="let item of items" class="col-12 flex-grow-1 p-1">
             <ng-container *ngIf="item.type === 'collection'">
               <app-collection-card
                 [collection]="item"
