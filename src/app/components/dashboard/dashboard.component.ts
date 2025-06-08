@@ -93,7 +93,6 @@ export class DashboardComponent implements OnInit {
     ];
 
     this.authService.user$.pipe(
-      tap(user => console.log('Auth user changed:', user?.uid)),
       map(user => user?.uid || null),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(uid => {
@@ -104,7 +103,6 @@ export class DashboardComponent implements OnInit {
     this.home = { icon: 'pi pi-home', routerLink: '/' };
 
     this.route.paramMap.pipe(
-      tap(params => console.log('Route paramMap changed:', params.get('collectionId'))),
       switchMap(params => this.isGlobalSearchSubject.pipe(
         switchMap(isGlobal => {
           if (isGlobal) {
@@ -119,9 +117,7 @@ export class DashboardComponent implements OnInit {
                   take(1),
                   tap(collection => {
                     this.currentCollection = collection;
-                    console.log('Current Collection (with routeId):', this.currentCollection);
                     this.showBackButton = !!this.currentCollection.parentCollectionId && this.currentCollection.parentCollectionId !== '';
-                    console.log('showBackButton (with routeId):', this.showBackButton);
                   }),
                   map(collection => routeCollectionId)
                 ))
@@ -135,14 +131,11 @@ export class DashboardComponent implements OnInit {
                   if (defaultCollection) {
                     this.currentCollection = defaultCollection;
                     this.router.navigate(['/collections', defaultCollection.id], { replaceUrl: true });
-                    console.log('Current Collection (default/root):', this.currentCollection);
                     this.showBackButton = false; 
-                    console.log('showBackButton (default/root):', this.showBackButton);
                     return defaultCollection.id!;
                   } else {
                     this.currentCollection = undefined;
                     this.showBackButton = false;
-                    console.log('showBackButton (no collection):', this.showBackButton);
                     return null;
                   }
                 })
@@ -166,7 +159,6 @@ export class DashboardComponent implements OnInit {
       this.isGlobalSearchSubject
     ]).pipe(
       tap(() => this.isLoading = true),
-      tap(([userId, collectionId, searchTerm, isGlobal]) => console.log('Combining for data fetch with search:', { userId, collectionId, searchTerm, isGlobalSearch: isGlobal })),
       switchMap(([userId, collectionId, searchTerm, isGlobal]) => {
         this._searchFilter = searchTerm || '';
 
@@ -216,7 +208,6 @@ export class DashboardComponent implements OnInit {
               }
             });
           }),
-          tap(data => console.log('Dashboard items for rendering (after combined and filtered):', data)),
           finalize(() => this.isLoading = false)
         );
       }),
@@ -239,7 +230,6 @@ export class DashboardComponent implements OnInit {
         try {
           tempCollection = await lastValueFrom(this.firebaseService.getCollection(this.currentUserId, currentId).pipe(take(1)));
         } catch (error) {
-          console.error('Error fetching collection for breadcrumb:', error);
           break;
         }
       }
@@ -267,7 +257,6 @@ export class DashboardComponent implements OnInit {
 
   trackByItemId(index: number, item: any): string {
     if (!item || !item.id) {
-      console.warn('trackByItemId: Item or item.id is undefined/null', item);
       return index.toString();
     }
     return item.id;
