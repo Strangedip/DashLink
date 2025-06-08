@@ -10,10 +10,10 @@ import { LinkCardComponent } from '../link-card/link-card.component';
 import { AddCollectionDialogComponent } from '../add-collection-dialog/add-collection-dialog.component';
 import { AddLinkDialogComponent } from '../add-link-dialog/add-link-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 // PrimeNG Imports
 import { MenuItem } from 'primeng/api';
@@ -24,6 +24,8 @@ import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { DataViewModule } from 'primeng/dataview';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +44,10 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
     TooltipModule,
     DataViewModule,
     InputTextModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    ProgressSpinnerModule,
+    ToggleSwitchModule,
+    FormsModule
   ],
   providers: [],
   templateUrl: './dashboard.component.html',
@@ -56,6 +61,7 @@ export class DashboardComponent implements OnInit {
   currentUserId: string | null = null;
   currentCollectionId: string | null = null;
   isGlobalSearch: boolean = false;
+  isLoading: boolean = false;
 
   currentCollection: Collection | undefined;
   additionalMenuItems: MenuItem[] = [];
@@ -159,6 +165,7 @@ export class DashboardComponent implements OnInit {
       this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
       this.isGlobalSearchSubject
     ]).pipe(
+      tap(() => this.isLoading = true),
       tap(([userId, collectionId, searchTerm, isGlobal]) => console.log('Combining for data fetch with search:', { userId, collectionId, searchTerm, isGlobalSearch: isGlobal })),
       switchMap(([userId, collectionId, searchTerm, isGlobal]) => {
         this._searchFilter = searchTerm || '';
@@ -209,7 +216,8 @@ export class DashboardComponent implements OnInit {
               }
             });
           }),
-          tap(data => console.log('Dashboard items for rendering (after combined and filtered):', data))
+          tap(data => console.log('Dashboard items for rendering (after combined and filtered):', data)),
+          finalize(() => this.isLoading = false)
         );
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -437,18 +445,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  toggleSearchMode(): void {
-    this.isGlobalSearch = !this.isGlobalSearch;
-    this.isGlobalSearchSubject.next(this.isGlobalSearch);
-
-    if (this.isGlobalSearch) {
+  toggleSearchMode(newValue: boolean): void {
+    this.isGlobalSearchSubject.next(newValue);
+    
+    if (newValue) {
       this.currentCollectionIdSubject.next(null);
-    } else {
-      // If toggling back to local search, restore the actual currentCollectionId if it exists.
-      // The route.paramMap will eventually set it, but proactively setting it here can prevent a momentary flicker.
-      // However, relying on route.paramMap is generally safer.
-      // For now, let's rely on the route.paramMap to set it back.
-      // This.currentCollectionIdSubject.next(this.currentCollectionId);
     }
 
     this.searchControl.setValue('');
