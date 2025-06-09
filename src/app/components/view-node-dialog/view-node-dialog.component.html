@@ -20,7 +20,7 @@
                 <a [href]="field.fieldValue" target="_blank" class="url-link">{{ field.fieldValue }}</a>
               }
               @case ('imageUrl') {
-                <img [src]="field.fieldValue" alt="Custom Image" class="custom-field-image" />
+                <a [href]="field.fieldValue" target="_blank" class="url-link mt-2">{{ field.fieldValue }}</a>
               }
               @case ('date') {
                 {{ formatDate(field.fieldValue) }}

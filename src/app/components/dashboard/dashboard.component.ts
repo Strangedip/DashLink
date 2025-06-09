@@ -204,14 +204,37 @@ export class DashboardComponent implements OnInit {
                 let matches = (node.name && node.name.toLowerCase().includes(lowerCaseSearchFilter)) ||
                   (node.description && node.description.toLowerCase().includes(lowerCaseSearchFilter));
 
-                if (!matches && node.customFields) {
+                if (!matches && Array.isArray(node.customFields)) {
                   for (const field of node.customFields) {
-                    const fieldValue = field.fieldValue;
-                    if (typeof fieldValue === 'string' && fieldValue.toLowerCase().includes(lowerCaseSearchFilter)) {
+                    let searchableFieldValue: string | number | undefined;
+
+                    // Handle Firestore Timestamp objects for fieldValue
+                    if (field.fieldValue && typeof field.fieldValue.toDate === 'function') {
+                      try {
+                        const date = field.fieldValue.toDate();
+                        searchableFieldValue = date.toLocaleDateString(); // Convert to a locale-specific date string for search
+                      } catch (e) {
+                        console.error("Error converting Timestamp to Date for search:", e);
+                        searchableFieldValue = field.fieldValue; // Fallback
+                      }
+                    } else {
+                      searchableFieldValue = field.fieldValue;
+                    }
+
+                    const fieldName = field.fieldName;
+                    console.log(`  Checking field: ${fieldName}, Value: ${searchableFieldValue}, Type: ${field.fieldType}`);
+
+                    if (typeof searchableFieldValue === 'string' && searchableFieldValue.toLowerCase().includes(lowerCaseSearchFilter)) {
                       matches = true;
+                      console.log(`    MATCH (value): ${searchableFieldValue}`);
                       break;
-                    } else if (typeof fieldValue === 'number' && fieldValue.toString().includes(lowerCaseSearchFilter)) {
+                    } else if (typeof searchableFieldValue === 'number' && searchableFieldValue.toString().includes(lowerCaseSearchFilter)) {
                       matches = true;
+                      console.log(`    MATCH (number value): ${searchableFieldValue}`);
+                      break;
+                    } else if (typeof fieldName === 'string' && fieldName.toLowerCase().includes(lowerCaseSearchFilter)) {
+                      matches = true;
+                      console.log(`    MATCH (field name): ${fieldName}`);
                       break;
                     }
                   }

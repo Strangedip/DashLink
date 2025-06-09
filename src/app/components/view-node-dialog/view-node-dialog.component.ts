@@ -42,10 +42,12 @@ export class ViewNodeDialogComponent implements OnInit {
   private processCustomFields(): void {
     if (this.node.customFields) {
       this.node.customFields.forEach(field => {
+        this.displayCustomFields.push(field);
+
         if (field.fieldType === 'imageUrl' && typeof field.fieldValue === 'string' && (field.fieldValue.startsWith('http://') || field.fieldValue.startsWith('https://'))) {
-          this.imageUrl = field.fieldValue;
-        } else {
-          this.displayCustomFields.push(field);
+          if (!this.imageUrl) {
+            this.imageUrl = field.fieldValue;
+          }
         }
       });
     }
