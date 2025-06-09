@@ -55,3 +55,27 @@ p-message.p-inline-message {
   border: none !important;
   color: var(--p-primary-color) !important;
 }
+
+.custom-field-item {
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+
+  .p-field {
+    flex: 1 1 auto; /* Allow fields to grow and shrink, take up full width on small screens */
+    min-width: 150px; /* Minimum width for each field before wrapping */
+    margin-bottom: 0;
+  }
+
+  .remove-field-button-container {
+    flex-shrink: 0;
+    margin-left: auto; /* Push button to the right */
+    align-self: flex-start;
+    padding-top: 2rem;
+  }
+}

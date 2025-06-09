@@ -6,13 +6,12 @@
 }
 
 .main-content-area {
-  padding-top: 2.5rem;
-  padding: 1.5rem;
-  background-color: var(--surface-50);
+  margin-top: -1rem !important;  
+  margin-bottom: 2rem !important;
   box-sizing: border-box;
 
   @media screen and (min-width: 992px) {
-    padding-top: 3.5rem !important;
+    margin-top: -2rem !important;
     max-width: 80vw;
     width: 70%;
     margin: 0 auto;

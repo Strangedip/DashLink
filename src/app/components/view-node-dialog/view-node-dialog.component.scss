@@ -1,0 +1,128 @@
+.dialog-container {
+  padding: 1.5rem;
+  background-color: var(--p-surface-a);
+  color: var(--p-text-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--p-shadow-3);
+
+  /* Responsive adjustments */
+  @media screen and (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.p-card {
+  background-color: transparent; /* Card background should be transparent as dialog-container handles it */
+  box-shadow: none; /* Remove card's default shadow */
+  border: none; /* Remove card's default border */
+}
+
+.p-card .p-card-header {
+  padding-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--p-primary-color);
+  border-bottom: 1px solid var(--p-surface-border);
+  margin-bottom: 1.5rem;
+
+  @media screen and (max-width: 768px) {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.p-card .p-card-subheader {
+  display: none; /* Hide subheader as it's no longer used in HTML */
+}
+
+.p-card .p-card-content {
+  padding: 0;
+}
+
+.p-field {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  font-size: 1rem;
+
+  @media screen and (max-width: 768px) {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Remove unused styles */
+.p-field strong {
+  /* This rule is no longer needed */
+}
+
+h3 {
+  /* This rule is no longer needed */
+}
+
+.p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--p-surface-border);
+  margin-top: 1.5rem;
+}
+
+.image-container {
+  margin-bottom: 1rem;
+  /* Removed text-align: center to allow image to take full width */
+}
+
+.node-image {
+  width: 100%; /* Ensure the image takes full width */
+  display: block; /* Make it a block element to occupy full width */
+  max-width: 100%; /* Ensure responsiveness */
+  height: 200px;   /* Fixed height for the image */
+  object-fit: cover; /* Crop image to cover the area, maintaining aspect ratio */
+  border-radius: var(--border-radius);
+  box-shadow: var(--p-shadow-1);
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 768px) {
+  .node-image {
+    height: 150px; /* Adjust height for smaller screens */
+  }
+}
+
+.custom-field-image {
+  max-width: 100%;
+  height: 100px; /* Smaller fixed height for inline custom field images */
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  box-shadow: var(--p-shadow-1);
+  margin-top: 0.5rem; /* Add some spacing */
+}
+
+.custom-field-item {
+  display: flex;
+  flex-wrap: wrap; /* Allow content to wrap if needed */
+  align-items: baseline; /* Align items to the baseline of their first line */
+
+  strong {
+    margin-right: 0.5rem;
+    flex-shrink: 0; /* Prevent the strong tag from shrinking */
+  }
+
+  .url-link {
+    word-break: break-all; /* Break long words */
+    overflow-wrap: break-word; /* Ensure long URLs break into multiple lines */
+    display: block; /* Make it a block element to properly apply text-overflow */
+    white-space: normal; /* Allow normal white space handling */
+    max-width: calc(100% - 0.5rem); /* Adjust max-width to prevent overflow beyond its container */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .p-field {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .custom-field-image {
+    height: 80px;
+  }
+} 

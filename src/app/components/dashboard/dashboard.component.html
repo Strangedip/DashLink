@@ -43,7 +43,7 @@
   @if ((dashboardItems$ | async)?.length === 0) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
       <i class="pi pi-folder-open empty-state-icon text-7xl text-400 mb-4"></i>
-      <p class="text-xl text-500">No collections or links yet. Start by adding a new one!</p>
+      <p class="text-xl text-500">No collections or nodes yet. Start by adding a new one!</p>
     </div>
   } @else {
     <div class="grid">
@@ -58,12 +58,13 @@
                 (deleteCollectionRequest)="confirmDeleteItem(item.id, 'collection', $event.target)"
               ></app-collection-card>
             </ng-container>
-            <ng-container *ngIf="item.type === 'link'">
-              <app-link-card
-                [link]="item"
-                (editLink)="editLink(item)"
-                (deleteLinkRequest)="confirmDeleteItem(item.id, 'link', $event.target)"
-              ></app-link-card>
+            <ng-container *ngIf="item.type === 'node'">
+              <app-node-card
+                [node]="item"
+                (editNode)="editNode(item)"
+                (deleteNodeRequest)="confirmDeleteItem($event.id, 'node', $event.target)"
+                (nodeClicked)="openViewNodeDialog(item)">
+              </app-node-card>
             </ng-container>
           </div>
         </ng-template>

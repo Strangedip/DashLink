@@ -1,0 +1,70 @@
+<div class="dialog-container">
+  <div [formGroup]="nodeForm">
+    <div class="p-field">
+      <label for="name">Node Name</label>
+      <input id="name" type="text" pInputText formControlName="name" required>
+      @if (nodeForm.get('name')?.invalid && nodeForm.get('name')?.touched) {
+        <p-message severity="error" text="Node Name is required."></p-message>
+      }
+    </div>
+
+    <div class="p-field">
+      <label for="description">Description (Optional)</label>
+      <textarea id="description" pTextarea formControlName="description"></textarea>
+    </div>
+
+    <h3>Custom Fields</h3>
+    <div formArrayName="customFields">
+      @for (field of customFields.controls; track i; let i = $index) {
+        <div [formGroupName]="i" class="custom-field-item">
+          <div class="p-field flex-grow-1">
+            <label [for]="'fieldType' + i">Field Type</label>
+            <p-select [id]="'fieldType' + i" [options]="fieldTypes" optionLabel="name" optionValue="code" formControlName="fieldType" placeholder="Select a Type" required></p-select>
+            @if (field.get('fieldType')?.invalid && field.get('fieldType')?.touched) {
+              <p-message severity="error" text="Field Type is required."></p-message>
+            }
+          </div>
+          <div class="p-field flex-grow-1">
+            <label [for]="'fieldName' + i">Field Name</label>
+            <input [id]="'fieldName' + i" type="text" pInputText formControlName="fieldName" required>
+            @if (field.get('fieldName')?.invalid && field.get('fieldName')?.touched) {
+              <p-message severity="error" text="Field Name is required."></p-message>
+            }
+          </div>
+          <div class="p-field flex-grow-1">
+            <label [for]="'fieldValue' + i">Field Value</label>
+            @switch (field.get('fieldType')?.value) {
+              @case ('text') {
+                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter text value">
+              }
+              @case ('url') {
+                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter URL (e.g., https://example.com)" />
+              }
+              @case ('number') {
+                <p-inputNumber [id]="'fieldValue' + i" formControlName="fieldValue" placeholder="Enter number"></p-inputNumber>
+              }
+              @case ('date') {
+                <p-calendar [id]="'fieldValue' + i" formControlName="fieldValue" dateFormat="mm/dd/yy" placeholder="Select date"></p-calendar>
+              }
+              @case ('imageUrl') {
+                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter image URL">
+              }
+              @default {
+                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter value">
+              }
+            }
+          </div>
+          <div class="remove-field-button-container">
+            <button type="button" pButton icon="pi pi-minus" class="p-button-danger p-button-sm p-button-rounded" (click)="removeCustomField(i)"></button>
+          </div>
+        </div>
+      }
+    </div>
+    <button type="button" pButton icon="pi pi-plus" label="Add Custom Field" (click)="addCustomField()" class="p-button-text p-button-sm"></button>
+
+  </div>
+  <div class="p-dialog-footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
+    <p-button label="Save" icon="pi pi-check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></p-button>
+  </div>
+</div>

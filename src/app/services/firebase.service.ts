@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, getDocs, CollectionReference, Query, DocumentReference } from '@angular/fire/firestore';
 import { Observable, tap, switchMap, combineLatest, of, map } from 'rxjs';
-import { Collection, Link } from '../models/data.model';
+import { Collection, Node } from '../models/data.model';
 
 @Injectable({
   providedIn: 'root'
@@ -38,53 +38,53 @@ export class FirebaseService {
     return deleteDoc(collectionDocRef);
   }
 
-  // --- Link Operations ---
+  // --- Node Operations ---
 
-  getLinks(userId: string, collectionId: string): Observable<Link[]> {
-    const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/links`) as CollectionReference<Link>;
-    return collectionData(linksRef, { idField: 'id' }).pipe(
+  getNodes(userId: string, collectionId: string): Observable<Node[]> {
+    const nodesRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/nodes`) as CollectionReference<Node>;
+    return collectionData(nodesRef, { idField: 'id' }).pipe(
       tap(data => { })
-    ) as Observable<Link[]>;
+    ) as Observable<Node[]>;
   }
 
-  getAllLinks(userId: string): Observable<Link[]> {
+  getAllNodes(userId: string): Observable<Node[]> {
     const collectionsRef = collection(this.firestore, `users/${userId}/collections`);
-    const links: Link[] = [];
+    const nodes: Node[] = [];
     return collectionData(collectionsRef, { idField: 'id' }).pipe(
       switchMap(collections => {
         if (collections.length === 0) {
           return of([]);
         }
-        const linkObservables = collections.map(collectionItem => {
-          const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionItem.id}/links`) as CollectionReference<Link>;
-          return collectionData(linksRef, { idField: 'id' });
+        const nodeObservables = collections.map(collectionItem => {
+          const nodesRef = collection(this.firestore, `users/${userId}/collections/${collectionItem.id}/nodes`) as CollectionReference<Node>;
+          return collectionData(nodesRef, { idField: 'id' });
         });
-        return combineLatest(linkObservables).pipe(
-          map(linkArrays => linkArrays.flat())
+        return combineLatest(nodeObservables).pipe(
+          map(nodeArrays => nodeArrays.flat())
         );
       })
-    ) as Observable<Link[]>;
+    ) as Observable<Node[]>;
   }
 
-  getLink(userId: string, collectionId: string, linkId: string): Observable<Link> {
-    const linkDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/links/${linkId}`) as DocumentReference<Link>;
-    return docData(linkDocRef, { idField: 'id' }) as Observable<Link>;
+  getNode(userId: string, collectionId: string, nodeId: string): Observable<Node> {
+    const nodeDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/nodes/${nodeId}`) as DocumentReference<Node>;
+    return docData(nodeDocRef, { idField: 'id' }) as Observable<Node>;
   }
 
-  addLink(userId: string, collectionId: string, link: Omit<Link, 'id' | 'createdAt' | 'updatedAt'>): Promise<any> {
-    const linksRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/links`);
+  addNode(userId: string, collectionId: string, node: Omit<Node, 'id' | 'createdAt' | 'updatedAt'>): Promise<any> {
+    const nodesRef = collection(this.firestore, `users/${userId}/collections/${collectionId}/nodes`);
     const now = new Date();
-    return addDoc(linksRef, { ...link, createdAt: now, updatedAt: now });
+    return addDoc(nodesRef, { ...node, createdAt: now, updatedAt: now });
   }
 
-  updateLink(userId: string, collectionId: string, linkId: any, data: Partial<Link>): Promise<void> {
-    const linkDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/links/${linkId}`);
-    return updateDoc(linkDocRef, { ...data, updatedAt: new Date() });
+  updateNode(userId: string, collectionId: string, nodeId: any, data: Partial<Node>): Promise<void> {
+    const nodeDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/nodes/${nodeId}`);
+    return updateDoc(nodeDocRef, { ...data, updatedAt: new Date() });
   }
 
-  deleteLink(userId: string, collectionId: string, linkId: string): Promise<void> {
-    const linkDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/links/${linkId}`);
-    return deleteDoc(linkDocRef);
+  deleteNode(userId: string, collectionId: string, nodeId: string): Promise<void> {
+    const nodeDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/nodes/${nodeId}`);
+    return deleteDoc(nodeDocRef);
   }
 
   // Get sub-collections of a given parent collection

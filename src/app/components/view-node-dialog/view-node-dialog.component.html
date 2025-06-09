@@ -1,0 +1,47 @@
+<div class="dialog-container">
+  <p-card>
+    <ng-template pTemplate="content">
+      @if (imageUrl) {
+        <div class="p-field image-container">
+          <img [src]="imageUrl" alt="Node Image" class="node-image" />
+        </div>
+      }
+      @if (node.description) {
+        <div class="p-field">
+          <strong>Description:</strong> <br>{{ node.description }}
+        </div>
+      }
+      @if (displayCustomFields && displayCustomFields.length > 0) {
+        @for (field of displayCustomFields; track field.fieldName) {
+          <div class="p-field custom-field-item">
+            <strong>{{ field.fieldName }}:</strong>
+            @switch (field.fieldType) {
+              @case ('url') {
+                <a [href]="field.fieldValue" target="_blank" class="url-link">{{ field.fieldValue }}</a>
+              }
+              @case ('imageUrl') {
+                <img [src]="field.fieldValue" alt="Custom Image" class="custom-field-image" />
+              }
+              @case ('date') {
+                {{ formatDate(field.fieldValue) }}
+              }
+              @default {
+                {{ field.fieldValue }}
+              }
+            }
+          </div>
+        }
+      }
+      @if (!(node.description) && !(displayCustomFields && displayCustomFields.length > 0) && !imageUrl) {
+        <div class="p-field">
+          No node details added!
+        </div>
+      }
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <div class="p-dialog-footer">
+        <p-button label="Close" class="mt-2" icon="pi pi-times" (click)="onClose()" styleClass="p-button-text"></p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div> 

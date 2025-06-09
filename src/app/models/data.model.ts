@@ -6,17 +6,21 @@ export interface Collection {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  tag?: string;
 }
 
-export interface Link {
+export interface CustomField {
+  fieldName: string;
+  fieldValue: any;
+  fieldType: string;
+}
+
+export interface Node {
   id?: string;
   name: string;
-  url: string;
-  description?: string;
+  description?: string | null;
   collectionId: string;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  tag?: string;
+  customFields?: CustomField[];
 } 

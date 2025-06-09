@@ -4,12 +4,13 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { Collection, Link } from '../../models/data.model';
+import { Collection, Node } from '../../models/data.model';
 import { CollectionCardComponent } from '../collection-card/collection-card.component';
-import { LinkCardComponent } from '../link-card/link-card.component';
+import { NodeCardComponent } from '../node-card/node-card.component';
 import { AddCollectionDialogComponent } from '../add-collection-dialog/add-collection-dialog.component';
-import { AddLinkDialogComponent } from '../add-link-dialog/add-link-dialog.component';
+import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ViewNodeDialogComponent } from '../view-node-dialog/view-node-dialog.component';
 import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
@@ -34,10 +35,11 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     CommonModule,
     ReactiveFormsModule,
     CollectionCardComponent,
-    LinkCardComponent,
+    NodeCardComponent,
     AddCollectionDialogComponent,
-    AddLinkDialogComponent,
+    AddNodeDialogComponent,
     ConfirmDialogComponent,
+    ViewNodeDialogComponent,
     ButtonModule,
     CardModule,
     MenuModule,
@@ -65,7 +67,7 @@ export class DashboardComponent implements OnInit {
 
   currentCollection: Collection | undefined;
   additionalMenuItems: MenuItem[] = [];
-  dashboardItems$: Observable<(Collection | Link)[]> | undefined;
+  dashboardItems$: Observable<(Collection | Node)[]> | undefined;
   showBackButton: boolean = false;
 
   searchControl = new FormControl('');
@@ -89,7 +91,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.additionalMenuItems = [
       { label: 'Add Collection', icon: 'pi pi-folder-open', command: () => this.openAddCollectionDialog() },
-      { label: 'Add Link', icon: 'pi pi-link', command: () => this.openAddLinkDialog() }
+      { label: 'Add Node', icon: 'pi pi-link', command: () => this.openAddNodeDialog() }
     ];
 
     this.authService.user$.pipe(
@@ -136,7 +138,7 @@ export class DashboardComponent implements OnInit {
                     this.currentCollection = defaultCollection;
                     this.router.navigate(['/collections', defaultCollection.id], { replaceUrl: true });
                     console.log('Current Collection (default/root):', this.currentCollection);
-                    this.showBackButton = false; 
+                    this.showBackButton = false;
                     console.log('showBackButton (default/root):', this.showBackButton);
                     return defaultCollection.id!;
                   } else {
@@ -171,56 +173,63 @@ export class DashboardComponent implements OnInit {
         this._searchFilter = searchTerm || '';
 
         let collectionsObs: Observable<Collection[]>;
-        let linksObs: Observable<Link[]>;
+        let nodesObs: Observable<Node[]>;
 
         if (isGlobal) {
           collectionsObs = this.firebaseService.getCollections(userId!);
-          linksObs = this.firebaseService.getAllLinks(userId!);
+          nodesObs = this.firebaseService.getAllNodes(userId!);
         } else {
           collectionsObs = collectionId
             ? this.firebaseService.getSubCollections(userId!, collectionId)
             : this.firebaseService.getSubCollections(userId!, null);
 
-          linksObs = collectionId
-            ? this.firebaseService.getLinks(userId!, collectionId)
+          nodesObs = collectionId
+            ? this.firebaseService.getNodes(userId!, collectionId)
             : of([]);
         }
 
-        return combineLatest([collectionsObs, linksObs]).pipe(
-          map(([collections, links]) => {
+        return combineLatest([collectionsObs, nodesObs]).pipe(
+          map(([collections, nodes]) => {
             const combined = [
               ...collections.map(c => ({ ...c, type: 'collection' as const })),
-              ...links.map(l => ({ ...l, type: 'link' as const }))
+              ...nodes.map(n => ({ ...n, type: 'node' as const }))
             ];
             return combined.sort((a, b) => {
-              if (a.type === 'collection' && b.type === 'link') return -1;
-              if (a.type === 'link' && b.type === 'collection') return 1;
+              if (a.type === 'collection' && b.type === 'node') return -1;
+              if (a.type === 'node' && b.type === 'collection') return 1;
               return (a.name || '').localeCompare(b.name || '');
-            });
-          }),
-          map(items => {
-            if (!this._searchFilter) {
-              return items;
-            }
-            const filter = this._searchFilter.toLowerCase();
-            return items.filter(item => {
+            }).filter(item => {
+              if (!this._searchFilter) return true;
+              const lowerCaseSearchFilter = this._searchFilter.toLowerCase();
+
               if (item.type === 'collection') {
-                return (item.name && item.name.toLowerCase().includes(filter)) ||
-                       (item.description && item.description.toLowerCase().includes(filter)) ||
-                       (item.tag && item.tag.toLowerCase().includes(filter));
-              } else {
-                return (item.name && item.name.toLowerCase().includes(filter)) ||
-                       (item.url && item.url.toLowerCase().includes(filter)) ||
-                       (item.description && item.description.toLowerCase().includes(filter)) ||
-                       (item.tag && item.tag.toLowerCase().includes(filter));
+                return (item.name && item.name.toLowerCase().includes(lowerCaseSearchFilter)) ||
+                  (item.description && item.description.toLowerCase().includes(lowerCaseSearchFilter));
+              } else { // item.type === 'node'
+                const node = item as Node;
+                let matches = (node.name && node.name.toLowerCase().includes(lowerCaseSearchFilter)) ||
+                  (node.description && node.description.toLowerCase().includes(lowerCaseSearchFilter));
+
+                if (!matches && node.customFields) {
+                  for (const field of node.customFields) {
+                    const fieldValue = field.fieldValue;
+                    if (typeof fieldValue === 'string' && fieldValue.toLowerCase().includes(lowerCaseSearchFilter)) {
+                      matches = true;
+                      break;
+                    } else if (typeof fieldValue === 'number' && fieldValue.toString().includes(lowerCaseSearchFilter)) {
+                      matches = true;
+                      break;
+                    }
+                  }
+                }
+                return matches;
               }
             });
           }),
-          tap(data => console.log('Dashboard items for rendering (after combined and filtered):', data)),
-          finalize(() => this.isLoading = false)
+          tap(() => this.isLoading = false),
+          takeUntilDestroyed(this.destroyRef)
         );
-      }),
-      takeUntilDestroyed(this.destroyRef)
+      })
     );
   }
 
@@ -257,7 +266,7 @@ export class DashboardComponent implements OnInit {
         path.unshift(item);
 
         currentId = tempCollection.parentCollectionId;
-        tempCollection = undefined; 
+        tempCollection = undefined;
       } else {
         break;
       }
@@ -318,34 +327,34 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  openAddLinkDialog(): void {
+  openAddNodeDialog(): void {
     if (this.isGlobalSearch) {
-      this.toastService.showInfo('Information', 'Cannot add link in global search mode. Please navigate to a specific collection.');
+      this.toastService.showInfo('Information', 'Cannot add node in global search mode. Please navigate to a specific collection.');
       return;
     }
     if (!this.currentCollectionId || !this.currentUserId) {
-      this.toastService.showError('Error', 'Please navigate into a collection and ensure you are logged in to add a link.');
+      this.toastService.showError('Error', 'Please navigate into a collection and ensure you are logged in to add a node.');
       return;
     }
 
-    const ref = this.dialogService.open(AddLinkDialogComponent, {
-      header: 'Add New Link',
-      width: '400px',
+    const dialogRef = this.dialogService.open(AddNodeDialogComponent, {
+      header: 'Add New Node',
+      width: '700px',
       data: { collectionId: this.currentCollectionId }
     });
 
-    ref.onClose.pipe(take(1)).subscribe((newLinkData: Link) => {
-      if (newLinkData) {
-        const dataToAdd: Omit<Link, 'id' | 'createdAt' | 'updatedAt'> = {
-          name: newLinkData.name,
-          url: newLinkData.url,
+    dialogRef.onClose.pipe(take(1)).subscribe((newNodeData: Node) => {
+      if (newNodeData) {
+        const dataToAdd: Omit<Node, 'id' | 'createdAt' | 'updatedAt'> = {
+          name: newNodeData.name,
           collectionId: this.currentCollectionId!,
           userId: this.currentUserId!,
-          ...(newLinkData.description !== null && newLinkData.description !== undefined ? { description: newLinkData.description } : {})
+          ...(newNodeData.description !== null && newNodeData.description !== undefined ? { description: newNodeData.description } : {}),
+          ...(newNodeData.customFields ? { customFields: newNodeData.customFields } : {})
         };
-        this.firebaseService.addLink(this.currentUserId!, this.currentCollectionId!, dataToAdd).then(() => {
-          this.toastService.showSuccess('Link Added', 'Link added successfully!');
-        }).catch(error => this.toastService.showError('Add Link Failed', `Error adding link: ${error.message}`));
+        this.firebaseService.addNode(this.currentUserId!, this.currentCollectionId!, dataToAdd).then(() => {
+          this.toastService.showSuccess('Success', 'Node added successfully!');
+        }).catch((error: any) => this.toastService.showError('Error', `Error adding node: ${error.message}`));
       }
     });
   }
@@ -379,66 +388,74 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  editLink(link: Link): void {
+  editNode(node: Node): void {
     if (!this.currentUserId) {
       this.toastService.showError('Error', 'No user ID available for edit.');
       return;
     }
-    if (!link.id || !link.collectionId) {
-      this.toastService.showError('Error', 'Link ID or Collection ID is missing for edit.');
+    if (!node.id || !node.collectionId) {
+      this.toastService.showError('Error', 'Node ID or Collection ID is missing for edit.');
       return;
     }
-    const ref = this.dialogService.open(AddLinkDialogComponent, {
-      header: 'Edit Link',
-      width: '400px',
-      data: { link, collectionId: link.collectionId }
+    const dialogRef = this.dialogService.open(AddNodeDialogComponent, {
+      header: 'Edit Node',
+      width: '700px',
+      data: { node: node, collectionId: this.currentCollectionId }
     });
 
-    ref.onClose.pipe(take(1)).subscribe((updatedLinkData: Link) => {
-      if (updatedLinkData) {
-        const dataToUpdate: Partial<Link> = {
-          name: updatedLinkData.name,
-          url: updatedLinkData.url,
-          ...(updatedLinkData.description !== null && updatedLinkData.description !== undefined ? { description: updatedLinkData.description } : {})
+    dialogRef.onClose.pipe(take(1)).subscribe((updatedNodeData: Node) => {
+      if (updatedNodeData) {
+        const dataToUpdate: Partial<Node> = {
+          name: updatedNodeData.name,
+          description: updatedNodeData.description !== null && updatedNodeData.description !== undefined ? updatedNodeData.description : null,
+          customFields: updatedNodeData.customFields || []
         };
-        this.firebaseService.updateLink(this.currentUserId!, link.collectionId as string, link.id as string, dataToUpdate).then(() => {
-          this.toastService.showSuccess('Link Updated', 'Link updated successfully!');
-        }).catch(error => this.toastService.showError('Update Failed', `Error updating link: ${error.message}`));
+        this.firebaseService.updateNode(this.currentUserId!, this.currentCollectionId!, node.id!, dataToUpdate).then(() => {
+          this.toastService.showSuccess('Success', 'Node updated successfully!');
+        }).catch(error => this.toastService.showError('Error', `Error updating node: ${error.message}`));
       }
     });
   }
 
-  confirmDeleteItem(id: string, type: 'collection' | 'link', target: HTMLElement): void {
+  openViewNodeDialog(node: Node): void {
+    this.dialogService.open(ViewNodeDialogComponent, {
+      header: node.name ?? 'Node Details',
+      width: '50%',
+      data: { node: node }
+    });
+  }
+
+  confirmDeleteItem(id: string, type: 'collection' | 'node', target: HTMLElement): void {
     if (this.isGlobalSearch) {
       this.toastService.showInfo('Information', 'Cannot delete items in global search mode. Please navigate to a specific collection or item.');
       return;
     }
-    const header = type === 'collection' ? 'Delete Collection' : 'Delete Link';
-    const message = type === 'collection'
-      ? 'Are you sure you want to delete this collection and all its sub-collections and links?'
-      : 'Are you sure you want to delete this link?';
-
-    const ref = this.dialogService.open(ConfirmDialogComponent, {
-      header: header,
-      width: '350px',
-      contentStyle: { "max-height": "350px", "overflow": "auto" },
-      baseZIndex: 10000,
-      data: { message: message }
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+      header: `Confirm Delete ${type === 'collection' ? 'Collection' : 'Node'}`,
+      width: '400px',
+      data: { message: `Are you sure you want to delete this ${type === 'collection' ? 'collection' : 'node'}?` },
+      style: { 'max-width': '90vw' }
     });
 
-    ref.onClose.pipe(take(1)).subscribe((result) => {
-      if (result && this.currentUserId) {
+    dialogRef.onClose.pipe(take(1)).subscribe(result => {
+      if (result) {
+        this.isLoading = true;
         if (type === 'collection') {
-          this.firebaseService.deleteCollection(this.currentUserId, id).then(() => {
-            this.toastService.showSuccess('Deleted', 'Collection deleted successfully!');
-          }).catch(error => this.toastService.showError('Deletion Failed', `Error deleting collection: ${error.message}`));
+          this.firebaseService.deleteCollection(this.currentUserId!, id).then(() => {
+            this.toastService.showSuccess('Success', 'Collection deleted successfully!');
+          }).catch((error: any) => {
+            this.toastService.showError('Error', 'Failed to delete collection.');
+            console.error('Error deleting collection:', error);
+          }).finally(() => {
+            this.isLoading = false;
+          });
         } else {
           if (this.currentCollectionId) {
-            this.firebaseService.deleteLink(this.currentUserId, this.currentCollectionId, id).then(() => {
-              this.toastService.showSuccess('Deleted', 'Link deleted successfully!');
-            }).catch(error => this.toastService.showError('Deletion Failed', `Error deleting link: ${error.message}`));
+            this.firebaseService.deleteNode(this.currentUserId!, this.currentCollectionId, id).then(() => {
+              this.toastService.showSuccess('Success', 'Node deleted successfully!');
+            }).catch((error: any) => this.toastService.showError('Error', `Error deleting node: ${error.message}`));
           } else {
-            this.toastService.showError('Error', 'Cannot delete link: current collection ID is missing.');
+            this.toastService.showError('Error', 'Cannot delete node: current collection ID is missing.');
           }
         }
       }
@@ -447,7 +464,7 @@ export class DashboardComponent implements OnInit {
 
   toggleSearchMode(newValue: boolean): void {
     this.isGlobalSearchSubject.next(newValue);
-    
+
     if (newValue) {
       this.currentCollectionIdSubject.next(null);
     }

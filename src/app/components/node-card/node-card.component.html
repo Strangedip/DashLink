@@ -1,11 +1,10 @@
-<div class="link-item flex align-items-center justify-content-between p-3 border-round-md cursor-pointer" (click)="onView()">
+<div class="node-item flex align-items-center justify-content-between p-3 border-round-md cursor-pointer" (click)="onView()">
   <div class="flex align-items-center flex-grow-1 min-w-0">
     <i class="pi pi-link text-2xl mr-3 flex-shrink-0"></i>
     <div class="flex flex-column overflow-hidden flex-grow-1 min-w-0">
-      <span class="font-medium text-lg text-overflow-ellipsis">{{ link.name }}</span>
-      <span class="text-sm text-500 text-overflow-ellipsis">{{ link.url }}</span>
-      @if (link.description) {
-        <span class="text-xs text-400 mt-1 text-overflow-ellipsis">{{ link.description }}</span>
+      <span class="font-medium text-lg text-overflow-ellipsis">{{ node.name }}</span>
+      @if (node.description) {
+        <span class="text-xs text-400 mt-1 text-overflow-ellipsis">{{ node.description }}</span>
       }
     </div>
   </div>

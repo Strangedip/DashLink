@@ -1,6 +1,6 @@
 <nav class="fixed-navbar">
   <div class="navbar-content">
-    <div class="app-logo">DashLink</div>
+    <div class="app-logo"> <span class="text-primary">DashLink </span></div>
     <button *ngIf="authService.user$ | async" pButton pTooltip="Logout" icon="pi pi-sign-out" (click)="logout()"
       class="p-button-plain"></button>
   </div>

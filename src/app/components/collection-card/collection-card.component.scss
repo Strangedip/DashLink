@@ -1,6 +1,6 @@
 .collection-item {
-  background-color: var(--p-surface-card);
-  border: 1px solid var(--p-surface-border);
+  background-color: var(--p-surface-700);
+  border: 1px solid var(--p-surface-700);
   border-radius: var(--border-radius);
   padding: 0.75rem 1rem;
   width: 100%;
@@ -8,12 +8,12 @@
   transition: background-color 0.2s, border-color 0.2s;
 
   &:hover {
-    background-color: var(--p-green-700);
-    border-color: var(--p-primary-color);
+    background-color: var(--p-surface-700);
+    border-color: var(--p-surface-500);
   }
 
   .collection-icon {
-    color: var(--primary-color);
+    color: var(--p-text-color-secondary);
     font-size: 2.5rem;
     width: 40px;
     height: 40px;
@@ -35,12 +35,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-
-    @media screen and (max-width: 576px) {
-      font-size: 0.9rem;
-    }
     @media screen and (max-width: 400px) {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
     }
   }
 

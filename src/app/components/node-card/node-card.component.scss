@@ -1,5 +1,5 @@
-.link-item {
-  background-color: var(--p-surface-card);
+.node-item {
+  background-color: var(--p-surface-900);
   border: 1px solid var(--p-surface-border);
   border-radius: var(--border-radius);
   padding: 0.75rem 1rem;
@@ -8,12 +8,12 @@
   transition: background-color 0.2s, border-color 0.2s;
 
   &:hover {
-    background-color: var(--p-green-700);
-    border-color: var(--p-primary-color);
+    background-color: var(--p-green-500);
+    border-color: var(--p-green-300);
   }
 
-  .link-icon {
-    color: var(--primary-color);
+  .node-icon {
+    color: var(--p-green-500);
     font-size: 2.5rem;
     width: 40px;
     height: 40px;
@@ -35,12 +35,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-
-    @media screen and (max-width: 576px) {
-      font-size: 0.9rem;
-    }
     @media screen and (max-width: 400px) {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
     }
   }
 

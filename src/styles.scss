@@ -34,8 +34,8 @@
 }
 
 html, body {
-  height: 100%;
-  /* Removed: overflow: hidden; */ /* Allow body to scroll */
+  height: max-content;
+  max-height: 100%;
 }
 
 body {
@@ -43,13 +43,45 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-@media screen and (max-width: 768px) {
+/* Global PrimeNG Dialog Overrides for Small Devices */
+@media screen and (max-width: 600px) {
+  :root {--p-card-body-padding:0.5rem !important}
+  .p-dialog {
+    width: 95% !important; /* Set max width to 95% */
+    margin: 0 auto !important; /* Center the dialog */
+    padding: 0 !important;
+    left: unset !important; /* Reset left property to allow auto margin to work */
+    transform: unset !important; /* Reset transform property */
+  }
+  .p-button{
+    margin-top: 0.6rem !important;
+  }
+  .p-dialog .p-dialog-header {
+    padding: 1.25rem !important;
+    text-align: center !important;
+  }
+
+  .p-dialog .p-dialog-content, .dialog-container {
+    padding: 0.5rem !important; /* Reduce content padding */
+  }
+
+  .p-dialog .p-dialog-footer {
+    padding: 0rem !important; /* Reduce footer padding */
+  }
+  .p-card-body{
+    padding: 1.5rem !important;
+    font-size: 2rem !important;
+  }
+
   .p-toast {
     width: 90% !important;
     max-width: 300px !important; /* Adjust as needed */
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
+}
+.p-card-title {
+  text-align: center !important;
 }
 #description{
   min-width: 100% !important;
