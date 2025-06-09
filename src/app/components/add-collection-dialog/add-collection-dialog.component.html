@@ -2,15 +2,15 @@
   <div [formGroup]="collectionForm">
     <div class="p-field">
       <label for="name">Collection Name</label>
-      <input id="name" type="text" pInputText formControlName="name" required>
+      <input id="name" type="text" pInputText formControlName="name" placeholder="Collection Name" required>
       @if (collectionForm.get('name')?.invalid && collectionForm.get('name')?.touched) {
         <p-message severity="error" text="Collection Name is required."></p-message>
       }
     </div>
 
     <div class="p-field">
-      <label for="description">Description (Optional)</label>
-      <textarea id="description" pTextarea formControlName="description"></textarea>
+      <label for="description">Description</label>
+      <textarea class="inputtext" id="description" placeholder="Description (Optional)" pTextarea formControlName="description"></textarea>
     </div>
   </div>
   <div class="p-dialog-footer">

@@ -16,7 +16,7 @@
           <label for="email" class="block text-900 font-medium mb-2">Email</label>
           <p-iconField iconPosition="left" class="w-full">
             <p-inputIcon><i class="pi pi-envelope"></i></p-inputIcon>
-            <input pInputText id="email" type="email" formControlName="email" required class="w-full">
+            <input pInputText id="email" type="email" formControlName="email" placeholder="Enter Email" required class="w-full">
           </p-iconField>
           @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
           @if (loginForm.get('email')?.errors?.['required']) {
@@ -32,7 +32,7 @@
           <label for="password" class="block text-900 font-medium mb-2">Password</label>
           <p-iconField iconPosition="left" class="w-full">
             <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
-            <input pInputText id="password" type="password" formControlName="password" required class="w-full">
+            <input pInputText id="password" type="password" formControlName="password" placeholder="Enter Password" required class="w-full">
           </p-iconField>
           @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
           <p-message severity="error" text="Password is required." class="block mt-2"></p-message>

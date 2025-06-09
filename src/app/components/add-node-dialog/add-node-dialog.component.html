@@ -2,15 +2,15 @@
   <div [formGroup]="nodeForm">
     <div class="p-field">
       <label for="name">Node Name</label>
-      <input id="name" type="text" pInputText formControlName="name" required>
+      <input id="name" type="text" pInputText formControlName="name" placeholder="Node Name" required>
       @if (nodeForm.get('name')?.invalid && nodeForm.get('name')?.touched) {
         <p-message severity="error" text="Node Name is required."></p-message>
       }
     </div>
 
     <div class="p-field">
-      <label for="description">Description (Optional)</label>
-      <textarea id="description" pTextarea formControlName="description"></textarea>
+      <label for="description">Description</label>
+      <textarea id="description" class="inputtext" pTextarea formControlName="description" placeholder="Description (Optional)"></textarea>
     </div>
 
     <h3>Custom Fields</h3>
@@ -26,7 +26,7 @@
           </div>
           <div class="p-field flex-grow-1">
             <label [for]="'fieldName' + i">Field Name</label>
-            <input [id]="'fieldName' + i" type="text" pInputText formControlName="fieldName" required>
+            <input [id]="'fieldName' + i" type="text" pInputText formControlName="fieldName" placeholder="Field Name" required>
             @if (field.get('fieldName')?.invalid && field.get('fieldName')?.touched) {
               <p-message severity="error" text="Field Name is required."></p-message>
             }

@@ -5,6 +5,7 @@
 :root {
   --p-dark-grey-100: #343a40; /* A darker grey */
   --p-dark-grey-200: #212529; /* Even darker grey */
+  --p-dark-grey-300: #181818; /* Even darker grey */
   --p-green-500: #4CAF50; /* A typical PrimeNG-like green */
   --p-green-600: #43A047; /* Slightly darker green for hover */
   --p-green-700: #388E3C; /* Even darker green for active/hover */
@@ -70,7 +71,6 @@ body {
   }
   .p-card-body{
     padding: 1.5rem !important;
-    font-size: 2rem !important;
   }
 
   .p-toast {
@@ -83,8 +83,16 @@ body {
 .p-card-title {
   text-align: center !important;
 }
+.text-primary-500{
+  color: var(--p-green-500) !important;
+}
+.inputtext{
+  background-color: var(--p-dark-grey-300) !important;
+  border-radius: 0.35rem !important;
+}
 #description{
   min-width: 100% !important;
+  min-height: fit-content;
   resize: vertical !important;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1rem;
