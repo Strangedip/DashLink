@@ -3,6 +3,7 @@ import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { ToastService } from './services/toast.service';
+import { LoggerService } from './services/logger.service';
 
 // PrimeNG Imports
 import { MenubarModule } from 'primeng/menubar';
@@ -43,7 +44,12 @@ export class AppComponent {
   sidebarMenuItems: MenuItem[] = [];
   sidebarVisible: boolean = false; // For responsive sidebar
 
-  constructor(public authService: AuthService, private router: Router, private toastService: ToastService) {
+  constructor(
+    public authService: AuthService, 
+    private router: Router, 
+    private toastService: ToastService,
+    private logger: LoggerService
+  ) {
     this.authService.user$.subscribe(user => {
       if (user) {
         this.userMenuItems = [
@@ -68,9 +74,9 @@ export class AppComponent {
       await this.authService.logout();
       this.router.navigate(['/auth/login']);
       this.toastService.showSuccess('Logged Out', 'You have been successfully logged out.');
-    } catch (error) {
+    } catch (error: unknown) {
       this.toastService.showError('Logout Failed', 'There was an error logging out. Please try again.');
-      console.error('Error logging out:', error);
+      this.logger.error('Error logging out:', error);
     }
   }
 }

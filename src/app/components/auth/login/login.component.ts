@@ -12,6 +12,7 @@ import { InputIconModule } from 'primeng/inputicon';
 
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { LoggerService } from '../../../services/logger.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -36,7 +37,12 @@ export class LoginComponent {
     password: new FormControl('', Validators.required)
   });
 
-  constructor(private authService: AuthService, private router: Router, private toastService: ToastService) { }
+  constructor(
+    private authService: AuthService, 
+    private router: Router, 
+    private toastService: ToastService,
+    private logger: LoggerService
+  ) { }
 
   async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
@@ -44,8 +50,10 @@ export class LoginComponent {
         await this.authService.login(this.loginForm.value.email as string, this.loginForm.value.password as string);
         this.toastService.showSuccess('Login Successful', 'You have been successfully logged in.');
         this.router.navigate(['/dashboard']);
-      } catch (error: any) {
-        this.toastService.showError('Login Failed', error.message || 'An unknown error occurred during login.');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during login.';
+        this.toastService.showError('Login Failed', errorMessage);
+        this.logger.error('Login error:', error);
       }
     }
   }
@@ -55,9 +63,10 @@ export class LoginComponent {
       await this.authService.signInWithGoogle();
       this.toastService.showSuccess('Google Sign-in Successful', 'You have been successfully signed in with Google.');
       this.router.navigate(['/']);
-    } catch (error: any) {
-      console.error('Error signing in with Google:', error);
-      this.toastService.showError('Google Sign-in Failed', error.message || 'An unknown error occurred during Google sign-in.');
+    } catch (error: unknown) {
+      this.logger.error('Error signing in with Google:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during Google sign-in.';
+      this.toastService.showError('Google Sign-in Failed', errorMessage);
     }
   }
 

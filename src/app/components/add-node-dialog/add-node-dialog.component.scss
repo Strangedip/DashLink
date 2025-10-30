@@ -1,8 +1,28 @@
 .dialog-container {
-  padding: 1.5rem;
-  background-color: inherit;
+  padding: 0;
+  background-color: transparent;
   color: var(--p-text-color);
-  border-radius: var(--border-radius);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(76, 175, 80, 0.5);
+    }
+  }
 }
 
 .p-field {
@@ -11,18 +31,28 @@
   label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--p-text-color-secondary);
+    font-weight: 600;
+    color: var(--p-green-400);
+    font-size: 0.9rem;
   }
 
   input.p-inputtext,
-  textarea.p-inputtextarea {
+  textarea {
     width: 100%;
+    
+    // Override default blue focus with green theme
+    &:focus {
+      outline: 0 none;
+      outline-offset: 0;
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+      border-color: var(--p-green-500) !important;
+    }
   }
 
-  textarea.p-inputtextarea {
-    min-height: 100px;
+  textarea {
+    min-height: 80px;
     resize: vertical;
+    font-family: inherit;
   }
 }
 
@@ -45,26 +75,55 @@ p-message.p-inline-message {
 }
 
 .custom-field-item {
+  background: var(--p-surface-800);
   border: 1px solid var(--p-surface-border);
-  border-radius: var(--border-radius);
+  border-left: 3px solid var(--p-green-500);
+  border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-left-color: var(--p-green-400);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 
   .p-field {
-    flex: 1 1 auto; /* Allow fields to grow and shrink, take up full width on small screens */
-    min-width: 150px; /* Minimum width for each field before wrapping */
+    flex: 1 1 auto;
+    min-width: 150px;
     margin-bottom: 0;
+
+    // Also apply green focus to dropdowns in custom fields
+    .p-select,
+    .p-inputnumber,
+    .p-calendar {
+      &:focus-within,
+      &.p-focus {
+        outline: 0 none;
+        outline-offset: 0;
+        box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+        border-color: var(--p-green-500) !important;
+      }
+    }
   }
 
   .remove-field-button-container {
     flex-shrink: 0;
-    margin-left: auto; /* Push button to the right */
+    margin-left: auto;
     align-self: flex-start;
     padding-top: 1.5rem !important;
+
+    button {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
 
     @media screen and (max-width: 600px) {
       padding-top: 1rem !important;

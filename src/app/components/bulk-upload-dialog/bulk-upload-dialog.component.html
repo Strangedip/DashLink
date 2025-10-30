@@ -1,0 +1,125 @@
+<div class="bulk-upload-container">
+  <!-- Header Info -->
+  <div class="upload-info">
+    <div class="info-header">
+      <i class="pi pi-upload"></i>
+      <h3>Bulk Upload</h3>
+    </div>
+    <p class="info-text">
+      Upload multiple collections and nodes at once using JSON format.
+      <button 
+        pButton 
+        icon="pi pi-question-circle" 
+        class="p-button-text p-button-sm help-button" 
+        (click)="toggleHelp()"
+        [label]="showHelp ? 'Hide Guide' : 'Show Guide'">
+      </button>
+    </p>
+  </div>
+
+  <!-- Help Section -->
+  @if (showHelp) {
+    <div class="help-section">
+      <div class="help-header">
+        <i class="pi pi-info-circle"></i>
+        <span>JSON Format Guide</span>
+      </div>
+      
+      <div class="help-content">
+        <h4>Structure</h4>
+        <ul>
+          <li><strong>collections</strong>: Array of collections to create</li>
+          <li><strong>nodes</strong>: Array of nodes (only works when inside a collection)</li>
+          <li><strong>subCollections</strong>: Nested collections within a parent collection</li>
+        </ul>
+        <p class="note-text">
+          <i class="pi pi-info-circle"></i>
+          <strong>Note:</strong> Standalone nodes at the root level will only be created if you're currently viewing a collection.
+        </p>
+
+        <h4>Collection Fields</h4>
+        <ul>
+          <li><strong>name</strong>: (Required) Collection name</li>
+          <li><strong>description</strong>: (Optional) Collection description</li>
+          <li><strong>nodes</strong>: (Optional) Array of nodes within this collection</li>
+          <li><strong>subCollections</strong>: (Optional) Nested collections</li>
+        </ul>
+
+        <h4>Node Fields</h4>
+        <ul>
+          <li><strong>name</strong>: (Required) Node name</li>
+          <li><strong>description</strong>: (Optional) Node description</li>
+          <li><strong>customFields</strong>: (Optional) Array of custom fields</li>
+        </ul>
+
+        <h4>Custom Field Structure</h4>
+        <ul>
+          <li><strong>fieldName</strong>: (Required) Display name of the field</li>
+          <li><strong>fieldType</strong>: (Required) Type of the field</li>
+          <li><strong>fieldValue</strong>: (Required) Value of the field</li>
+        </ul>
+
+        <h4>Custom Field Types</h4>
+        <p>Supported types: <code>text</code>, <code>number</code>, <code>date</code>, <code>url</code>, <code>imageUrl</code>, <code>richText</code></p>
+
+        <div class="example-section">
+          <div class="example-header">
+            <span>Example JSON</span>
+            <button 
+              pButton 
+              icon="pi pi-copy" 
+              label="Copy" 
+              class="p-button-sm p-button-text"
+              (click)="copyExample()">
+            </button>
+          </div>
+          <pre class="example-code">{{ exampleJson }}</pre>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- JSON Input -->
+  <div class="input-section">
+    <label for="jsonInput">
+      <i class="pi pi-code"></i>
+      Paste Your JSON
+    </label>
+    <textarea
+      id="jsonInput"
+      pInputTextarea
+      [(ngModel)]="jsonInput"
+      placeholder="Paste your JSON here..."
+      [rows]="12"
+      [autoResize]="false"
+      class="json-textarea">
+    </textarea>
+    
+    @if (validationError) {
+      <div class="validation-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ validationError }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="dialog-footer">
+    <button 
+      pButton 
+      label="Cancel" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="onCancel()"
+      [disabled]="isProcessing">
+    </button>
+    <button 
+      pButton 
+      label="Upload" 
+      icon="pi pi-cloud-upload" 
+      (click)="processUpload()"
+      [loading]="isProcessing"
+      [disabled]="!jsonInput.trim()">
+    </button>
+  </div>
+</div>

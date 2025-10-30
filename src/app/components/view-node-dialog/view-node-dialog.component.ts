@@ -1,9 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { CommonModule, KeyValuePipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { ImageModule } from 'primeng/image';
 
 import { Node, CustomField } from '../../models/data.model';
 
@@ -12,10 +10,7 @@ import { Node, CustomField } from '../../models/data.model';
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
-    CardModule,
-    KeyValuePipe,
-    ImageModule
+    ButtonModule
   ],
   providers: [DatePipe],
   templateUrl: './view-node-dialog.component.html',
@@ -53,12 +48,32 @@ export class ViewNodeDialogComponent implements OnInit {
     }
   }
 
-  formatDate(timestamp: any): string | null {
-    if (timestamp && typeof timestamp.toDate === 'function') {
-      const date = timestamp.toDate();
+  formatDate(timestamp: unknown): string | null {
+    if (timestamp && typeof timestamp === 'object' && 'toDate' in timestamp && typeof timestamp.toDate === 'function') {
+      const date = (timestamp as any).toDate();
       return this.datePipe.transform(date, 'MM/dd/yyyy');
     }
-    return timestamp;
+    return timestamp as string;
+  }
+
+  isHtmlContent(content: unknown): boolean {
+    if (typeof content !== 'string') return false;
+    const htmlRegex = /<\/?[a-z][\s\S]*>/i;
+    return htmlRegex.test(content);
+  }
+
+  getDescriptionHtml(): string {
+    return this.sanitizeHtml(this.node.description);
+  }
+
+  getCustomFieldHtml(value: unknown): string {
+    return this.sanitizeHtml(value as string);
+  }
+
+  private sanitizeHtml(html: string | undefined | null): string {
+    if (!html) return '';
+    // Basic sanitization - you might want to use DomSanitizer for production
+    return html;
   }
 
   onClose(): void {

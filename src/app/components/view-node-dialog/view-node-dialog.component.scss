@@ -1,119 +1,345 @@
-.dialog-container {
-  padding: 1.5rem;
-  background-color: var(--p-surface-a);
-  color: var(--p-text-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--p-shadow-3);
+// Compact, Content-Focused Design
+.view-node-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 80vh;
+  overflow: hidden;
 
-
-  @media screen and (max-width: 768px) {
-    padding: 1rem;
+  @media screen and (max-width: 576px) {
+    max-height: 85vh;
   }
 }
 
-.p-card {
-  background-color: transparent;
-  box-shadow: none;
-  border: none;
+// Compact Image Header with Fade Effect
+.node-image-header {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  border-radius: 0 0 16px 16px;
+  margin-bottom: 0.5rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  // Gradient overlay for smooth fade to content
+  .image-fade-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(23, 23, 23, 0.1) 20%,
+      rgba(23, 23, 23, 0.4) 50%,
+      rgba(23, 23, 23, 0.8) 80%,
+      rgba(23, 23, 23, 0.95) 100%
+    );
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 576px) {
+    height: 180px;
+    border-radius: 0 0 12px 12px;
+    
+    .image-fade-overlay {
+      height: 35%;
+    }
+  }
 }
 
-.p-card .p-card-header {
-  padding-bottom: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--p-primary-color);
-  border-bottom: 1px solid var(--p-surface-border);
-  margin-bottom: 1.5rem;
+// Scrollable Content Wrapper
+.node-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 1rem 1rem 1rem;
+  padding-right: 0.75rem;
+  -webkit-overflow-scrolling: touch;
+  
+  // Minimal scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 
-  @media screen and (max-width: 768px) {
-    font-size: 1.25rem;
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 2px;
+    
+    &:hover {
+      background: rgba(76, 175, 80, 0.5);
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 0.875rem;
+    padding-right: 0.625rem;
+  }
+}
+
+// Info Block (Description & Fields)
+.info-block {
+  margin-bottom: 1.25rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 576px) {
     margin-bottom: 1rem;
   }
 }
 
-.p-card .p-card-subheader {
-  display: none;
-}
-
-.p-card .p-card-content {
-  padding: 0;
-}
-
-.p-field {
+// Compact Block Title
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.25);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  i {
+    color: var(--p-green-500);
+    font-size: 0.9rem;
+  }
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.8rem;
+    margin-bottom: 0.625rem;
+    
+    i {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Block Text (Description)
+.block-text {
+  font-size: 0.925rem;
+  line-height: 1.6;
+  color: var(--p-text-color);
+  word-wrap: break-word;
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+}
+
+// Fields List
+.fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+// Compact Field Item
+.field-item {
+  background: var(--p-surface-800);
+  border-left: 2px solid var(--p-green-500);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--p-surface-700);
+    border-left-color: var(--p-green-400);
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 0.5rem 0.625rem;
+    gap: 0.35rem;
+  }
+}
+
+.field-name {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  i {
+    color: var(--p-green-500);
+    font-size: 0.75rem;
+  }
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.7rem;
+    
+    i {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+.field-value {
+  font-size: 0.9rem;
   line-height: 1.5;
-  font-size: 1rem;
+  color: var(--p-text-color);
+  word-break: break-word;
+  padding-left: 1.125rem;
 
-  @media screen and (max-width: 768px) {
-    margin-bottom: 0.5rem;
+  span {
+    display: block;
+  }
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.85rem;
+    padding-left: 1rem;
   }
 }
 
-.p-dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--p-surface-border);
-  margin-top: 1.5rem;
-}
+// Field Links
+.field-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--p-green-500);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  word-break: break-all;
 
-.image-container {
-  margin-bottom: 1rem;
-}
-
-.node-image {
-  width: 100%;
-  display: block;
-  max-width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: var(--border-radius);
-  box-shadow: var(--p-shadow-1);
-}
-
-
-@media screen and (max-width: 768px) {
-  .node-image {
-    height: 150px;
-  }
-}
-
-.custom-field-image {
-  max-width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: var(--border-radius);
-  box-shadow: var(--p-shadow-1);
-  margin-top: 0.5rem;
-}
-
-.custom-field-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-
-  strong {
-    margin-right: 0.5rem;
+  i {
+    font-size: 0.75rem;
     flex-shrink: 0;
   }
 
-  .url-link {
-    word-break: break-all;
-    overflow-wrap: break-word;
-    display: block;
-    white-space: normal;
-    max-width: calc(100% - 0.5rem);
+  &:hover, &:active {
+    color: var(--p-green-400);
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.85rem;
+    
+    i {
+      font-size: 0.7rem;
+    }
   }
 }
 
-@media screen and (max-width: 768px) {
-  .p-field {
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+// Compact Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--p-text-color-secondary);
+
+  i {
+    font-size: 2.5rem;
+    color: var(--p-surface-500);
+    margin-bottom: 0.75rem;
   }
 
-  .custom-field-image {
-    height: 80px;
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 2rem 1rem;
+    
+    i {
+      font-size: 2rem;
+    }
+    
+    p {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Compact Footer
+.node-footer {
+  padding: 0.625rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--p-surface-900);
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+
+  @media screen and (max-width: 576px) {
+    padding: 0.5rem 0.875rem;
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Rich text content styling for HTML content
+.block-text, .field-value {
+  p {
+    line-height: 1.6;
+    margin: 0.4rem 0;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin: 0.6rem 0 0.4rem 0;
+    color: var(--p-text-color);
+  }
+  
+  ul, ol {
+    line-height: 1.5;
+    margin: 0.4rem 0;
+    padding-left: 1.5rem;
+    
+    li {
+      margin: 0.25rem 0;
+    }
+  }
+  
+  blockquote {
+    line-height: 1.5;
+    margin: 0.5rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 3px solid var(--p-green-500);
+    background: rgba(76, 175, 80, 0.05);
+  }
+  
+  strong, b {
+    font-weight: 600;
+  }
+
+  em, i {
+    font-style: italic;
+  }
+
+  // Remove default margins for first and last elements
+  > :first-child {
+    margin-top: 0;
+  }
+  
+  > :last-child {
+    margin-bottom: 0;
   }
 }

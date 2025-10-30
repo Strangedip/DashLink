@@ -10,7 +10,14 @@
 
     <div class="p-field">
       <label for="description">Description</label>
-      <textarea id="description" class="inputtext" pTextarea formControlName="description" placeholder="Description (Optional)"></textarea>
+      <textarea 
+        pTextarea
+        id="description" 
+        formControlName="description" 
+        placeholder="Description (Optional)"
+        rows="3"
+        class="w-full">
+      </textarea>
     </div>
 
     <h3>Custom Fields</h3>
@@ -38,7 +45,7 @@
                 <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter text value">
               }
               @case ('url') {
-                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter URL (e.g., https://example.com)" />
+                <input [id]="'fieldValue' + i" type="url" pInputText formControlName="fieldValue" placeholder="Enter URL (e.g., https://example.com)" />
               }
               @case ('number') {
                 <p-inputNumber [id]="'fieldValue' + i" formControlName="fieldValue" placeholder="Enter number"></p-inputNumber>
@@ -47,7 +54,7 @@
                 <p-calendar [id]="'fieldValue' + i" formControlName="fieldValue" dateFormat="mm/dd/yy" placeholder="Select date"></p-calendar>
               }
               @case ('imageUrl') {
-                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter image URL">
+                <input [id]="'fieldValue' + i" type="url" pInputText formControlName="fieldValue" placeholder="Enter image URL">
               }
               @default {
                 <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter value">

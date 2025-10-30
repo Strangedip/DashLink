@@ -12,6 +12,7 @@ import { InputIconModule } from 'primeng/inputicon';
 
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { LoggerService } from '../../../services/logger.service';
 import { Router } from '@angular/router';
 
 // Custom validator function
@@ -50,7 +51,12 @@ export class RegisterComponent {
     confirmPassword: new FormControl('', Validators.required)
   }, { validators: passwordMatchValidator });
 
-  constructor(private authService: AuthService, private router: Router, private toastService: ToastService) { }
+  constructor(
+    private authService: AuthService, 
+    private router: Router, 
+    private toastService: ToastService,
+    private logger: LoggerService
+  ) { }
 
   async onSubmit(): Promise<void> {
     if (this.registerForm.valid) {
@@ -58,8 +64,10 @@ export class RegisterComponent {
         await this.authService.register(this.registerForm.value.email as string, this.registerForm.value.password as string);
         this.toastService.showSuccess('Registration Successful', 'You have been successfully registered.');
         this.router.navigate(['/dashboard']);
-      } catch (error: any) {
-        this.toastService.showError('Registration Failed', error.message || 'An unknown error occurred during registration.');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during registration.';
+        this.toastService.showError('Registration Failed', errorMessage);
+        this.logger.error('Registration error:', error);
       }
     }
   }
@@ -69,9 +77,10 @@ export class RegisterComponent {
       await this.authService.signInWithGoogle();
       this.toastService.showSuccess('Google Sign-up Successful', 'You have been successfully signed up with Google.');
       this.router.navigate(['/']);
-    } catch (error: any) {
-      console.error('Error signing in with Google:', error);
-      this.toastService.showError('Google Sign-up Failed', error.message || 'An unknown error occurred during Google sign-in.');
+    } catch (error: unknown) {
+      this.logger.error('Error signing in with Google:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during Google sign-in.';
+      this.toastService.showError('Google Sign-up Failed', errorMessage);
     }
   }
 

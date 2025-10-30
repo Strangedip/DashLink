@@ -15,11 +15,20 @@ A web application built with Angular and Firebase.
 
 ## About
 
-DashLink is a [**add a brief description of your project's purpose and functionality here**]. It leverages Angular for the frontend and Firebase for backend services, providing a robust and scalable solution.
+DashLink is a hierarchical collection and node management system designed to help you organize your links, bookmarks, and data in a structured way. It leverages Angular 18 for the frontend and Firebase for backend services, providing a robust, scalable, and real-time solution for managing your digital resources.
 
 ## Features
 
-- [**List key features of your application here, e.g., User Authentication, Data Management, Real-time Updates, etc.**]
+- **User Authentication**: Secure email/password and Google OAuth authentication
+- **Hierarchical Collections**: Create nested collections to organize your content
+- **Custom Nodes**: Add nodes with customizable fields (text, URL, number, date, image URL)
+- **Global Search**: Search across all collections or within specific collections
+- **Real-time Sync**: Changes are instantly synced across devices via Firebase
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Dark Theme**: Modern dark theme with PrimeNG components
+- **Breadcrumb Navigation**: Easy navigation through nested collections
+- **CRUD Operations**: Full create, read, update, and delete functionality
+- **URL Validation**: Built-in validators for URL and image URL fields
 
 ## Technologies Used
 
@@ -91,6 +100,15 @@ ng serve
 
 Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
+### Usage
+
+1. **Register/Login**: Create an account or sign in with Google
+2. **Create Collections**: Organize your content by creating collections and sub-collections
+3. **Add Nodes**: Add nodes with custom fields to store your data
+4. **Search**: Use the search bar with toggle for global or collection-specific search
+5. **Navigate**: Click on collections to browse nested structures
+6. **Manage**: Edit or delete collections and nodes using the context menus
+
 ### Building for Production
 
 To build the project for production:
@@ -107,6 +125,24 @@ To execute the unit tests via [Karma](https://karma-runner.github.io):
 
 ```bash
 ng test
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── components/        # UI components
+│   │   ├── auth/         # Authentication components
+│   │   ├── dashboard/    # Main dashboard
+│   │   └── ...           # Other components
+│   ├── guards/           # Route guards
+│   ├── models/           # TypeScript interfaces
+│   ├── services/         # Business logic services
+│   ├── validators/       # Custom form validators
+│   └── app.config.ts     # Application configuration
+├── environments/         # Environment configurations
+└── styles.scss          # Global styles
 ```
 
 ## Project Version
@@ -130,9 +166,36 @@ Please ensure your code adheres to the project's coding standards.
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details (if you have one, otherwise replace with your chosen license).
 
+## Architecture
+
+- **Frontend**: Angular 18 with standalone components
+- **UI Library**: PrimeNG with Lara theme
+- **Backend**: Firebase (Firestore, Authentication)
+- **State Management**: RxJS Observables
+- **Routing**: Angular Router with auth guards
+- **Styling**: SCSS with PrimeFlex utilities
+
+## Security
+
+- User data is isolated using Firebase security rules
+- Authentication required for all protected routes
+- Each user can only access their own collections and nodes
+- Firestore rules enforce server-side data access control
+
+## Performance Considerations
+
+- Debounced search (300ms) to reduce queries
+- RxJS takeUntilDestroyed for automatic subscription cleanup
+- Lazy-loaded routes (where applicable)
+- Real-time updates via Firebase listeners
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
 ## Contact
 
-For any questions or inquiries, please reach out to:
-
--   **Your Name/Team Name** - [Your Email Address]
--   **Project Link**: [https://github.com/your-username/DashLink](https://github.com/your-username/DashLink)
+For any questions or inquiries, please reach out through the project repository.

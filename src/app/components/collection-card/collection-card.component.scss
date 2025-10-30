@@ -1,85 +1,142 @@
-.collection-item {
-  background-color: var(--p-surface-700);
-  border: 1px solid var(--p-surface-700);
-  border-radius: var(--border-radius);
-  padding: 0.75rem 1rem;
+.collection-card {
+  background: linear-gradient(135deg, var(--p-surface-800) 0%, var(--p-surface-900) 100%);
+  border: 1px solid var(--p-surface-border);
+  border-radius: 12px;
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #4CAF50 0%, #2196F3 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &:hover {
-    background-color: var(--p-surface-700);
-    border-color: var(--p-surface-500);
-  }
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--p-green-500);
 
-  .collection-icon {
-    color: var(--p-text-color-secondary);
-    font-size: 2.5rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 16px;
-    flex-shrink: 0;
-  }
+    &::before {
+      opacity: 1;
+    }
 
-  .flex-column {
-    overflow: hidden;
-    min-width: 0;
-  }
+    .collection-icon-wrapper {
+      background: rgba(76, 175, 80, 0.15);
+      border-color: var(--p-green-500);
+    }
 
-  .font-medium.text-lg {
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    @media screen and (max-width: 400px) {
-      font-size: 0.9rem;
+    .collection-icon {
+      color: var(--p-green-500);
+      transform: scale(1.1);
+    }
+
+    .action-button {
+      opacity: 1;
     }
   }
 
-  .text-sm.text-500 {
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-
-    @media screen and (max-width: 576px) {
-      font-size: 0.75rem;
-    }
-  }
-
-  .actions {
-    position: relative;
-    flex-shrink: 0;
-
-    .p-menu {
-      z-index: 101;
-    }
+  &:active {
+    transform: translateY(0);
   }
 }
 
-.collection-icon mat-icon {
-  font-size: 24px;
-  height: 24px;
-  width: 24px;
+.collection-card-content {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+  min-height: 70px;
 }
 
-.p-card-title {
-  font-size: 1.25em;
-  font-weight: 500;
-  margin-bottom: 4px;
+.collection-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  background: rgba(100, 100, 100, 0.2);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-.p-card-subtitle {
-  font-size: 0.875em;
-  color: var(--text-color-secondary);
+.collection-icon {
+  font-size: 1.5rem;
+  color: var(--p-text-color-secondary);
+  transition: all 0.3s ease;
 }
 
-.p-spacer {
-  flex: 1 1 auto;
+.collection-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.collection-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.95rem;
+  }
+}
+
+.collection-description {
+  font-size: 0.875rem;
+  color: var(--p-text-color-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+
+  @media screen and (max-width: 576px) {
+    font-size: 0.8rem;
+  }
+}
+
+.collection-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  .action-button {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .p-menu {
+    z-index: 1001;
+  }
+
+  @media screen and (max-width: 576px) {
+    .action-button {
+      opacity: 1;
+    }
+  }
 }

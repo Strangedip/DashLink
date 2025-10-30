@@ -1,15 +1,26 @@
-<div class="node-item flex align-items-center justify-content-between p-3 border-round-md cursor-pointer" (click)="onView()">
-  <div class="flex align-items-center flex-grow-1 min-w-0">
-    <i class="pi pi-link text-2xl mr-3 flex-shrink-0"></i>
-    <div class="flex flex-column overflow-hidden flex-grow-1 min-w-0">
-      <span class="font-medium text-lg text-overflow-ellipsis">{{ node.name }}</span>
+<div class="node-card" (click)="onView()">
+  <div class="node-card-content">
+    <div class="node-icon-wrapper">
+      <i class="pi pi-link node-icon"></i>
+    </div>
+    <div class="node-info">
+      <h3 class="node-title">{{ node.name }}</h3>
       @if (node.description) {
-        <span class="text-xs text-400 mt-1 text-overflow-ellipsis">{{ node.description }}</span>
+        <p class="node-description" [innerHTML]="node.description"></p>
       }
     </div>
-  </div>
-  <div class="actions flex-shrink-0">
-    <button #deleteButton type="button" pButton icon="pi pi-ellipsis-v" (click)="onMenuToggle($event)" class="p-button-text p-button-secondary p-button-sm"></button>
-    <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+    <div class="node-actions" (click)="$event.stopPropagation()">
+      <button 
+        #deleteButton 
+        type="button" 
+        pButton 
+        icon="pi pi-ellipsis-v" 
+        (click)="onMenuToggle($event)" 
+        class="p-button-text p-button-rounded p-button-secondary action-button"
+        pTooltip="Options"
+        tooltipPosition="left">
+      </button>
+      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+    </div>
   </div>
 </div>

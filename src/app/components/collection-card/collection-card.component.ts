@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule, Menu } from 'primeng/menu';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { Collection } from '../../models/data.model';
 import { MenuService } from '../../services/menu.service';
@@ -16,7 +17,8 @@ import { Subscription } from 'rxjs';
   imports: [
     CommonModule,
     ButtonModule,
-    MenuModule
+    MenuModule,
+    TooltipModule
   ],
   providers: [],
   templateUrl: './collection-card.component.html',

@@ -1,8 +1,28 @@
 .dialog-container {
-  padding: 1.5rem;
-  background-color: inherit;
+  padding: 0;
+  background-color: transparent;
   color: var(--p-text-color);
-  border-radius: var(--border-radius);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(76, 175, 80, 0.5);
+    }
+  }
 }
 
 .p-field {
@@ -11,18 +31,28 @@
   label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--p-text-color-secondary);
+    font-weight: 600;
+    color: var(--p-green-400);
+    font-size: 0.9rem;
   }
 
   input.p-inputtext,
-  textarea.p-inputtextarea {
+  textarea {
     width: 100%;
+    
+    // Override default blue focus with green theme
+    &:focus {
+      outline: 0 none;
+      outline-offset: 0;
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+      border-color: var(--p-green-500) !important;
+    }
   }
 
-  textarea.p-inputtextarea {
-    min-height: 100px;
+  textarea {
+    min-height: 80px;
     resize: vertical;
+    font-family: inherit;
   }
 }
 

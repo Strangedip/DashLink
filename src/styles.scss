@@ -98,3 +98,33 @@ body {
   font-size: 1rem;
   padding: 0.6em;
 }
+
+/* Global Focus State Override - Green Theme Instead of Blue */
+.p-inputtext:enabled:focus,
+.p-inputnumber-input:enabled:focus,
+.p-select:not(.p-disabled).p-focus,
+.p-calendar:not(.p-disabled).p-focus,
+.p-textarea:enabled:focus,
+input.p-inputtext:enabled:focus,
+textarea.p-inputtext:enabled:focus {
+  outline: 0 none !important;
+  outline-offset: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+  border-color: var(--p-green-500) !important;
+}
+
+/* Dropdown Focus State */
+.p-select-overlay .p-select-option.p-focus {
+  background: rgba(76, 175, 80, 0.15) !important;
+  color: var(--p-text-color) !important;
+}
+
+/* Calendar Focus State */
+.p-datepicker table td > span.p-highlight {
+  background: var(--p-green-500) !important;
+  color: white !important;
+}
+
+.p-datepicker table td > span:focus {
+  box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+}

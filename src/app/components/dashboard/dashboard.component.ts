@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { LoggerService } from '../../services/logger.service';
 import { Collection, Node } from '../../models/data.model';
 import { CollectionCardComponent } from '../collection-card/collection-card.component';
 import { NodeCardComponent } from '../node-card/node-card.component';
@@ -11,6 +12,7 @@ import { AddCollectionDialogComponent } from '../add-collection-dialog/add-colle
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ViewNodeDialogComponent } from '../view-node-dialog/view-node-dialog.component';
+import { BulkUploadDialogComponent } from '../bulk-upload-dialog/bulk-upload-dialog.component';
 import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,7 +23,7 @@ import { MenuItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { MenuModule } from 'primeng/menu';
+import { MenuModule, Menu } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
 import { DataViewModule } from 'primeng/dataview';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
@@ -36,10 +38,6 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ReactiveFormsModule,
     CollectionCardComponent,
     NodeCardComponent,
-    AddCollectionDialogComponent,
-    AddNodeDialogComponent,
-    ConfirmDialogComponent,
-    ViewNodeDialogComponent,
     ButtonModule,
     CardModule,
     MenuModule,
@@ -76,7 +74,7 @@ export class DashboardComponent implements OnInit {
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem | undefined;
 
-  @ViewChild('additionalMenu') additionalMenu: any;
+  @ViewChild('additionalMenu') additionalMenu!: Menu;
 
   constructor(
     private firebaseService: FirebaseService,
@@ -85,13 +83,16 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private destroyRef: DestroyRef
+    private destroyRef: DestroyRef,
+    private logger: LoggerService
   ) { }
 
   ngOnInit(): void {
     this.additionalMenuItems = [
       { label: 'Add Collection', icon: 'pi pi-folder-open', command: () => this.openAddCollectionDialog() },
-      { label: 'Add Node', icon: 'pi pi-link', command: () => this.openAddNodeDialog() }
+      { label: 'Add Node', icon: 'pi pi-link', command: () => this.openAddNodeDialog() },
+      { separator: true },
+      { label: 'Bulk Upload', icon: 'pi pi-upload', command: () => this.openBulkUploadDialog() }
     ];
 
     this.authService.user$.pipe(
@@ -133,9 +134,9 @@ export class DashboardComponent implements OnInit {
                   if (defaultCollection) {
                     this.currentCollection = defaultCollection;
                     this.router.navigate(['/collections', defaultCollection.id], { replaceUrl: true });
-                    console.log('Current Collection (default/root):', this.currentCollection);
+                    this.logger.debug('Current Collection (default/root):', this.currentCollection);
                     this.showBackButton = false;
-                    console.log('showBackButton (default/root):', this.showBackButton);
+                    this.logger.debug('showBackButton (default/root):', this.showBackButton);
                     return defaultCollection.id!;
                   } else {
                     this.currentCollection = undefined;
@@ -214,7 +215,7 @@ export class DashboardComponent implements OnInit {
                         const date = field.fieldValue.toDate();
                         searchableFieldValue = date.toLocaleDateString(); // Convert to a locale-specific date string for search
                       } catch (e) {
-                        console.error("Error converting Timestamp to Date for search:", e);
+                        this.logger.error("Error converting Timestamp to Date for search:", e);
                         searchableFieldValue = field.fieldValue; // Fallback
                       }
                     } else {
@@ -222,19 +223,15 @@ export class DashboardComponent implements OnInit {
                     }
 
                     const fieldName = field.fieldName;
-                    console.log(`  Checking field: ${fieldName}, Value: ${searchableFieldValue}, Type: ${field.fieldType}`);
 
                     if (typeof searchableFieldValue === 'string' && searchableFieldValue.toLowerCase().includes(lowerCaseSearchFilter)) {
                       matches = true;
-                      console.log(`    MATCH (value): ${searchableFieldValue}`);
                       break;
                     } else if (typeof searchableFieldValue === 'number' && searchableFieldValue.toString().includes(lowerCaseSearchFilter)) {
                       matches = true;
-                      console.log(`    MATCH (number value): ${searchableFieldValue}`);
                       break;
                     } else if (typeof fieldName === 'string' && fieldName.toLowerCase().includes(lowerCaseSearchFilter)) {
                       matches = true;
-                      console.log(`    MATCH (field name): ${fieldName}`);
                       break;
                     }
                   }
@@ -323,7 +320,8 @@ export class DashboardComponent implements OnInit {
     }
     const ref = this.dialogService.open(AddCollectionDialogComponent, {
       header: 'Add New Collection',
-      width: '400px',
+      width: '450px',
+      style: { 'max-width': '90vw' },
       data: { parentCollectionId: this.currentCollectionId }
     });
 
@@ -355,6 +353,7 @@ export class DashboardComponent implements OnInit {
     const dialogRef = this.dialogService.open(AddNodeDialogComponent, {
       header: 'Add New Node',
       width: '700px',
+      style: { 'max-width': '90vw' },
       data: { collectionId: this.currentCollectionId }
     });
 
@@ -385,7 +384,8 @@ export class DashboardComponent implements OnInit {
     }
     const ref = this.dialogService.open(AddCollectionDialogComponent, {
       header: 'Edit Collection',
-      width: '400px',
+      width: '450px',
+      style: { 'max-width': '90vw' },
       data: { collection, parentCollectionId: collection.parentCollectionId }
     });
 
@@ -415,6 +415,7 @@ export class DashboardComponent implements OnInit {
     const dialogRef = this.dialogService.open(AddNodeDialogComponent, {
       header: 'Edit Node',
       width: '700px',
+      style: { 'max-width': '90vw' },
       data: { node: node, collectionId: this.currentCollectionId }
     });
 
@@ -435,8 +436,34 @@ export class DashboardComponent implements OnInit {
   openViewNodeDialog(node: Node): void {
     this.dialogService.open(ViewNodeDialogComponent, {
       header: node.name ?? 'Node Details',
-      width: '50%',
+      width: '550px',
+      style: { 
+        'max-width': '96vw'
+      },
+      dismissableMask: true,
       data: { node: node }
+    });
+  }
+
+  openBulkUploadDialog(): void {
+    const ref = this.dialogService.open(BulkUploadDialogComponent, {
+      header: 'Bulk Upload Collections & Nodes',
+      width: '700px',
+      style: { 
+        'max-width': '96vw'
+      },
+      dismissableMask: true,
+      data: { 
+        userId: this.currentUserId,
+        parentCollectionId: this.currentCollectionId 
+      }
+    });
+
+    ref.onClose.subscribe((success: boolean) => {
+      if (success) {
+        // Refresh the current view by re-emitting the current collection ID
+        this.currentCollectionIdSubject.next(this.currentCollectionId);
+      }
     });
   }
 
@@ -458,9 +485,9 @@ export class DashboardComponent implements OnInit {
         if (type === 'collection') {
           this.firebaseService.deleteCollection(this.currentUserId!, id).then(() => {
             this.toastService.showSuccess('Success', 'Collection deleted successfully!');
-          }).catch((error: any) => {
+          }).catch((error: unknown) => {
             this.toastService.showError('Error', 'Failed to delete collection.');
-            console.error('Error deleting collection:', error);
+            this.logger.error('Error deleting collection:', error);
           }).finally(() => {
             this.isLoading = false;
           });
@@ -468,9 +495,16 @@ export class DashboardComponent implements OnInit {
           if (this.currentCollectionId) {
             this.firebaseService.deleteNode(this.currentUserId!, this.currentCollectionId, id).then(() => {
               this.toastService.showSuccess('Success', 'Node deleted successfully!');
-            }).catch((error: any) => this.toastService.showError('Error', `Error deleting node: ${error.message}`));
+            }).catch((error: unknown) => {
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+              this.toastService.showError('Error', `Error deleting node: ${errorMessage}`);
+              this.logger.error('Error deleting node:', error);
+            }).finally(() => {
+              this.isLoading = false;
+            });
           } else {
             this.toastService.showError('Error', 'Cannot delete node: current collection ID is missing.');
+            this.isLoading = false;
           }
         }
       }

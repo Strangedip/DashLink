@@ -1,11 +1,12 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
+import { urlValidator } from '../../validators/url.validator';
 
 // PrimeNG Imports
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { Textarea } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
@@ -27,7 +28,7 @@ interface FieldType {
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
-    InputTextarea,
+    Textarea,
     ButtonModule,
     CardModule,
     MessageModule,
@@ -91,10 +92,22 @@ export class AddNodeDialogComponent implements OnInit {
       fieldType: [null, Validators.required],
       fieldValue: ['']
     }));
+
+    // Subscribe to field type changes to add URL validators dynamically
+    const newFieldGroup = this.customFields.at(this.customFields.length - 1) as FormGroup;
+    newFieldGroup.get('fieldType')?.valueChanges.subscribe((fieldType: string) => {
+      const fieldValueControl = newFieldGroup.get('fieldValue');
+      if (fieldType === 'url' || fieldType === 'imageUrl') {
+        fieldValueControl?.setValidators([urlValidator()]);
+      } else {
+        fieldValueControl?.clearValidators();
+      }
+      fieldValueControl?.updateValueAndValidity();
+    });
   }
 
   addExistingField(field: CustomField): void {
-    let initialFieldValue: any;
+    let initialFieldValue: unknown;
     if (field.fieldValue === undefined || field.fieldValue === null) {
       if (field.fieldType === 'text' || field.fieldType === 'url' || field.fieldType === 'imageUrl') {
         initialFieldValue = '';
@@ -105,10 +118,15 @@ export class AddNodeDialogComponent implements OnInit {
       initialFieldValue = field.fieldValue;
     }
 
+    // Add validators for URL fields
+    const validators = (field.fieldType === 'url' || field.fieldType === 'imageUrl') 
+      ? [urlValidator()] 
+      : [];
+
     this.customFields.push(this.fb.group({
       fieldName: [field.fieldName, Validators.required],
       fieldType: [field.fieldType, Validators.required],
-      fieldValue: [initialFieldValue]
+      fieldValue: [initialFieldValue, validators]
     }));
   }
 
@@ -126,7 +144,7 @@ export class AddNodeDialogComponent implements OnInit {
         let rawFieldValue = control.get('fieldValue')?.value;
 
         // Determine the value to be sent to Firebase
-        let firebaseValue: any;
+        let firebaseValue: unknown;
 
         if (rawFieldValue === undefined || rawFieldValue === null) {
           if (fieldType === 'text' || fieldType === 'url' || fieldType === 'imageUrl') {

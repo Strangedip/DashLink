@@ -1,47 +1,111 @@
-<div class="dialog-container">
-  <p-card>
-    <ng-template pTemplate="content">
-      @if (imageUrl) {
-        <div class="p-field image-container">
-          <img [src]="imageUrl" alt="Node Image" class="node-image" />
+<div class="view-node-container">
+  <!-- Compact Header with Image (if exists) -->
+  @if (imageUrl) {
+    <div class="node-image-header">
+      <img [src]="imageUrl" alt="Node Image" />
+      <div class="image-fade-overlay"></div>
+    </div>
+  }
+
+  <!-- Scrollable Content -->
+  <div class="node-content-wrapper">
+    <!-- Description -->
+    @if (node.description) {
+      <div class="info-block">
+        <div class="block-title">
+          <i class="pi pi-align-left"></i>
+          <span>Description</span>
         </div>
-      }
-      @if (node.description) {
-        <div class="p-field">
-          <strong>Description:</strong> <br>{{ node.description }}
-        </div>
-      }
-      @if (displayCustomFields && displayCustomFields.length > 0) {
-        @for (field of displayCustomFields; track field.fieldName) {
-          <div class="p-field custom-field-item">
-            <strong>{{ field.fieldName }}:</strong>
-            @switch (field.fieldType) {
-              @case ('url') {
-                <a [href]="field.fieldValue" target="_blank" class="url-link">{{ field.fieldValue }}</a>
-              }
-              @case ('imageUrl') {
-                <a [href]="field.fieldValue" target="_blank" class="url-link mt-2">{{ field.fieldValue }}</a>
-              }
-              @case ('date') {
-                {{ formatDate(field.fieldValue) }}
-              }
-              @default {
-                {{ field.fieldValue }}
-              }
-            }
-          </div>
+        @if (isHtmlContent(node.description)) {
+          <div class="block-text" [innerHTML]="getDescriptionHtml()"></div>
+        } @else {
+          <div class="block-text">{{ node.description }}</div>
         }
-      }
-      @if (!(node.description) && !(displayCustomFields && displayCustomFields.length > 0) && !imageUrl) {
-        <div class="p-field">
-          No node details added!
-        </div>
-      }
-    </ng-template>
-    <ng-template pTemplate="footer">
-      <div class="p-dialog-footer">
-        <p-button label="Close" class="mt-2" icon="pi pi-times" (click)="onClose()" styleClass="p-button-text"></p-button>
       </div>
-    </ng-template>
-  </p-card>
+    }
+
+    <!-- Custom Fields -->
+    @if (displayCustomFields && displayCustomFields.length > 0) {
+      <div class="info-block">
+        <div class="block-title">
+          <i class="pi pi-list"></i>
+          <span>Additional Details</span>
+        </div>
+        <div class="fields-list">
+          @for (field of displayCustomFields; track field.fieldName) {
+            <div class="field-item">
+              <div class="field-name">
+                @switch (field.fieldType) {
+                  @case ('url') {
+                    <i class="pi pi-link"></i>
+                  }
+                  @case ('imageUrl') {
+                    <i class="pi pi-image"></i>
+                  }
+                  @case ('date') {
+                    <i class="pi pi-calendar"></i>
+                  }
+                  @case ('number') {
+                    <i class="pi pi-hashtag"></i>
+                  }
+                  @default {
+                    <i class="pi pi-tag"></i>
+                  }
+                }
+                <span>{{ field.fieldName }}</span>
+              </div>
+              <div class="field-value">
+                @switch (field.fieldType) {
+                  @case ('url') {
+                    <a [href]="field.fieldValue" target="_blank" class="field-link">
+                      {{ field.fieldValue }}
+                      <i class="pi pi-external-link"></i>
+                    </a>
+                  }
+                  @case ('imageUrl') {
+                    <a [href]="field.fieldValue" target="_blank" class="field-link">
+                      {{ field.fieldValue }}
+                      <i class="pi pi-external-link"></i>
+                    </a>
+                  }
+                  @case ('date') {
+                    <span>{{ formatDate(field.fieldValue) }}</span>
+                  }
+                  @case ('richText') {
+                    @if (isHtmlContent(field.fieldValue)) {
+                      <div [innerHTML]="getCustomFieldHtml(field.fieldValue)"></div>
+                    } @else {
+                      <span>{{ field.fieldValue }}</span>
+                    }
+                  }
+                  @default {
+                    <span>{{ field.fieldValue }}</span>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!(node.description) && !(displayCustomFields && displayCustomFields.length > 0) && !imageUrl) {
+      <div class="empty-state">
+        <i class="pi pi-inbox"></i>
+        <p>No details available for this node</p>
+      </div>
+    }
+  </div>
+
+  <!-- Compact Footer -->
+  <div class="node-footer">
+    <button 
+      pButton 
+      icon="pi pi-times" 
+      label="Close" 
+      (click)="onClose()" 
+      class="p-button-text p-button-sm">
+    </button>
+  </div>
 </div> 
