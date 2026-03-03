@@ -1,6 +1,10 @@
 // Add PrimeFlex for utility classes
 @import "primeflex/primeflex.scss";
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* Custom PrimeNG Theme Variables */
 :root {
   --p-dark-grey-100: #343a40; /* A darker grey */
