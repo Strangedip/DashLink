@@ -55,6 +55,7 @@ export class CreateWorkspaceDialogComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', Validators.maxLength(200)],
       memberLimit: [12, [Validators.required, Validators.min(2), Validators.max(32)]],
+      aiApiKey: [''],
     });
 
     this.metadataForm = this.fb.group({
@@ -73,7 +74,12 @@ export class CreateWorkspaceDialogComponent implements OnInit {
   }
 
   private populateFromWorkspace(ws: Workspace): void {
-    this.basicForm.patchValue({ name: ws.name, description: ws.description, memberLimit: ws.memberLimit || 12 });
+    this.basicForm.patchValue({
+      name: ws.name,
+      description: ws.description,
+      memberLimit: ws.memberLimit || 12,
+      aiApiKey: ws.aiApiKey || ''
+    });
     this.metadataForm.patchValue({
       goal: ws.metadata?.goal || '',
       rules: ws.metadata?.rules || '',
@@ -214,6 +220,7 @@ export class CreateWorkspaceDialogComponent implements OnInit {
       name: this.basicForm.value.name,
       description: this.basicForm.value.description || '',
       memberLimit: this.basicForm.value.memberLimit || 12,
+      aiApiKey: this.basicForm.value.aiApiKey || '',
       metadata,
       schema,
       useCustomSchema: this.useCustomSchema

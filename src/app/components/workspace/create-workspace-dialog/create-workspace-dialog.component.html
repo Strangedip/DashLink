@@ -39,6 +39,14 @@
         <p-inputNumber id="ws-limit" formControlName="memberLimit" [min]="2" [max]="32" [showButtons]="true" placeholder="Max members"></p-inputNumber>
         <small class="field-hint">Maximum 32 members per workspace</small>
       </div>
+      <div class="p-field">
+        <label for="ws-ai-key">
+          Google Gemini API Key
+          <i class="pi pi-info-circle" pTooltip="Optional: Add your Gemini API key to enable AI workspace analysis. Get a free key at https://makersuite.google.com/app/apikey" tooltipPosition="top"></i>
+        </label>
+        <input id="ws-ai-key" type="password" pInputText formControlName="aiApiKey" placeholder="AIzaSy... (optional)">
+        <small class="field-hint">Required only for AI Analysis feature (10 free analyses/day per user)</small>
+      </div>
     </div>
   }
 

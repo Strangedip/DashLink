@@ -90,9 +90,11 @@ export interface Workspace {
   schema: WorkspaceFieldSchema[];
   useCustomSchema: boolean;
   metadata: WorkspaceMetadata;
+  aiApiKey?: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
 
 export interface WorkspaceNode {
   id?: string;

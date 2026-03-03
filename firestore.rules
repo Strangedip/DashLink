@@ -47,5 +47,11 @@ service cloud.firestore {
     match /workspace_invites/{inviteCode} {
       allow read, create, update, delete: if request.auth != null;
     }
+
+    // AI analysis usage tracking - each user can only read/write their own doc
+    // Document ID format: {userId}_{workspaceId}
+    match /aiAnalysisUsage/{docId} {
+      allow read, write: if request.auth != null && docId.matches(request.auth.uid + '_.*');
+    }
   }
 }

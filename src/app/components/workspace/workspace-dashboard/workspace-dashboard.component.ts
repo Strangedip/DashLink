@@ -387,6 +387,7 @@ export class WorkspaceDashboardComponent implements OnInit {
           name: result.name,
           description: result.description,
           memberLimit: result.memberLimit || this.workspace?.memberLimit || 12,
+          aiApiKey: result.aiApiKey !== undefined ? result.aiApiKey : (this.workspace?.aiApiKey || ''),
           metadata: result.metadata,
           schema: result.schema,
           useCustomSchema: result.useCustomSchema
