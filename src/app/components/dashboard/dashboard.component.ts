@@ -5,14 +5,18 @@ import { FirebaseService } from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { LoggerService } from '../../services/logger.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { Collection, Node } from '../../models/data.model';
+import { Workspace, WorkspaceMember } from '../../models/workspace.model';
 import { CollectionCardComponent } from '../collection-card/collection-card.component';
 import { NodeCardComponent } from '../node-card/node-card.component';
+import { WorkspaceCardComponent } from '../workspace/workspace-card/workspace-card.component';
 import { AddCollectionDialogComponent } from '../add-collection-dialog/add-collection-dialog.component';
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ViewNodeDialogComponent } from '../view-node-dialog/view-node-dialog.component';
 import { BulkUploadDialogComponent } from '../bulk-upload-dialog/bulk-upload-dialog.component';
+import { CreateWorkspaceDialogComponent } from '../workspace/create-workspace-dialog/create-workspace-dialog.component';
 import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
@@ -38,6 +42,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ReactiveFormsModule,
     CollectionCardComponent,
     NodeCardComponent,
+    WorkspaceCardComponent,
     ButtonModule,
     CardModule,
     MenuModule,
@@ -76,9 +81,12 @@ export class DashboardComponent implements OnInit {
 
   @ViewChild('additionalMenu') additionalMenu!: Menu;
 
+  workspaces$: Observable<Workspace[]> | undefined;
+
   constructor(
     private firebaseService: FirebaseService,
     private authService: AuthService,
+    private workspaceService: WorkspaceService,
     private route: ActivatedRoute,
     private router: Router,
     private dialogService: DialogService,
@@ -92,6 +100,8 @@ export class DashboardComponent implements OnInit {
       { label: 'Add Collection', icon: 'pi pi-folder-open', command: () => this.openAddCollectionDialog() },
       { label: 'Add Node', icon: 'pi pi-link', command: () => this.openAddNodeDialog() },
       { separator: true },
+      { label: 'Create Workspace', icon: 'pi pi-users', command: () => this.openCreateWorkspaceDialog() },
+      { separator: true },
       { label: 'Bulk Upload', icon: 'pi pi-upload', command: () => this.openBulkUploadDialog() }
     ];
 
@@ -102,6 +112,12 @@ export class DashboardComponent implements OnInit {
       this.currentUserId = uid;
       this.currentUserIdSubject.next(uid);
     });
+
+    this.workspaces$ = this.currentUserIdSubject.pipe(
+      filter(uid => !!uid),
+      switchMap(uid => this.workspaceService.getWorkspaces(uid!)),
+      takeUntilDestroyed(this.destroyRef)
+    );
 
     this.home = { icon: 'pi pi-home', routerLink: '/' };
 
@@ -519,5 +535,56 @@ export class DashboardComponent implements OnInit {
     }
 
     this.searchControl.setValue('');
+  }
+
+  openCreateWorkspaceDialog(): void {
+    if (!this.currentUserId) return;
+
+    const dialogRef = this.dialogService.open(CreateWorkspaceDialogComponent, {
+      header: 'Create Workspace',
+      width: '600px',
+      style: { 'max-width': '96vw' }
+    });
+
+    dialogRef.onClose.pipe(take(1)).subscribe(async (result: any) => {
+      if (!result) return;
+      try {
+        const user = await lastValueFrom(this.authService.user$.pipe(take(1)));
+        const ownerName = user?.displayName || user?.email || 'User';
+
+        const ownerMember: WorkspaceMember = {
+          userId: this.currentUserId!,
+          displayName: ownerName,
+          email: user?.email || '',
+          photoURL: user?.photoURL || '',
+          role: 'owner',
+          joinedAt: new Date(),
+          banned: false
+        };
+
+        const workspaceId = await this.workspaceService.createWorkspace({
+          name: result.name,
+          description: result.description,
+          ownerId: this.currentUserId!,
+          ownerName,
+          memberLimit: 12,
+          memberIds: [this.currentUserId!],
+          members: [ownerMember],
+          schema: result.schema,
+          useCustomSchema: result.useCustomSchema,
+          metadata: result.metadata
+        });
+
+        this.toastService.showSuccess('Created', 'Workspace created successfully!');
+        this.router.navigate(['/workspaces', workspaceId]);
+      } catch (error: unknown) {
+        this.toastService.showError('Error', 'Failed to create workspace.');
+        this.logger.error('Error creating workspace:', error);
+      }
+    });
+  }
+
+  goToWorkspace(workspace: Workspace): void {
+    this.router.navigate(['/workspaces', workspace.id]);
   }
 }

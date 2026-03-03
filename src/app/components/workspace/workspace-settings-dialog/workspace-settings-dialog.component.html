@@ -1,0 +1,165 @@
+<div class="settings-container">
+  <p-tabs [(value)]="activeTab">
+    <p-tablist>
+      <p-tab value="0"><i class="pi pi-info-circle"></i> Info</p-tab>
+      <p-tab value="1"><i class="pi pi-users"></i> Members ({{ activeMembers.length }})</p-tab>
+      <p-tab value="2"><i class="pi pi-share-alt"></i> Invite</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- Info Tab -->
+      <p-tabpanel value="0">
+        <div class="info-section">
+          <div class="info-item">
+            <span class="info-label">Workspace</span>
+            <span class="info-value">{{ workspace.name }}</span>
+          </div>
+          @if (workspace.description) {
+            <div class="info-item">
+              <span class="info-label">Description</span>
+              <span class="info-value">{{ workspace.description }}</span>
+            </div>
+          }
+          @if (workspace.metadata.goal) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-bullseye"></i> Goal</span>
+              <span class="info-value">{{ workspace.metadata.goal }}</span>
+            </div>
+          }
+          @if (workspace.metadata.rules) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-book"></i> Rules</span>
+              <span class="info-value">{{ workspace.metadata.rules }}</span>
+            </div>
+          }
+          @if (workspace.metadata.duration) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-clock"></i> Duration</span>
+              <span class="info-value">{{ workspace.metadata.duration }}</span>
+            </div>
+          }
+          @if (workspace.metadata.penalty) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-exclamation-triangle"></i> Penalty</span>
+              <span class="info-value">{{ workspace.metadata.penalty }}</span>
+            </div>
+          }
+          @if (workspace.metadata.category) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-tag"></i> Category</span>
+              <span class="info-value">{{ workspace.metadata.category }}</span>
+            </div>
+          }
+          @if (workspace.metadata.tags?.length) {
+            <div class="info-item">
+              <span class="info-label"><i class="pi pi-tags"></i> Tags</span>
+              <div class="tags-display">
+                @for (tag of workspace.metadata.tags; track tag) {
+                  <span class="tag-chip">{{ tag }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (workspace.useCustomSchema && workspace.schema.length) {
+            <div class="schema-preview">
+              <span class="info-label"><i class="pi pi-list"></i> Node Schema</span>
+              <div class="schema-items">
+                @for (field of workspace.schema; track field.fieldId) {
+                  <div class="schema-item">
+                    <span class="schema-field-name">{{ field.fieldName }}</span>
+                    <span class="schema-field-type">{{ field.fieldType }}</span>
+                    @if (field.mandatory) {
+                      <span class="mandatory-badge">Required</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (isOwner) {
+            <button pButton label="Edit Workspace" icon="pi pi-pencil" (click)="openEditWorkspace()" class="p-button-text p-button-sm edit-btn"></button>
+          }
+        </div>
+      </p-tabpanel>
+
+      <!-- Members Tab -->
+      <p-tabpanel value="1">
+        <div class="members-section">
+          <div class="members-list">
+            @for (member of activeMembers; track member.userId) {
+              <div class="member-item">
+                <div class="member-info">
+                  @if (member.photoURL) {
+                    <p-avatar [image]="member.photoURL" shape="circle" [style]="{ width: '36px', height: '36px' }"></p-avatar>
+                  } @else {
+                    <p-avatar [label]="getMemberInitial(member)" shape="circle"
+                      [style]="{ width: '36px', height: '36px', 'font-size': '0.85rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+                  }
+                  <div class="member-details">
+                    <span class="member-name">{{ member.displayName }}</span>
+                    <span class="member-email">{{ member.email }}</span>
+                  </div>
+                  @if (member.role === 'owner') {
+                    <span class="role-badge owner">Owner</span>
+                  }
+                </div>
+                @if (isOwner && member.role !== 'owner') {
+                  <div class="member-actions">
+                    <button pButton icon="pi pi-ban" class="p-button-text p-button-sm p-button-warning"
+                      (click)="banMember(member)" pTooltip="Ban"></button>
+                    <button pButton icon="pi pi-user-minus" class="p-button-text p-button-sm p-button-danger"
+                      (click)="removeMember(member)" pTooltip="Remove"></button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (bannedMembers.length > 0) {
+            <h4 class="banned-header">Banned Members</h4>
+            <div class="members-list">
+              @for (member of bannedMembers; track member.userId) {
+                <div class="member-item banned">
+                  <div class="member-info">
+                    <p-avatar [label]="getMemberInitial(member)" shape="circle"
+                      [style]="{ width: '36px', height: '36px', 'font-size': '0.85rem', background: 'rgba(239,68,68,0.15)', color: '#ef4444' }"></p-avatar>
+                    <div class="member-details">
+                      <span class="member-name">{{ member.displayName }}</span>
+                      <span class="member-email">{{ member.email }}</span>
+                    </div>
+                    <span class="role-badge banned">Banned</span>
+                  </div>
+                  @if (isOwner) {
+                    <div class="member-actions">
+                      <button pButton icon="pi pi-replay" label="Unban" class="p-button-text p-button-sm"
+                        (click)="unbanMember(member)"></button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+
+      <!-- Invite Tab -->
+      <p-tabpanel value="2">
+        <div class="invite-section">
+          <p class="invite-desc">Share this link with others to invite them to join this workspace.</p>
+          <div class="invite-link-box">
+            <input type="text" pInputText [value]="inviteLink" readonly class="invite-input">
+            <button pButton [icon]="copied ? 'pi pi-check' : 'pi pi-copy'" (click)="copyInviteLink()"
+              class="p-button-sm" [class.p-button-success]="copied" pTooltip="Copy to clipboard"></button>
+          </div>
+          @if (isOwner) {
+            <button pButton label="Regenerate Link" icon="pi pi-refresh" (click)="regenerateInvite()"
+              class="p-button-text p-button-sm regen-btn"></button>
+            <small class="regen-note">Regenerating will invalidate the previous link.</small>
+          }
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

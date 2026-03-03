@@ -1,0 +1,125 @@
+<div class="view-node-container">
+  @if (imageUrl) {
+    <div class="node-image-header">
+      <img [src]="imageUrl" alt="Node Image">
+      <div class="image-fade-overlay"></div>
+    </div>
+  }
+
+  <div class="node-content-wrapper">
+    <!-- Creator & Date Info -->
+    <div class="node-creator-bar">
+      <div class="creator-info">
+        @if (node.creatorPhotoURL) {
+          <p-avatar [image]="node.creatorPhotoURL" shape="circle" [style]="{ width: '28px', height: '28px' }"></p-avatar>
+        } @else {
+          <p-avatar [label]="creatorInitial" shape="circle"
+            [style]="{ width: '28px', height: '28px', 'font-size': '0.75rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+        }
+        <div class="creator-details">
+          <span class="creator-name">{{ node.creatorName }}</span>
+          <span class="creator-email">{{ node.creatorEmail }}</span>
+        </div>
+      </div>
+      <div class="date-badges">
+        <span class="date-badge" pTooltip="Created">
+          <i class="pi pi-calendar-plus"></i> {{ createdDate }}
+        </span>
+        @if (updatedDate && updatedDate !== createdDate) {
+          <span class="date-badge" pTooltip="Last edited">
+            <i class="pi pi-pencil"></i> {{ updatedDate }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Description -->
+    @if (node.description) {
+      <div class="info-block">
+        <div class="block-title">
+          <i class="pi pi-align-left"></i>
+          <span>Description</span>
+        </div>
+        <div class="block-text">{{ node.description }}</div>
+      </div>
+    }
+
+    <!-- Fields -->
+    @if (displayFields.length > 0) {
+      <div class="info-block">
+        <div class="block-title">
+          <i class="pi pi-list"></i>
+          <span>Details</span>
+        </div>
+        <div class="fields-list">
+          @for (field of displayFields; track field.fieldId) {
+            <div class="field-item">
+              <div class="field-name">
+                <i [class]="getFieldIcon(field.fieldType)"></i>
+                <span>{{ field.fieldName }}</span>
+              </div>
+              <div class="field-value">
+                @switch (field.fieldType) {
+                  @case ('url') {
+                    <a [href]="field.value" target="_blank" class="field-link">
+                      {{ field.value }} <i class="pi pi-external-link"></i>
+                    </a>
+                  }
+                  @case ('email') {
+                    <a [href]="'mailto:' + field.value" class="field-link">{{ field.value }}</a>
+                  }
+                  @case ('phone') {
+                    <a [href]="'tel:' + field.value" class="field-link">{{ field.value }}</a>
+                  }
+                  @case ('image-url') {
+                    <a [href]="field.value" target="_blank" class="field-link">
+                      View Image <i class="pi pi-external-link"></i>
+                    </a>
+                  }
+                  @case ('image-upload') {
+                    <img [src]="field.value" alt="Uploaded image" class="field-image">
+                  }
+                  @case ('date') {
+                    <span>{{ formatFieldDate(field.value) }}</span>
+                  }
+                  @case ('datetime') {
+                    <span>{{ formatFieldDateTime(field.value) }}</span>
+                  }
+                  @case ('checkbox') {
+                    <span class="checkbox-display">
+                      <i [class]="field.value ? 'pi pi-check-circle text-green' : 'pi pi-times-circle text-muted'"></i>
+                      {{ field.value ? 'Yes' : 'No' }}
+                    </span>
+                  }
+                  @case ('color') {
+                    <span class="color-display">
+                      <span class="color-swatch" [style.background]="field.value"></span>
+                      {{ field.value }}
+                    </span>
+                  }
+                  @case ('rating') {
+                    <p-rating [(ngModel)]="field.value" [readonly]="true"></p-rating>
+                  }
+                  @default {
+                    <span>{{ field.value }}</span>
+                  }
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (!node.description && displayFields.length === 0 && !imageUrl) {
+      <div class="empty-state">
+        <i class="pi pi-inbox"></i>
+        <p>No details available for this node</p>
+      </div>
+    }
+  </div>
+
+  <div class="node-footer">
+    <button pButton icon="pi pi-times" label="Close" (click)="onClose()" class="p-button-text p-button-sm"></button>
+  </div>
+</div>

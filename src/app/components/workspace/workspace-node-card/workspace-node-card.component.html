@@ -1,0 +1,46 @@
+<div class="ws-node-card" (click)="onClick()">
+  @if (imageUrl) {
+    <div class="node-thumbnail">
+      <img [src]="imageUrl" alt="" loading="lazy">
+    </div>
+  }
+  <div class="ws-node-card-content">
+    <div class="node-main">
+      <div class="node-icon-wrapper">
+        <i class="pi pi-file-edit node-icon"></i>
+      </div>
+      <div class="node-info">
+        <h3 class="node-title">{{ node.name }}</h3>
+        @if (node.description) {
+          <p class="node-description">{{ node.description }}</p>
+        }
+        <div class="node-meta">
+          <div class="creator-info">
+            @if (node.creatorPhotoURL) {
+              <p-avatar [image]="node.creatorPhotoURL" shape="circle"
+                [style]="{ width: '20px', height: '20px' }"></p-avatar>
+            } @else {
+              <p-avatar [label]="creatorInitial" shape="circle"
+                [style]="{ width: '20px', height: '20px', 'font-size': '0.65rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+            }
+            <span class="creator-name">{{ node.creatorName }}</span>
+          </div>
+          <span class="date-info">
+            <i class="pi pi-calendar"></i>
+            {{ createdDate }}
+          </span>
+        </div>
+      </div>
+    </div>
+    @if (hasActions) {
+      <div class="node-actions" (click)="$event.stopPropagation()">
+        <button type="button" pButton icon="pi pi-ellipsis-v"
+          (click)="onMenuToggle($event)"
+          class="p-button-text p-button-rounded p-button-secondary action-button"
+          pTooltip="Options" tooltipPosition="left">
+        </button>
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+      </div>
+    }
+  </div>
+</div>

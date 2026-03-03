@@ -1,0 +1,146 @@
+<div class="dialog-container">
+  <div [formGroup]="nodeForm">
+    <div class="p-field">
+      <label for="node-name">Node Name <span class="required">*</span></label>
+      <input id="node-name" type="text" pInputText formControlName="name" placeholder="Enter node name">
+      @if (nodeForm.get('name')?.invalid && nodeForm.get('name')?.touched) {
+        <p-message severity="error" text="Node name is required."></p-message>
+      }
+    </div>
+
+    <div class="p-field">
+      <label for="node-desc">Description</label>
+      <textarea pTextarea id="node-desc" formControlName="description" placeholder="Optional description" rows="2" class="w-full"></textarea>
+    </div>
+
+    <!-- Schema Fields -->
+    @if (useCustomSchema && schemaFields.length > 0) {
+      <h3 class="section-title">
+        <i class="pi pi-list"></i> Required Fields
+      </h3>
+      <div formArrayName="schemaFields">
+        @for (field of schemaFields.controls; track i; let i = $index) {
+          <div [formGroupName]="i" class="schema-field-entry">
+            <label [for]="'sf-' + i">
+              {{ getSchemaFieldGroup(i).get('fieldName')?.value }}
+              @if (getSchemaFieldGroup(i).get('mandatory')?.value) {
+                <span class="required">*</span>
+              }
+            </label>
+
+            @switch (getSchemaFieldGroup(i).get('fieldType')?.value) {
+              @case ('text') {
+                <input [id]="'sf-' + i" type="text" pInputText formControlName="value" placeholder="Enter text">
+              }
+              @case ('long-text') {
+                <textarea pTextarea [id]="'sf-' + i" formControlName="value" placeholder="Enter text" rows="3" class="w-full"></textarea>
+              }
+              @case ('number') {
+                <p-inputNumber [id]="'sf-' + i" formControlName="value" placeholder="Enter number"></p-inputNumber>
+              }
+              @case ('url') {
+                <input [id]="'sf-' + i" type="url" pInputText formControlName="value" placeholder="https://...">
+              }
+              @case ('email') {
+                <input [id]="'sf-' + i" type="email" pInputText formControlName="value" placeholder="email@example.com">
+              }
+              @case ('phone') {
+                <input [id]="'sf-' + i" type="tel" pInputText formControlName="value" placeholder="+91...">
+              }
+              @case ('date') {
+                <p-calendar [id]="'sf-' + i" formControlName="value" dateFormat="mm/dd/yy" placeholder="Select date"></p-calendar>
+              }
+              @case ('datetime') {
+                <p-calendar [id]="'sf-' + i" formControlName="value" [showTime]="true" dateFormat="mm/dd/yy" placeholder="Select date & time"></p-calendar>
+              }
+              @case ('image-url') {
+                <input [id]="'sf-' + i" type="url" pInputText formControlName="value" placeholder="https://image-url...">
+                @if (getSchemaFieldGroup(i).get('value')?.value) {
+                  <div class="image-preview">
+                    <img [src]="getSchemaFieldGroup(i).get('value')?.value" alt="Preview">
+                  </div>
+                }
+              }
+              @case ('image-upload') {
+                @if (getUploadedUrl(getSchemaFieldGroup(i).get('fieldId')?.value)) {
+                  <div class="image-preview">
+                    <img [src]="getUploadedUrl(getSchemaFieldGroup(i).get('fieldId')?.value)" alt="Uploaded">
+                    <span class="upload-success"><i class="pi pi-check-circle"></i> Uploaded</span>
+                  </div>
+                } @else {
+                  <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="5242880"
+                    chooseLabel="Upload Image" chooseIcon="pi pi-upload"
+                    (onSelect)="onFileSelect($event, getSchemaFieldGroup(i).get('fieldId')?.value, i)"
+                    [auto]="true" [customUpload]="true"
+                    styleClass="upload-btn">
+                  </p-fileUpload>
+                  @if (isUploading(getSchemaFieldGroup(i).get('fieldId')?.value)) {
+                    <span class="uploading-text"><i class="pi pi-spin pi-spinner"></i> Uploading...</span>
+                  }
+                }
+              }
+              @case ('checkbox') {
+                <div class="checkbox-wrapper">
+                  <p-checkbox formControlName="value" [binary]="true" [inputId]="'sf-' + i"></p-checkbox>
+                  <label [for]="'sf-' + i" class="checkbox-label">Yes</label>
+                </div>
+              }
+              @case ('dropdown') {
+                <p-select [id]="'sf-' + i" [options]="getDropdownOptions(i)" optionLabel="label" optionValue="value"
+                  formControlName="value" placeholder="Select an option"></p-select>
+              }
+              @case ('color') {
+                <p-colorPicker formControlName="value"></p-colorPicker>
+              }
+              @case ('rating') {
+                <p-rating formControlName="value"></p-rating>
+              }
+              @default {
+                <input [id]="'sf-' + i" type="text" pInputText formControlName="value" placeholder="Enter value">
+              }
+            }
+
+            @if (field.get('value')?.invalid && field.get('value')?.touched) {
+              <p-message severity="error" text="This field is required."></p-message>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Free-form Custom Fields (for non-schema workspaces) -->
+    @if (!useCustomSchema) {
+      <h3 class="section-title">
+        <i class="pi pi-sliders-h"></i> Custom Fields
+      </h3>
+      <div formArrayName="customFields">
+        @for (field of customFields.controls; track i; let i = $index) {
+          <div [formGroupName]="i" class="custom-field-item">
+            <div class="p-field flex-grow-1">
+              <label>Field Type</label>
+              <p-select [options]="fieldTypes" optionLabel="name" optionValue="code"
+                formControlName="fieldType" placeholder="Select Type"></p-select>
+            </div>
+            <div class="p-field flex-grow-1">
+              <label>Field Name</label>
+              <input type="text" pInputText formControlName="fieldName" placeholder="Field Name">
+            </div>
+            <div class="p-field flex-grow-1">
+              <label>Value</label>
+              <input type="text" pInputText formControlName="value" placeholder="Enter value">
+            </div>
+            <div class="remove-field-button-container">
+              <button type="button" pButton icon="pi pi-minus" class="p-button-danger p-button-sm p-button-rounded" (click)="removeCustomField(i)"></button>
+            </div>
+          </div>
+        }
+      </div>
+      <button type="button" pButton icon="pi pi-plus" label="Add Field" (click)="addCustomField()" class="p-button-text p-button-sm"></button>
+    }
+  </div>
+
+  <div class="p-dialog-footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
+    <p-button [label]="isEditMode ? 'Update' : 'Save'" icon="pi pi-check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></p-button>
+  </div>
+</div>

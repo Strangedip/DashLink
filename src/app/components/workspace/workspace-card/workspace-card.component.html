@@ -1,0 +1,33 @@
+<div class="workspace-card" (click)="onClick()">
+  <div class="workspace-card-content">
+    <div class="workspace-icon-wrapper">
+      <i class="pi pi-users workspace-icon"></i>
+    </div>
+    <div class="workspace-info">
+      <div class="workspace-title-row">
+        <h3 class="workspace-title">{{ workspace.name }}</h3>
+        @if (isOwner) {
+          <span class="owner-badge">Owner</span>
+        }
+      </div>
+      @if (workspace.description) {
+        <p class="workspace-description">{{ workspace.description }}</p>
+      }
+      <div class="workspace-meta">
+        <span class="meta-item">
+          <i class="pi pi-user"></i>
+          {{ memberCount }}/{{ workspace.memberLimit }}
+        </span>
+        @if (workspace.metadata.category) {
+          <span class="meta-item">
+            <i class="pi pi-tag"></i>
+            {{ workspace.metadata.category }}
+          </span>
+        }
+      </div>
+    </div>
+    <div class="workspace-arrow">
+      <i class="pi pi-chevron-right"></i>
+    </div>
+  </div>
+</div>

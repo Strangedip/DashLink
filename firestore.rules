@@ -20,5 +20,32 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
+
+    // Workspace documents - any authenticated user can read/create/update
+    // Owner-only delete. App-level code enforces granular permissions.
+    match /workspaces/{workspaceId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+
+      // Workspace sub-collections and nodes - authenticated users can read/write
+      match /collections/{collectionId} {
+        allow read, write: if request.auth != null;
+        
+        match /nodes/{nodeId} {
+          allow read, write: if request.auth != null;
+        }
+      }
+
+      match /nodes/{nodeId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // Invite lookup documents - readable/writable by any authenticated user
+    match /workspace_invites/{inviteCode} {
+      allow read, create, update, delete: if request.auth != null;
+    }
   }
 }

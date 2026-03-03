@@ -1,0 +1,87 @@
+<div class="join-workspace-container">
+  @if (isLoading) {
+    <div class="loading-state">
+      <p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <p>Loading workspace details...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-state">
+      <i class="pi pi-exclamation-circle"></i>
+      <h2>Oops!</h2>
+      <p>{{ error }}</p>
+      <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-sm"></button>
+    </div>
+  } @else if (workspace) {
+    <div class="join-card">
+      <div class="join-card-header">
+        <div class="workspace-icon-large">
+          <i class="pi pi-users"></i>
+        </div>
+        <h2>{{ workspace.name }}</h2>
+        @if (workspace.description) {
+          <p class="workspace-desc">{{ workspace.description }}</p>
+        }
+      </div>
+
+      <div class="join-card-details">
+        @if (workspace.metadata.goal) {
+          <div class="detail-item">
+            <i class="pi pi-bullseye"></i>
+            <div>
+              <span class="detail-label">Goal</span>
+              <span class="detail-value">{{ workspace.metadata.goal }}</span>
+            </div>
+          </div>
+        }
+        @if (workspace.metadata.category) {
+          <div class="detail-item">
+            <i class="pi pi-tag"></i>
+            <div>
+              <span class="detail-label">Category</span>
+              <span class="detail-value">{{ workspace.metadata.category }}</span>
+            </div>
+          </div>
+        }
+        <div class="detail-item">
+          <i class="pi pi-user"></i>
+          <div>
+            <span class="detail-label">Created by</span>
+            <span class="detail-value">{{ workspace.ownerName }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="pi pi-users"></i>
+          <div>
+            <span class="detail-label">Members</span>
+            <span class="detail-value">{{ activeMemberCount }} / {{ workspace.memberLimit }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="join-card-actions">
+        @if (alreadyMember && !isBanned) {
+          <div class="already-member-msg">
+            <i class="pi pi-check-circle"></i>
+            <span>You are already a member of this workspace.</span>
+          </div>
+          <button pButton label="Open Workspace" icon="pi pi-arrow-right" (click)="goToWorkspace()" class="w-full"></button>
+        } @else if (isBanned) {
+          <div class="banned-msg">
+            <i class="pi pi-ban"></i>
+            <span>You have been banned from this workspace.</span>
+          </div>
+          <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-text w-full"></button>
+        } @else if (isFull) {
+          <div class="full-msg">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>This workspace has reached its member limit.</span>
+          </div>
+          <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-text w-full"></button>
+        } @else {
+          <button pButton label="Join Workspace" icon="pi pi-sign-in" (click)="joinWorkspace()"
+            [loading]="isJoining" class="w-full join-btn"></button>
+        }
+      </div>
+    </div>
+  }
+</div>

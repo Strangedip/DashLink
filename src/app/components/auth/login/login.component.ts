@@ -13,7 +13,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { LoggerService } from '../../../services/logger.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -37,19 +37,24 @@ export class LoginComponent {
     password: new FormControl('', Validators.required)
   });
 
+  private returnUrl: string = '/dashboard';
+
   constructor(
     private authService: AuthService, 
-    private router: Router, 
+    private router: Router,
+    private route: ActivatedRoute,
     private toastService: ToastService,
     private logger: LoggerService
-  ) { }
+  ) {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+  }
 
   async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
       try {
         await this.authService.login(this.loginForm.value.email as string, this.loginForm.value.password as string);
         this.toastService.showSuccess('Login Successful', 'You have been successfully logged in.');
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl(this.returnUrl);
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during login.';
         this.toastService.showError('Login Failed', errorMessage);
@@ -62,7 +67,7 @@ export class LoginComponent {
     try {
       await this.authService.signInWithGoogle();
       this.toastService.showSuccess('Google Sign-in Successful', 'You have been successfully signed in with Google.');
-      this.router.navigate(['/']);
+      this.router.navigateByUrl(this.returnUrl);
     } catch (error: unknown) {
       this.logger.error('Error signing in with Google:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during Google sign-in.';

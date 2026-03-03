@@ -1,5 +1,5 @@
 <div class="dashboard-container flex flex-column">
-  <div class="search-container w-full px-3 p-1 surface-0 border-round shadow-1 mb-2 flex align-items-center">
+  <div class="search-container w-full surface-0 border-round flex align-items-center">
     <i class="pi pi-search" style="display: inline;"></i>
     <span class="p-input-icon-left flex-grow-1">
       <input type="text" pInputText [placeholder]="isGlobalSearch ? 'Search globally...' : 'Search current collection...'" [formControl]="searchControl" class="w-full">
@@ -16,7 +16,7 @@
     </p-toggleswitch>
   </div>
 
-  <header class="dashboard-header flex flex-column w-full p-2 mb-3 surface-0 border-round shadow-1">
+  <header class="dashboard-header flex flex-column w-full surface-0 border-round">
     @if (!isGlobalSearch) {
     <div class="header-content-row flex align-items-center justify-content-between w-full p-2">
       <div class="header-left flex align-items-center" >
@@ -40,16 +40,33 @@
     }
   </header>
 
-  @if ((dashboardItems$ | async)?.length === 0) {
+  <!-- Workspaces Section -->
+  @if ((workspaces$ | async)?.length) {
+    <div class="workspaces-section">
+      <div class="section-header flex align-items-center gap-2">
+        <i class="pi pi-users" style="color: var(--p-green-500);"></i>
+        <h3 class="m-0" style="font-size: 0.95rem; font-weight: 600; color: var(--p-text-color-secondary);">Shared Workspaces</h3>
+      </div>
+      <div class="workspaces-list">
+        @for (ws of (workspaces$ | async) || []; track ws.id) {
+          <app-workspace-card [workspace]="ws" [currentUserId]="currentUserId || ''" (openWorkspace)="goToWorkspace($event)"></app-workspace-card>
+        }
+      </div>
+    </div>
+  }
+
+  @if ((dashboardItems$ | async)?.length === 0 && !(workspaces$ | async)?.length) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
       <i class="pi pi-folder-open empty-state-icon text-7xl text-400 mb-4"></i>
       <p class="text-xl text-500">No collections or nodes yet. Start by adding a new one!</p>
     </div>
+  } @else if ((dashboardItems$ | async)?.length === 0) {
+    <!-- Only workspaces exist, no collections/nodes -->
   } @else {
     <div class="grid">
-      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items my-2" [trackBy]="trackByItemId">
+      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items" [trackBy]="trackByItemId">
         <ng-template #list let-items>
-          <div *ngFor="let item of items" class="col-12 flex-grow-1 p-1">
+          <div *ngFor="let item of items" class="col-12 flex-grow-1" style="padding: 0.2rem 0;">
             <ng-container *ngIf="item.type === 'collection'">
               <app-collection-card
                 [collection]="item"

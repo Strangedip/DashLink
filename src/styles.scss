@@ -30,8 +30,9 @@
   --p-button-primary-border-color: var(--p-primary-color) !important;
   --p-button-primary-hover-border-color: var(--p-green-600) !important;
   --p-button-primary-active-border-color: var(--p-green-700) !important;
-  --p-dataview-content-padding:0.25rem !important;
-  --p-breadcrumb-padding:0.15rem !important;
+  --p-dataview-content-padding: 0 !important;
+  --p-breadcrumb-padding: 0.15rem !important;
+  --p-avatar-group-spacing: -0.5rem !important;
 }
 
 html, body {
@@ -127,4 +128,43 @@ textarea.p-inputtext:enabled:focus {
 
 .p-datepicker table td > span:focus {
   box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
+}
+
+/* Global compact DataView overrides */
+.p-dataview .p-dataview-content {
+  padding: 0 !important;
+}
+
+/* Fix dropdown visibility */
+.p-select-overlay {
+  z-index: 9999 !important;
+}
+
+.p-select {
+  z-index: 1 !important;
+}
+
+/* Tighten PrimeNG Tab panels in dialogs */
+.p-tabview .p-tabview-panels {
+  padding: 0.5rem 0 0 !important;
+}
+
+.p-tabview .p-tabview-nav {
+  border: none !important;
+}
+
+/* Compact PrimeNG inputs */
+.p-inputtext {
+  padding: 0.5rem 0.625rem !important;
+  font-size: 0.875rem !important;
+}
+
+textarea.p-inputtext {
+  padding: 0.5rem 0.625rem !important;
+}
+
+/* PrimeNG Menu popup - tighter */
+.p-menu .p-menu-item-link {
+  padding: 0.5rem 0.875rem !important;
+  font-size: 0.85rem !important;
 }
