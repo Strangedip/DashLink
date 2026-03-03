@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { Textarea } from 'primeng/inputtextarea';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
@@ -22,8 +23,8 @@ import {
   selector: 'app-create-workspace-dialog',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, Textarea,
-    ButtonModule, MessageModule, SelectModule, CheckboxModule,
+    CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, InputNumberModule,
+    Textarea, ButtonModule, MessageModule, SelectModule, CheckboxModule,
     ChipModule, ToggleSwitchModule, StepperModule, TooltipModule
   ],
   templateUrl: './create-workspace-dialog.component.html',
@@ -53,6 +54,7 @@ export class CreateWorkspaceDialogComponent implements OnInit {
     this.basicForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', Validators.maxLength(200)],
+      memberLimit: [12, [Validators.required, Validators.min(2), Validators.max(32)]],
     });
 
     this.metadataForm = this.fb.group({
@@ -71,7 +73,7 @@ export class CreateWorkspaceDialogComponent implements OnInit {
   }
 
   private populateFromWorkspace(ws: Workspace): void {
-    this.basicForm.patchValue({ name: ws.name, description: ws.description });
+    this.basicForm.patchValue({ name: ws.name, description: ws.description, memberLimit: ws.memberLimit || 12 });
     this.metadataForm.patchValue({
       goal: ws.metadata?.goal || '',
       rules: ws.metadata?.rules || '',
@@ -211,6 +213,7 @@ export class CreateWorkspaceDialogComponent implements OnInit {
     this.ref.close({
       name: this.basicForm.value.name,
       description: this.basicForm.value.description || '',
+      memberLimit: this.basicForm.value.memberLimit || 12,
       metadata,
       schema,
       useCustomSchema: this.useCustomSchema

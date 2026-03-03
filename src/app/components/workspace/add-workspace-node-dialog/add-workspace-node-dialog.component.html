@@ -57,26 +57,8 @@
                 <input [id]="'sf-' + i" type="url" pInputText formControlName="value" placeholder="https://image-url...">
                 @if (getSchemaFieldGroup(i).get('value')?.value) {
                   <div class="image-preview">
-                    <img [src]="getSchemaFieldGroup(i).get('value')?.value" alt="Preview">
+                    <img [src]="getSchemaFieldGroup(i).get('value')?.value" alt="Preview" (error)="$any($event.target).style.display='none'">
                   </div>
-                }
-              }
-              @case ('image-upload') {
-                @if (getUploadedUrl(getSchemaFieldGroup(i).get('fieldId')?.value)) {
-                  <div class="image-preview">
-                    <img [src]="getUploadedUrl(getSchemaFieldGroup(i).get('fieldId')?.value)" alt="Uploaded">
-                    <span class="upload-success"><i class="pi pi-check-circle"></i> Uploaded</span>
-                  </div>
-                } @else {
-                  <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="5242880"
-                    chooseLabel="Upload Image" chooseIcon="pi pi-upload"
-                    (onSelect)="onFileSelect($event, getSchemaFieldGroup(i).get('fieldId')?.value, i)"
-                    [auto]="true" [customUpload]="true"
-                    styleClass="upload-btn">
-                  </p-fileUpload>
-                  @if (isUploading(getSchemaFieldGroup(i).get('fieldId')?.value)) {
-                    <span class="uploading-text"><i class="pi pi-spin pi-spinner"></i> Uploading...</span>
-                  }
                 }
               }
               @case ('checkbox') {

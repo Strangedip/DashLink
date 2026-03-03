@@ -1,12 +1,12 @@
 .workspace-card {
   background: linear-gradient(135deg, var(--p-surface-800) 0%, rgba(76, 175, 80, 0.08) 100%);
   border: 1px solid rgba(76, 175, 80, 0.2);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 0;
   width: 100%;
   box-sizing: border-box;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
@@ -16,17 +16,18 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 3px;
     height: 100%;
     background: linear-gradient(180deg, #4CAF50 0%, #66BB6A 100%);
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
+    opacity: 0;
+    transition: opacity 0.25s ease;
   }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
     border-color: var(--p-green-500);
+    background: linear-gradient(135deg, var(--p-surface-800) 0%, rgba(76, 175, 80, 0.1) 100%);
 
     &::before { opacity: 1; }
 
@@ -63,14 +64,14 @@
   min-width: 42px;
   background: rgba(76, 175, 80, 0.12);
   border: 2px solid rgba(76, 175, 80, 0.3);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  transition: all 0.25s ease;
 }
 
 .workspace-icon {
   font-size: 1.25rem;
   color: var(--p-green-500);
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .workspace-info {
@@ -147,6 +148,6 @@
   i {
     font-size: 0.85rem;
     color: var(--p-text-color-secondary);
-    transition: transform 0.3s ease;
+    transition: transform 0.25s ease;
   }
 }

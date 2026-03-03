@@ -70,7 +70,7 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
 
   get imageUrl(): string | null {
     const imageField = this.node.fields?.find(f =>
-      (f.fieldType === 'image-url' || f.fieldType === 'image-upload') && f.value
+      f.fieldType === 'image-url' && f.value
     );
     return imageField?.value || null;
   }

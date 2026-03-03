@@ -9,6 +9,16 @@
     background: rgba(76, 175, 80, 0.3);
     border-radius: 3px;
   }
+
+  ::ng-deep .p-tablist-tab-list {
+    width: 100%;
+  }
+
+  ::ng-deep .p-tab {
+    flex: 1;
+    justify-content: center;
+    gap: 0.4rem;
+  }
 }
 
 .info-section, .members-section, .invite-section {
@@ -102,7 +112,51 @@
   margin-left: auto;
 }
 
-.edit-btn { margin-top: 1rem; }
+.member-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.owner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--p-surface-border);
+}
+
+.delete-confirm-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+
+  p {
+    font-size: 0.8rem;
+    color: #ef4444;
+    margin: 0 0 0.625rem;
+    line-height: 1.5;
+
+    i { margin-right: 0.3rem; }
+  }
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--p-surface-border);
+}
 
 .members-list {
   display: flex;

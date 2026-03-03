@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TabsModule } from 'primeng/tabs';
@@ -16,7 +17,7 @@ import { ToastService } from '../../../services/toast.service';
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, InputTextModule,
-    AvatarModule, TooltipModule, TabsModule
+    InputNumberModule, AvatarModule, TooltipModule, TabsModule
   ],
   templateUrl: './workspace-settings-dialog.component.html',
   styleUrl: './workspace-settings-dialog.component.scss'
@@ -27,6 +28,9 @@ export class WorkspaceSettingsDialogComponent implements OnInit {
   inviteLink: string = '';
   copied = false;
   activeTab: string = '0';
+  editingMemberLimit = false;
+  memberLimitValue: number = 12;
+  confirmDelete = false;
 
   constructor(
     public ref: DynamicDialogRef,
@@ -38,6 +42,7 @@ export class WorkspaceSettingsDialogComponent implements OnInit {
   ngOnInit(): void {
     this.workspace = this.config.data?.workspace;
     this.isOwner = this.config.data?.isOwner || false;
+    this.memberLimitValue = this.workspace.memberLimit || 12;
     this.buildInviteLink();
   }
 
@@ -114,6 +119,36 @@ export class WorkspaceSettingsDialogComponent implements OnInit {
       this.toastService.showSuccess('Removed', `${member.displayName} has been removed.`);
     } catch {
       this.toastService.showError('Error', 'Failed to remove member.');
+    }
+  }
+
+  toggleEditMemberLimit(): void {
+    if (this.editingMemberLimit) {
+      this.saveMemberLimit();
+    }
+    this.editingMemberLimit = !this.editingMemberLimit;
+  }
+
+  async saveMemberLimit(): Promise<void> {
+    const clamped = Math.min(32, Math.max(this.activeMembers.length, this.memberLimitValue || 2));
+    this.memberLimitValue = clamped;
+    try {
+      await this.workspaceService.updateWorkspace(this.workspace.id!, { memberLimit: clamped });
+      this.workspace.memberLimit = clamped;
+      this.toastService.showSuccess('Updated', `Member limit set to ${clamped}.`);
+    } catch {
+      this.toastService.showError('Error', 'Failed to update member limit.');
+    }
+  }
+
+  async deleteWorkspace(): Promise<void> {
+    if (!this.isOwner) return;
+    try {
+      await this.workspaceService.deleteWorkspace(this.workspace.id!);
+      this.toastService.showSuccess('Deleted', 'Workspace has been deleted.');
+      this.ref.close({ action: 'deleted' });
+    } catch {
+      this.toastService.showError('Error', 'Failed to delete workspace.');
     }
   }
 

@@ -40,8 +40,8 @@
     }
   </header>
 
-  <!-- Workspaces Section -->
-  @if ((workspaces$ | async)?.length) {
+  <!-- Workspaces Section (only show when not searching) -->
+  @if ((workspaces$ | async)?.length && !searchControl.value) {
     <div class="workspaces-section">
       <div class="section-header flex align-items-center gap-2">
         <i class="pi pi-users" style="color: var(--p-green-500);"></i>
@@ -55,10 +55,37 @@
     </div>
   }
 
-  @if ((dashboardItems$ | async)?.length === 0 && !(workspaces$ | async)?.length) {
+  @if ((workspaces$ | async)?.length && searchControl.value) {
+    <div class="search-scope-note">
+      <i class="pi pi-filter"></i>
+      <span>Searching personal collections/nodes only. Shared workspaces are hidden during search.</span>
+      <button
+        type="button"
+        pButton
+        label="Clear"
+        class="p-button-text p-button-sm"
+        (click)="searchControl.setValue('')">
+      </button>
+    </div>
+  }
+
+  @if ((dashboardItems$ | async)?.length === 0 && searchControl.value) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
-      <i class="pi pi-folder-open empty-state-icon text-7xl text-400 mb-4"></i>
-      <p class="text-xl text-500">No collections or nodes yet. Start by adding a new one!</p>
+      <i class="pi pi-search empty-state-icon text-7xl text-400 mb-4"></i>
+      <p class="text-xl text-500">No personal matches found for "{{ searchControl.value }}".</p>
+      <button
+        type="button"
+        pButton
+        label="Clear Search"
+        class="p-button-text p-button-sm mt-2"
+        (click)="searchControl.setValue('')">
+      </button>
+    </div>
+  } @else if ((dashboardItems$ | async)?.length === 0 && !(workspaces$ | async)?.length) {
+    <div class="empty-state welcome-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
+      <i class="pi pi-sparkles empty-state-icon"></i>
+      <h3 class="empty-state-title">Welcome to DashLink</h3>
+      <p>Create your first collection or node using the <i class="pi pi-plus" style="font-size: 0.8em;"></i> button above to get started.</p>
     </div>
   } @else if ((dashboardItems$ | async)?.length === 0) {
     <!-- Only workspaces exist, no collections/nodes -->

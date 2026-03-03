@@ -1,7 +1,7 @@
 <div class="view-node-container">
   @if (imageUrl) {
     <div class="node-image-header">
-      <img [src]="imageUrl" alt="Node Image">
+      <img [src]="imageUrl" alt="Node Image" (error)="$any($event.target).style.display='none'">
       <div class="image-fade-overlay"></div>
     </div>
   }
@@ -18,7 +18,6 @@
         }
         <div class="creator-details">
           <span class="creator-name">{{ node.creatorName }}</span>
-          <span class="creator-email">{{ node.creatorEmail }}</span>
         </div>
       </div>
       <div class="date-badges">
@@ -72,12 +71,14 @@
                     <a [href]="'tel:' + field.value" class="field-link">{{ field.value }}</a>
                   }
                   @case ('image-url') {
-                    <a [href]="field.value" target="_blank" class="field-link">
-                      View Image <i class="pi pi-external-link"></i>
-                    </a>
-                  }
-                  @case ('image-upload') {
-                    <img [src]="field.value" alt="Uploaded image" class="field-image">
+                    @if (field.value) {
+                      <div class="field-image-wrapper">
+                        <img [src]="field.value" alt="Image" class="field-image" (error)="$any($event.target).style.display='none'">
+                      </div>
+                      <a [href]="field.value" target="_blank" class="field-link image-source-link">
+                        Open original <i class="pi pi-external-link"></i>
+                      </a>
+                    }
                   }
                   @case ('date') {
                     <span>{{ formatFieldDate(field.value) }}</span>

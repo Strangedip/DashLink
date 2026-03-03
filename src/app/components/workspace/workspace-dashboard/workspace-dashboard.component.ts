@@ -350,6 +350,10 @@ export class WorkspaceDashboardComponent implements OnInit {
     });
   }
 
+  openOverview(): void {
+    this.router.navigate(['/workspaces', this.workspaceId, 'overview']);
+  }
+
   openSettings(): void {
     const dialogRef = this.dialogService.open(WorkspaceSettingsDialogComponent, {
       header: 'Workspace Settings',
@@ -361,6 +365,8 @@ export class WorkspaceDashboardComponent implements OnInit {
     dialogRef.onClose.pipe(take(1)).subscribe((result: any) => {
       if (result?.action === 'edit') {
         this.openEditWorkspaceDialog();
+      } else if (result?.action === 'deleted') {
+        this.router.navigate(['/dashboard']);
       }
     });
   }
@@ -380,6 +386,7 @@ export class WorkspaceDashboardComponent implements OnInit {
         await this.workspaceService.updateWorkspace(this.workspaceId!, {
           name: result.name,
           description: result.description,
+          memberLimit: result.memberLimit || this.workspace?.memberLimit || 12,
           metadata: result.metadata,
           schema: result.schema,
           useCustomSchema: result.useCustomSchema

@@ -16,26 +16,27 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 3px;
     height: 100%;
-    background: linear-gradient(180deg, #4CAF50 0%, #2196F3 100%);
+    background: var(--p-green-500);
     opacity: 0;
     transition: opacity 0.25s ease;
   }
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: var(--p-green-500);
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.12);
+    border-color: rgba(76, 175, 80, 0.3);
+    background: linear-gradient(135deg, var(--p-surface-800) 0%, rgba(76, 175, 80, 0.06) 100%);
 
     &::before { opacity: 1; }
 
     .collection-icon-wrapper {
-      background: rgba(76, 175, 80, 0.15);
+      background: rgba(76, 175, 80, 0.18);
       border-color: var(--p-green-500);
     }
 
-    .collection-icon { color: var(--p-green-500); transform: scale(1.1); }
+    .collection-icon { color: var(--p-green-400); transform: scale(1.1); }
     .action-button { opacity: 1; }
   }
 
@@ -56,7 +57,7 @@
   width: 40px;
   height: 40px;
   min-width: 40px;
-  background: rgba(100, 100, 100, 0.2);
+  background: rgba(76, 175, 80, 0.08);
   border: 2px solid transparent;
   border-radius: 10px;
   transition: all 0.25s ease;
@@ -64,7 +65,7 @@
 
 .collection-icon {
   font-size: 1.25rem;
-  color: var(--p-text-color-secondary);
+  color: var(--p-green-500);
   transition: all 0.25s ease;
 }
 
@@ -109,7 +110,7 @@
   .action-button {
     opacity: 0.5;
     transition: opacity 0.25s ease;
-    &:hover { opacity: 1; }
+    &:hover { opacity: 1; background: rgba(76, 175, 80, 0.1) !important; }
   }
 
   .p-menu { z-index: 1001; }

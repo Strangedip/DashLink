@@ -1,7 +1,7 @@
 <div class="ws-node-card" (click)="onClick()">
   @if (imageUrl) {
     <div class="node-thumbnail">
-      <img [src]="imageUrl" alt="" loading="lazy">
+      <img [src]="imageUrl" alt="" loading="lazy" (error)="$any($event.target).style.display='none'">
     </div>
   }
   <div class="ws-node-card-content">

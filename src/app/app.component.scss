@@ -32,6 +32,16 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 100;
   box-sizing: border-box;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 5%, rgba(76, 175, 80, 0.4) 50%, transparent 95%);
+  }
 }
 
 .navbar-content {
@@ -51,5 +61,12 @@
 .app-logo {
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--primary-color);
+  letter-spacing: -0.02em;
+
+  .text-primary {
+    background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }

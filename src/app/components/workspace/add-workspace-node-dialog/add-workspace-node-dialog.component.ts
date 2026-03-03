@@ -12,15 +12,12 @@ import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { RatingModule } from 'primeng/rating';
-import { FileUploadModule } from 'primeng/fileupload';
 import { TooltipModule } from 'primeng/tooltip';
 import { urlValidator } from '../../../validators/url.validator';
 import {
   WorkspaceFieldSchema, WorkspaceNodeField, WorkspaceNode,
   WORKSPACE_FIELD_TYPES, WorkspaceFieldTypeOption, generateFieldId
 } from '../../../models/workspace.model';
-import { StorageService } from '../../../services/storage.service';
-import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-add-workspace-node-dialog',
@@ -29,7 +26,7 @@ import { ToastService } from '../../../services/toast.service';
     CommonModule, ReactiveFormsModule, InputTextModule, Textarea,
     ButtonModule, MessageModule, SelectModule, InputNumberModule,
     CalendarModule, CheckboxModule, ColorPickerModule, RatingModule,
-    FileUploadModule, TooltipModule
+    TooltipModule
   ],
   templateUrl: './add-workspace-node-dialog.component.html',
   styleUrl: './add-workspace-node-dialog.component.scss'
@@ -45,15 +42,10 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
   workspaceId: string = '';
   collectionId: string | null = null;
 
-  uploadingFields: Set<string> = new Set();
-  uploadedUrls: Map<string, string> = new Map();
-
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
-    private fb: FormBuilder,
-    private storageService: StorageService,
-    private toastService: ToastService
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
@@ -112,9 +104,6 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
         const existing = node.fields.find(f => f.fieldId === fieldId);
         if (existing) {
           group.get('value')?.setValue(existing.value);
-          if (existing.fieldType === 'image-upload' && existing.value) {
-            this.uploadedUrls.set(fieldId, existing.value);
-          }
         }
       });
     }
@@ -170,46 +159,6 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
 
   removeCustomField(index: number): void {
     this.customFields.removeAt(index);
-  }
-
-  async onFileSelect(event: any, fieldId: string, index: number): Promise<void> {
-    const file: File = event.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      this.toastService.showError('File Too Large', 'Maximum file size is 5MB.');
-      return;
-    }
-
-    this.uploadingFields.add(fieldId);
-    try {
-      const tempNodeId = this.existingNode?.id || `temp_${Date.now()}`;
-      const path = this.storageService.generateImagePath(this.workspaceId, tempNodeId, file.name);
-      const downloadUrl = await this.storageService.uploadImage(file, path);
-
-      this.uploadedUrls.set(fieldId, downloadUrl);
-
-      const group = this.schemaFields.controls.find(c =>
-        (c as FormGroup).get('fieldId')?.value === fieldId
-      ) as FormGroup;
-      if (group) {
-        group.get('value')?.setValue(downloadUrl);
-      }
-
-      this.toastService.showSuccess('Uploaded', 'Image uploaded successfully.');
-    } catch (error: unknown) {
-      this.toastService.showError('Upload Failed', 'Could not upload image. Please try again.');
-    } finally {
-      this.uploadingFields.delete(fieldId);
-    }
-  }
-
-  isUploading(fieldId: string): boolean {
-    return this.uploadingFields.has(fieldId);
-  }
-
-  getUploadedUrl(fieldId: string): string | undefined {
-    return this.uploadedUrls.get(fieldId);
   }
 
   onSubmit(): void {

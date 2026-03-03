@@ -83,6 +83,8 @@
   border-radius: 8px;
   overflow: hidden;
   position: relative;
+  min-height: 100px;
+  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
 
   img {
     max-width: 100%;
@@ -91,29 +93,6 @@
     border-radius: 8px;
     display: block;
   }
-}
-
-.upload-success {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8rem;
-  color: var(--p-green-400);
-  margin-top: 0.5rem;
-  i { color: var(--p-green-500); }
-}
-
-.uploading-text {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8rem;
-  color: var(--p-text-color-secondary);
-  margin-top: 0.5rem;
-}
-
-.upload-btn {
-  width: 100%;
 }
 
 .checkbox-wrapper {

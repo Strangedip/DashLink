@@ -1,9 +1,9 @@
 <div class="settings-container">
   <p-tabs [(value)]="activeTab">
     <p-tablist>
-      <p-tab value="0"><i class="pi pi-info-circle"></i> Info</p-tab>
-      <p-tab value="1"><i class="pi pi-users"></i> Members ({{ activeMembers.length }})</p-tab>
-      <p-tab value="2"><i class="pi pi-share-alt"></i> Invite</p-tab>
+      <p-tab value="0"><i class="pi pi-info-circle"></i>&nbsp; Info</p-tab>
+      <p-tab value="1"><i class="pi pi-users"></i>&nbsp; Members ({{ activeMembers.length }}/{{ workspace.memberLimit }})</p-tab>
+      <p-tab value="2"><i class="pi pi-share-alt"></i>&nbsp; Invite</p-tab>
     </p-tablist>
 
     <p-tabpanels>
@@ -20,6 +20,20 @@
               <span class="info-value">{{ workspace.description }}</span>
             </div>
           }
+          <div class="info-item">
+            <span class="info-label"><i class="pi pi-users"></i> Member Limit</span>
+            <div class="member-limit-row">
+              @if (editingMemberLimit && isOwner) {
+                <p-inputNumber [(ngModel)] ="memberLimitValue" [min]="activeMembers.length || 2" [max]="32" [showButtons]="true" [style]="{'width': '8rem'}"></p-inputNumber>
+                <button pButton icon="pi pi-check" class="p-button-text p-button-sm p-button-success" (click)="toggleEditMemberLimit()" pTooltip="Save"></button>
+              } @else {
+                <span class="info-value">{{ workspace.memberLimit }} members</span>
+                @if (isOwner) {
+                  <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="toggleEditMemberLimit()" pTooltip="Edit limit"></button>
+                }
+              }
+            </div>
+          </div>
           @if (workspace.metadata.goal) {
             <div class="info-item">
               <span class="info-label"><i class="pi pi-bullseye"></i> Goal</span>
@@ -79,7 +93,20 @@
           }
 
           @if (isOwner) {
-            <button pButton label="Edit Workspace" icon="pi pi-pencil" (click)="openEditWorkspace()" class="p-button-text p-button-sm edit-btn"></button>
+            <div class="owner-actions">
+              <button pButton label="Edit Workspace" icon="pi pi-pencil" (click)="openEditWorkspace()" class="p-button-text p-button-sm"></button>
+              <button pButton label="Delete Workspace" icon="pi pi-trash" (click)="confirmDelete = true" class="p-button-text p-button-sm p-button-danger"></button>
+            </div>
+
+            @if (confirmDelete) {
+              <div class="delete-confirm-box">
+                <p><i class="pi pi-exclamation-triangle"></i> This will permanently delete the workspace, all collections, and all nodes. This action cannot be undone.</p>
+                <div class="delete-confirm-actions">
+                  <button pButton label="Cancel" icon="pi pi-times" (click)="confirmDelete = false" class="p-button-text p-button-sm"></button>
+                  <button pButton label="Yes, Delete" icon="pi pi-trash" (click)="deleteWorkspace()" class="p-button-danger p-button-sm"></button>
+                </div>
+              </div>
+            }
           }
         </div>
       </p-tabpanel>
@@ -162,4 +189,8 @@
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>
+
+  <div class="dialog-footer">
+    <button pButton label="Close" icon="pi pi-times" (click)="onClose()" class="p-button-text p-button-sm"></button>
+  </div>
 </div>

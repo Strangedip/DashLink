@@ -14,6 +14,7 @@
   position: relative;
   border-radius: 0 0 16px 16px;
   margin-bottom: 0.5rem;
+  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
 
   img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -21,11 +22,21 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 40%;
-    background: linear-gradient(to bottom, transparent 0%, rgba(23, 23, 23, 0.95) 100%);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(23, 23, 23, 0.1) 20%,
+      rgba(23, 23, 23, 0.4) 50%,
+      rgba(23, 23, 23, 0.8) 80%,
+      rgba(23, 23, 23, 0.95) 100%
+    );
     pointer-events: none;
   }
 
-  @media screen and (max-width: 576px) { height: 180px; }
+  @media screen and (max-width: 576px) {
+    height: 180px;
+    border-radius: 0 0 12px 12px;
+  }
 }
 
 .node-content-wrapper {
@@ -179,12 +190,25 @@
   &:hover { color: var(--p-green-400); text-decoration: underline; }
 }
 
+.field-image-wrapper {
+  min-height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
+}
+
 .field-image {
   max-width: 100%;
   max-height: 200px;
   border-radius: 8px;
   object-fit: cover;
-  margin-top: 0.25rem;
+  display: block;
+}
+
+.image-source-link {
+  margin-top: 0.375rem;
+  font-size: 0.8rem;
 }
 
 .checkbox-display {

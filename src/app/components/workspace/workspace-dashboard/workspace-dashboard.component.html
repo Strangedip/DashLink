@@ -31,6 +31,7 @@
               }
             </p-avatarGroup>
           </div>
+          <button pButton icon="pi pi-chart-bar" (click)="openOverview()" pTooltip="Overview" class="p-button-text p-button-sm"></button>
           <button pButton icon="pi pi-cog" (click)="openSettings()" pTooltip="Settings" class="p-button-text p-button-sm"></button>
         </div>
       </div>
@@ -88,7 +89,8 @@
   @if ((dashboardItems$ | async)?.length === 0) {
     <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center">
       <i class="pi pi-inbox empty-state-icon"></i>
-      <p class="text-base text-500">No items yet. Add a node or collection to get started!</p>
+      <h3 class="empty-state-title">Start building your workspace</h3>
+      <p class="text-base text-500">Add your first node or collection using the <i class="pi pi-plus" style="font-size: 0.8em;"></i> button above.</p>
     </div>
   } @else {
     <div class="grid">

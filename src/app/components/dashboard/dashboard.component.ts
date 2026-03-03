@@ -567,7 +567,7 @@ export class DashboardComponent implements OnInit {
           description: result.description,
           ownerId: this.currentUserId!,
           ownerName,
-          memberLimit: 12,
+          memberLimit: result.memberLimit || 12,
           memberIds: [this.currentUserId!],
           members: [ownerMember],
           schema: result.schema,

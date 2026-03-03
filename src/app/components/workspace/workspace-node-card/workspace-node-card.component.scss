@@ -30,7 +30,7 @@
 
     &::before { opacity: 1; }
     .node-icon-wrapper { background: rgba(76, 175, 80, 0.18); border-color: var(--p-green-500); }
-    .node-icon { color: var(--p-green-400); }
+    .node-icon { color: var(--p-green-400); transform: scale(1.1); }
     .action-button { opacity: 1; }
   }
 
@@ -42,6 +42,7 @@
   height: 100px;
   overflow: hidden;
   position: relative;
+  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
 
   img {
     width: 100%;
@@ -166,6 +167,8 @@
     transition: opacity 0.25s ease;
     &:hover { opacity: 1; background: rgba(76, 175, 80, 0.1) !important; }
   }
+
+  .p-menu { z-index: 1001; }
 
   @media screen and (max-width: 576px) {
     .action-button { opacity: 1; }

@@ -34,6 +34,11 @@
         <textarea pTextarea id="ws-desc" formControlName="description" placeholder="Brief description of this workspace..." rows="3" maxlength="200" class="w-full"></textarea>
         <small class="char-count">{{ (basicForm.get('description')?.value || '').length }}/200</small>
       </div>
+      <div class="p-field">
+        <label for="ws-limit">Member Limit <span class="required">*</span></label>
+        <p-inputNumber id="ws-limit" formControlName="memberLimit" [min]="2" [max]="32" [showButtons]="true" placeholder="Max members"></p-inputNumber>
+        <small class="field-hint">Maximum 32 members per workspace</small>
+      </div>
     </div>
   }
 

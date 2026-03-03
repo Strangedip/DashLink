@@ -36,7 +36,7 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
   private processFields(): void {
     if (!this.node.fields) return;
     for (const field of this.node.fields) {
-      if ((field.fieldType === 'image-url' || field.fieldType === 'image-upload') && field.value && !this.imageUrl) {
+      if (field.fieldType === 'image-url' && field.value && !this.imageUrl) {
         this.imageUrl = field.value;
       }
       if (field.value !== null && field.value !== undefined && field.value !== '') {
@@ -101,7 +101,6 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
       'date': 'pi pi-calendar',
       'datetime': 'pi pi-clock',
       'image-url': 'pi pi-image',
-      'image-upload': 'pi pi-image',
       'checkbox': 'pi pi-check-square',
       'dropdown': 'pi pi-list',
       'color': 'pi pi-palette',
