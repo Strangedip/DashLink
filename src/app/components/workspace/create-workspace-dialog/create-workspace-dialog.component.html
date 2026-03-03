@@ -162,6 +162,7 @@
 
   <!-- Footer Navigation -->
   <div class="p-dialog-footer">
+    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
     @if (activeStep > 0) {
       <p-button label="Back" icon="pi pi-arrow-left" (click)="prevStep()" styleClass="p-button-text"></p-button>
     }
@@ -170,7 +171,6 @@
       <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="nextStep()"
         [disabled]="(activeStep === 0 && !isBasicValid()) || (activeStep === 1 && !isMetadataValid())"></p-button>
     } @else {
-      <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
       <p-button [label]="isEditMode ? 'Update' : 'Create'" icon="pi pi-check" (click)="onSubmit()"
         [disabled]="!isBasicValid() || !isMetadataValid() || !isSchemaValid()"></p-button>
     }
