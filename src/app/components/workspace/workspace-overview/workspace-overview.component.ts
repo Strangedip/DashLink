@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, filter, switchMap, take } from 'rxjs';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
@@ -14,6 +14,7 @@ import { Workspace, WorkspaceNode, WorkspaceMember } from '../../../models/works
 import { WorkspaceService } from '../../../services/workspace.service';
 import { AuthService } from '../../../services/auth.service';
 import { ViewWorkspaceNodeDialogComponent } from '../view-workspace-node-dialog/view-workspace-node-dialog.component';
+import { AiAnalysisDialogComponent } from '../ai-analysis-dialog/ai-analysis-dialog.component';
 
 interface MemberStat {
   member: WorkspaceMember;
@@ -41,6 +42,8 @@ export class WorkspaceOverviewComponent implements OnInit {
   workspace: Workspace | null = null;
   workspaceId: string | null = null;
   allNodes: WorkspaceNode[] = [];
+  allCollections: any[] = [];
+  currentUserId: string | null = null;
 
   totalNodes = 0;
   totalCollections = 0;
@@ -92,11 +95,14 @@ export class WorkspaceOverviewComponent implements OnInit {
     combineLatest([
       this.workspaceService.getWorkspace(this.workspaceId!),
       this.workspaceService.getAllWorkspaceNodes(this.workspaceId!),
-      this.workspaceService.getWorkspaceCollections(this.workspaceId!, null)
-    ]).pipe(take(1)).subscribe(([workspace, allNodes, collections]) => {
+      this.workspaceService.getWorkspaceCollections(this.workspaceId!, null),
+      this.authService.user$
+    ]).pipe(take(1)).subscribe(([workspace, allNodes, collections, user]) => {
       this.workspace = workspace;
       this.allNodes = allNodes;
+      this.allCollections = collections;
       this.totalCollections = collections.length;
+      this.currentUserId = user?.uid || null;
 
       this.activeMembers = this.workspace.members?.filter(m => !m.banned) || [];
       this.totalNodes = this.allNodes.length;
@@ -209,6 +215,24 @@ export class WorkspaceOverviewComponent implements OnInit {
       style: { 'max-width': '96vw' },
       dismissableMask: true,
       data: { node }
+    });
+  }
+
+  openAIAnalysis(): void {
+    if (!this.workspace || !this.currentUserId) return;
+
+    this.dialogService.open(AiAnalysisDialogComponent, {
+      header: 'AI Workspace Analysis',
+      width: '700px',
+      style: { 'max-width': '96vw', 'max-height': '90vh' },
+      dismissableMask: true,
+      data: {
+        workspace: this.workspace,
+        members: this.activeMembers,
+        nodes: this.allNodes,
+        collections: this.allCollections,
+        userId: this.currentUserId
+      }
     });
   }
 }

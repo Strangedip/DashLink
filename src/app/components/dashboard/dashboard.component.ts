@@ -572,7 +572,8 @@ export class DashboardComponent implements OnInit {
           members: [ownerMember],
           schema: result.schema,
           useCustomSchema: result.useCustomSchema,
-          metadata: result.metadata
+          metadata: result.metadata,
+          aiApiKey: result.aiApiKey || ''
         });
 
         this.toastService.showSuccess('Created', 'Workspace created successfully!');

@@ -1,0 +1,265 @@
+<div class="ai-analysis-container">
+
+  <!-- ─── INPUT PHASE ─────────────────────────────────── -->
+  @if (phase === 'input') {
+    <div class="input-section">
+
+      <div class="info-card">
+        <i class="pi pi-info-circle info-icon"></i>
+        <div class="info-content">
+          <h4>What will be analyzed?</h4>
+          <ul>
+            <li><strong>{{ analysisData.stats.totalNodes }}</strong> nodes across <strong>{{ analysisData.stats.totalCollections }}</strong> collections</li>
+            <li><strong>{{ analysisData.members.length }}</strong> members and their contributions</li>
+            <li>Workspace rules, goals{{ workspace.metadata.penalty ? ', and penalties' : '' }}</li>
+            <li>Activity patterns and team dynamics</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="data-preview">
+        <h4><i class="pi pi-database"></i> Data Snapshot</h4>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <span class="preview-label">Workspace</span>
+            <span class="preview-value">{{ workspace.name }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Goal</span>
+            <span class="preview-value">{{ workspace.metadata.goal || '—' }}</span>
+          </div>
+          @if (workspace.metadata.rules) {
+            <div class="preview-item">
+              <span class="preview-label">Rules</span>
+              <span class="preview-value">{{ workspace.metadata.rules }}</span>
+            </div>
+          }
+          @if (workspace.metadata.penalty) {
+            <div class="preview-item">
+              <span class="preview-label">Penalty</span>
+              <span class="preview-value penalty-value">{{ workspace.metadata.penalty }}</span>
+            </div>
+          }
+          @if (workspace.metadata.duration) {
+            <div class="preview-item">
+              <span class="preview-label">Duration</span>
+              <span class="preview-value">{{ workspace.metadata.duration }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="members-preview">
+          <span class="preview-label">Members ({{ analysisData.members.length }})</span>
+          <div class="members-list">
+            @for (member of analysisData.members; track member.email) {
+              <div class="member-chip">{{ member.name }} · {{ member.contributionPercent }}%</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-question">
+        <label for="custom-q">
+          <i class="pi pi-comment"></i>
+          Additional Question or Perspective <span class="optional-label">(optional)</span>
+        </label>
+        <textarea
+          pTextarea
+          id="custom-q"
+          [(ngModel)]="customQuestion"
+          rows="3"
+          placeholder="e.g. 'Who needs more support?' or 'Is the workload balanced across members?'"
+          class="w-full">
+        </textarea>
+        <small class="hint">AI will address this question alongside the standard analysis.</small>
+      </div>
+
+      <!-- Usage stat (informational only) -->
+      @if (usageStat !== null) {
+        <div class="usage-stat">
+          <i class="pi pi-history"></i>
+          @if (usageStat.totalCount === 0) {
+            <span>First time running analysis on this workspace</span>
+          } @else {
+            <span>You have run <strong>{{ usageStat.totalCount }}</strong> analysis call{{ usageStat.totalCount !== 1 ? 's' : '' }} on this workspace · Last run: {{ lastRunLabel }}</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      <p-button label="Cancel" icon="pi pi-times" (onClick)="close()" styleClass="p-button-text"></p-button>
+      <p-button
+        label="Analyze with AI"
+        icon="pi pi-sparkles"
+        (onClick)="runAnalysis()"
+        [disabled]="!hasApiKey || isAnalyzing">
+      </p-button>
+    </div>
+  }
+
+  <!-- ─── ANALYZING PHASE ──────────────────────────────── -->
+  @if (phase === 'analyzing') {
+    <div class="analyzing-section">
+      <div class="analyzing-content">
+        <i class="pi pi-spin pi-spinner analyzing-icon"></i>
+        <h3>Analyzing workspace…</h3>
+        <p>Reviewing {{ analysisData.stats.totalNodes }} nodes and {{ analysisData.members.length }} members</p>
+        @if (customQuestion) {
+          <p class="custom-q-preview">"{{ customQuestion }}"</p>
+        }
+        <p-progressBar mode="indeterminate" styleClass="mt-3"></p-progressBar>
+      </div>
+    </div>
+  }
+
+  <!-- ─── RESULTS PHASE ────────────────────────────────── -->
+  @if (phase === 'results' && result) {
+    <div class="results-section">
+
+      <!-- Overall Health -->
+      <div class="health-card">
+        <div class="health-header">
+          <div class="health-title">
+            <i class="pi pi-heart-fill"></i>
+            <h3>Workspace Health</h3>
+          </div>
+          <div class="health-badge" [style.background]="getHealthColor(result.overallHealth.score) + '22'"
+               [style.color]="getHealthColor(result.overallHealth.score)"
+               [style.border-color]="getHealthColor(result.overallHealth.score) + '55'">
+            <span class="health-score">{{ result.overallHealth.score }}</span>
+            <span class="health-max">/100</span>
+            <span class="health-label">{{ getHealthLabel(result.overallHealth.score) }}</span>
+          </div>
+        </div>
+        <p class="health-summary">{{ result.overallHealth.summary }}</p>
+      </div>
+
+      <!-- Member Analysis -->
+      <div class="results-block">
+        <h3><i class="pi pi-users"></i> Member Analysis</h3>
+        @for (m of result.memberAnalysis; track m.memberEmail) {
+          <div class="member-analysis-card"
+               [class.has-penalty]="m.penalties && m.penalties.length > 0"
+               [class.has-warning]="m.warnings && m.warnings.length > 0 && !(m.penalties && m.penalties.length > 0)">
+            <div class="member-header">
+              <div class="member-avatar">{{ getMemberInitial(m.memberName) }}</div>
+              <div class="member-info">
+                <h4>{{ m.memberName }}</h4>
+                <small>{{ m.memberEmail }}</small>
+              </div>
+              @if (m.penalties && m.penalties.length > 0) {
+                <span class="member-badge penalty"><i class="pi pi-ban"></i> Penalty</span>
+              } @else if (m.warnings && m.warnings.length > 0) {
+                <span class="member-badge warning"><i class="pi pi-exclamation-triangle"></i> Warning</span>
+              } @else {
+                <span class="member-badge ok"><i class="pi pi-check-circle"></i> OK</span>
+              }
+            </div>
+
+            <p class="analysis-text">{{ m.analysis }}</p>
+
+            @if (m.penalties && m.penalties.length > 0) {
+              <div class="detail-box penalties-box">
+                <div class="detail-box-title"><i class="pi pi-ban"></i> Penalties</div>
+                <ul>@for (p of m.penalties; track p) { <li>{{ p }}</li> }</ul>
+              </div>
+            }
+
+            @if (m.warnings && m.warnings.length > 0) {
+              <div class="detail-box warnings-box">
+                <div class="detail-box-title"><i class="pi pi-exclamation-triangle"></i> Warnings</div>
+                <ul>@for (w of m.warnings; track w) { <li>{{ w }}</li> }</ul>
+              </div>
+            }
+
+            @if (m.recommendations && m.recommendations.length > 0) {
+              <div class="detail-box recommendations-box">
+                <div class="detail-box-title"><i class="pi pi-lightbulb"></i> Recommendations</div>
+                <ul>@for (r of m.recommendations; track r) { <li>{{ r }}</li> }</ul>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Team Insights -->
+      <div class="results-block">
+        <h3><i class="pi pi-chart-bar"></i> Team Insights</h3>
+        <div class="insights-grid">
+          @if (result.teamInsights.strengths && result.teamInsights.strengths.length) {
+            <div class="insight-box strengths">
+              <div class="insight-title"><i class="pi pi-check-circle"></i> Strengths</div>
+              <ul>@for (s of result.teamInsights.strengths; track s) { <li>{{ s }}</li> }</ul>
+            </div>
+          }
+          @if (result.teamInsights.concerns && result.teamInsights.concerns.length) {
+            <div class="insight-box concerns">
+              <div class="insight-title"><i class="pi pi-exclamation-circle"></i> Concerns</div>
+              <ul>@for (c of result.teamInsights.concerns; track c) { <li>{{ c }}</li> }</ul>
+            </div>
+          }
+          @if (result.teamInsights.suggestions && result.teamInsights.suggestions.length) {
+            <div class="insight-box suggestions">
+              <div class="insight-title"><i class="pi pi-lightbulb"></i> Suggestions</div>
+              <ul>@for (s of result.teamInsights.suggestions; track s) { <li>{{ s }}</li> }</ul>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Custom Question Answer -->
+      @if (result.customQuestionAnswer) {
+        <div class="results-block">
+          <h3><i class="pi pi-comment"></i> Your Question</h3>
+          <div class="question-box">
+            <p class="q-text"><span class="q-label">Q</span>{{ customQuestion }}</p>
+            <p class="a-text"><span class="a-label">A</span>{{ result.customQuestionAnswer }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- Usage stat after results -->
+      @if (usageStat !== null) {
+        <div class="usage-stat usage-stat-results">
+          <i class="pi pi-history"></i>
+          <span>Total analyses on this workspace by you: <strong>{{ usageStat.totalCount }}</strong></span>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      <p-button label="New Analysis" icon="pi pi-refresh" (onClick)="backToInput()" styleClass="p-button-text"></p-button>
+      <p-button label="Close" icon="pi pi-times" (onClick)="close()"></p-button>
+    </div>
+  }
+
+  <!-- ─── ERROR PHASE ──────────────────────────────────── -->
+  @if (phase === 'error') {
+    <div class="error-section">
+      <i class="pi pi-times-circle error-icon"></i>
+      <h3>{{ hasApiKey ? 'Analysis Failed' : 'API Key Required' }}</h3>
+      <p-message severity="error" [text]="errorMessage" styleClass="w-full error-msg"></p-message>
+
+      @if (!hasApiKey) {
+        <div class="api-key-help">
+          <h4><i class="pi pi-key"></i> How to enable AI Analysis</h4>
+          <ol>
+            <li>Get a free Google Gemini API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio <i class="pi pi-external-link" style="font-size:0.7em"></i></a></li>
+            <li>Only the workspace owner can set this — go to <strong>Workspace Settings → Info tab</strong></li>
+            <li>Paste the key in the <strong>"Google Gemini API Key"</strong> field and save</li>
+            <li>Re-open this dialog and run the analysis</li>
+          </ol>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      @if (hasApiKey) {
+        <p-button label="Try Again" icon="pi pi-refresh" (onClick)="backToInput()" styleClass="p-button-text"></p-button>
+      }
+      <p-button label="Close" icon="pi pi-times" (onClick)="close()"></p-button>
+    </div>
+  }
+
+</div>

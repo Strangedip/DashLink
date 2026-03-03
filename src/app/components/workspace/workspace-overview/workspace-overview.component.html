@@ -9,6 +9,9 @@
         {{ workspace?.name || 'Workspace' }} — Overview
       </h1>
     </div>
+    <div class="header-right">
+      <button pButton icon="pi pi-sparkles" label="AI Analysis" (click)="openAIAnalysis()" pTooltip="Get AI-powered workspace insights" class="p-button-sm"></button>
+    </div>
   </header>
 
   <!-- Content -->
