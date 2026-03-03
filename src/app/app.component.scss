@@ -7,13 +7,13 @@
 
 .main-content-area {
   margin-top: -1rem !important;  
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   box-sizing: border-box;
 
   @media screen and (min-width: 992px) {
     margin-top: -2rem !important;
-    max-width: 80vw;
-    width: 70%;
+    max-width: 85vw;
+    width: 100%;
     margin: 0 auto;
   }
 }

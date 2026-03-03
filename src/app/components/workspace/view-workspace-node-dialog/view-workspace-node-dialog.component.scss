@@ -8,34 +8,54 @@
 
 .node-image-header {
   width: 100%;
-  height: 200px;
-  overflow: hidden;
   flex-shrink: 0;
   position: relative;
   border-radius: 0 0 16px 16px;
   margin-bottom: 0.5rem;
-  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
+  background: #1a1a1a;
+  aspect-ratio: 21 / 5;
+  height: auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0.3;
+    filter: blur(2.5px);
+  }
 
   .image-fade-overlay {
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 40%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
       to bottom,
-      transparent 0%,
-      rgba(23, 23, 23, 0.1) 20%,
-      rgba(23, 23, 23, 0.4) 50%,
-      rgba(23, 23, 23, 0.8) 80%,
+      rgba(23, 23, 23, 0.4) 0%,
+      rgba(23, 23, 23, 0.6) 40%,
+      rgba(23, 23, 23, 0.8) 70%,
       rgba(23, 23, 23, 0.95) 100%
     );
     pointer-events: none;
   }
 
   @media screen and (max-width: 576px) {
-    height: 180px;
+    aspect-ratio: 20 / 5;
     border-radius: 0 0 12px 12px;
+    
+    .image-fade-overlay {
+      height: 100%;
+    }
   }
 }
 
@@ -191,19 +211,38 @@
 }
 
 .field-image-wrapper {
-  min-height: 120px;
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 0.25rem;
-  background: var(--dl-image-fallback) center / contain no-repeat #1e1e2e;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #1a1a1a;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    border-color: rgba(76, 175, 80, 0.5);
+    background: #242424;
+  }
 }
 
 .field-image {
-  max-width: 100%;
-  max-height: 200px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
   border-radius: 8px;
-  object-fit: cover;
   display: block;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  padding: 0.5rem;
+  background: #1a1a1a;
 }
 
 .image-source-link {

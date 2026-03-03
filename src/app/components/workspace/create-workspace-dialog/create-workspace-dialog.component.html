@@ -135,7 +135,7 @@
                   </div>
                   <div class="p-field flex-1">
                     <label [for]="'sf-type-' + i">Field Type <span class="required">*</span></label>
-                    <p-select [id]="'sf-type-' + i" [options]="fieldTypes" optionLabel="name" optionValue="code" formControlName="fieldType" placeholder="Select Type" appendTo="body"></p-select>
+                    <p-select [attr.id]="'sf-type-' + i" [options]="fieldTypes" optionLabel="name" optionValue="code" formControlName="fieldType" placeholder="Select Type" appendTo="body"></p-select>
                   </div>
                 </div>
                 <div class="field-row">

@@ -1,3 +1,4 @@
+// ─── Container ──────────────────────────────────────────────
 .overview-page-container {
   display: flex;
   flex-direction: column;
@@ -18,18 +19,23 @@
   position: sticky;
   top: 60px;
   z-index: 10;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .page-title {
@@ -40,10 +46,15 @@
   font-weight: 600;
   margin: 0;
   color: var(--p-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 
   i {
     color: var(--p-green-500);
     font-size: 1rem;
+    flex-shrink: 0;
   }
 }
 
@@ -54,25 +65,33 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
 }
 
 // ─── Summary Cards ──────────────────────────────────────────
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.875rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .stat-card {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
+  padding: 0.875rem;
   background: var(--p-surface-card);
   border-radius: 10px;
   border: 1px solid var(--p-surface-border);
   transition: all 0.2s ease;
+  min-width: 0;
 
   &:hover {
     background: var(--p-surface-hover);
@@ -83,29 +102,30 @@
 }
 
 .stat-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
   flex-shrink: 0;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 
-  &.nodes { background: rgba(76, 175, 80, 0.15); color: var(--p-green-400); }
+  &.nodes       { background: rgba(76, 175, 80, 0.15);  color: var(--p-green-400); }
   &.collections { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-  &.members { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-  &.star { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+  &.members     { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+  &.star        { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 }
 
 .stat-body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 
 .stat-value {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--p-text-color);
   line-height: 1.2;
@@ -114,27 +134,31 @@
   text-overflow: ellipsis;
 
   &.contributor-name {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
   }
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--p-text-color-secondary);
   margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 // ─── Two Column Layout ──────────────────────────────────────
 .two-column-layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
+  gap: 1rem;
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
   }
 }
 
@@ -142,8 +166,13 @@
 .section {
   background: var(--p-surface-card);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.875rem;
   border: 1px solid var(--p-surface-border);
+  min-width: 0;
+
+  @media (min-width: 640px) {
+    padding: 1rem;
+  }
 }
 
 .section-header {
@@ -151,7 +180,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.875rem;
+  margin-bottom: 0.75rem;
   padding-bottom: 0.625rem;
   border-bottom: 1px solid var(--p-surface-border);
   flex-wrap: wrap;
@@ -161,11 +190,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--p-text-color);
 
-  i { color: var(--p-green-500); font-size: 1rem; }
+  i { color: var(--p-green-500); font-size: 0.95rem; }
+}
+
+// Sort selects inside section headers
+::ng-deep .section-sort-select {
+  min-width: 8.5rem;
+  font-size: 0.82rem;
 }
 
 // ─── Member Stats ───────────────────────────────────────────
@@ -178,23 +213,21 @@
 .member-stat-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.875rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding: 0.625rem 0.75rem;
   background: var(--p-surface-800);
   border-radius: 8px;
   border-left: 3px solid var(--p-green-500);
   transition: background 0.2s ease;
 
-  &:hover {
-    background: var(--p-surface-700);
-  }
+  &:hover { background: var(--p-surface-700); }
 }
 
 .member-stat-info {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
   flex: 1;
   min-width: 0;
 }
@@ -203,10 +236,11 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 
 .member-stat-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--p-text-color);
   white-space: nowrap;
@@ -215,7 +249,7 @@
 }
 
 .member-stat-meta {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--p-text-color-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -225,27 +259,36 @@
 .member-stat-bar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  width: 100%;
   flex-shrink: 0;
-  min-width: 120px;
-  max-width: 160px;
+
+  @media (min-width: 480px) {
+    width: auto;
+    min-width: 110px;
+    max-width: 150px;
+  }
 }
 
 .bar-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--p-green-400);
-  min-width: 50px;
-  text-align: right;
   white-space: nowrap;
+  flex-shrink: 0;
+
+  @media (min-width: 480px) {
+    min-width: 48px;
+    text-align: right;
+  }
 }
 
 // ─── Activity / Node List ───────────────────────────────────
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  max-height: 600px;
+  gap: 0.35rem;
+  max-height: 520px;
   overflow-y: auto;
 
   &::-webkit-scrollbar { width: 5px; }
@@ -260,16 +303,15 @@
 .activity-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.625rem;
+  gap: 0.4rem;
+  padding: 0.45rem 0.55rem;
   background: var(--p-surface-800);
   border-radius: 6px;
   transition: background 0.2s ease;
   cursor: pointer;
+  min-width: 0;
 
-  &:hover {
-    background: var(--p-surface-700);
-  }
+  &:hover { background: var(--p-surface-700); }
 
   &:focus-visible {
     outline: 2px solid var(--p-primary-color);
@@ -278,11 +320,12 @@
 }
 
 .activity-index {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--p-text-color-secondary);
-  min-width: 20px;
+  min-width: 18px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .activity-avatar {
@@ -297,7 +340,7 @@
 }
 
 .activity-node-name {
-  font-size: 0.875rem;
+  font-size: 0.83rem;
   font-weight: 600;
   color: var(--p-text-color);
   white-space: nowrap;
@@ -306,8 +349,11 @@
 }
 
 .activity-meta {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--p-text-color-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   strong {
     color: var(--p-green-400);
@@ -316,28 +362,119 @@
 }
 
 .activity-fields-count {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--p-text-color-secondary);
   background: var(--p-surface-700);
-  padding: 0.2rem 0.5rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 4px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  white-space: nowrap;
 
-  i { font-size: 0.65rem; }
+  i { font-size: 0.6rem; }
 }
 
 // ─── Empty Messages ─────────────────────────────────────────
 .empty-msg {
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--p-text-color-secondary);
 
   i {
     margin-right: 0.4rem;
     color: var(--p-surface-500);
+  }
+}
+
+// ─── Mobile Overrides (<= 480px) ────────────────────────────
+@media (max-width: 480px) {
+  .overview-page-container {
+    padding-top: 56px;
+  }
+
+  .page-header {
+    padding: 0.5rem 0.625rem;
+    top: 56px;
+  }
+
+  // Show only icon on very small screens, hide button label
+  .header-right ::ng-deep .p-button-label {
+    display: none;
+  }
+  .header-right ::ng-deep .p-button {
+    padding: 0.45rem 0.55rem;
+    min-width: unset;
+  }
+
+  .page-title {
+    font-size: 0.88rem;
+  }
+
+  .overview-content {
+    padding: 0.625rem;
+  }
+
+  .summary-grid {
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .stat-card {
+    padding: 0.625rem;
+    gap: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .stat-value.contributor-name {
+    font-size: 0.82rem;
+  }
+
+  .two-column-layout {
+    gap: 0.75rem;
+  }
+
+  .section {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  // On very small screens, stack section header vertically
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  ::ng-deep .section-header p-select .p-select {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  // Member stat bar always full-width on mobile
+  .member-stat-row {
+    padding: 0.5rem 0.625rem;
+  }
+
+  .member-stat-bar {
+    width: 100%;
+  }
+
+  // Slightly smaller avatars in lists
+  .activity-row {
+    gap: 0.35rem;
+    padding: 0.4rem 0.5rem;
   }
 }

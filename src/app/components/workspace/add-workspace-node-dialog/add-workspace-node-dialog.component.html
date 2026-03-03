@@ -48,18 +48,53 @@
                 <input [id]="'sf-' + i" type="tel" pInputText formControlName="value" placeholder="+91...">
               }
               @case ('date') {
-                <p-calendar [id]="'sf-' + i" formControlName="value" dateFormat="mm/dd/yy" placeholder="Select date"></p-calendar>
+                <p-calendar [attr.id]="'sf-' + i" formControlName="value" dateFormat="mm/dd/yy" placeholder="Select date" appendTo="body"></p-calendar>
               }
               @case ('datetime') {
-                <p-calendar [id]="'sf-' + i" formControlName="value" [showTime]="true" dateFormat="mm/dd/yy" placeholder="Select date & time"></p-calendar>
+                <p-calendar [attr.id]="'sf-' + i" formControlName="value" [showTime]="true" dateFormat="mm/dd/yy" placeholder="Select date & time" appendTo="body"></p-calendar>
               }
-              @case ('image-url') {
-                <input [id]="'sf-' + i" type="url" pInputText formControlName="value" placeholder="https://image-url...">
-                @if (getSchemaFieldGroup(i).get('value')?.value) {
-                  <div class="image-preview">
-                    <img [src]="getSchemaFieldGroup(i).get('value')?.value" alt="Preview" (error)="$any($event.target).style.display='none'">
-                  </div>
-                }
+              @case ('image-upload') {
+                <div class="image-upload-field">
+                  @if (getSchemaFieldGroup(i).get('value')?.value) {
+                    <!-- Image Preview -->
+                    <div class="image-preview-wrapper">
+                      <img
+                        [src]="getSchemaFieldGroup(i).get('value')?.value"
+                        alt="Uploaded image"
+                        class="image-preview"
+                        loading="lazy"
+                        decoding="async"
+                        (error)="$any($event.target).style.display='none'"
+                      />
+                      <div class="preview-overlay"></div>
+                      <button
+                        type="button"
+                        pButton
+                        icon="pi pi-times"
+                        class="p-button-danger p-button-rounded p-button-sm remove-image-btn"
+                        (click)="clearSchemaImage(i)"
+                        pTooltip="Remove image"
+                        tooltipPosition="top">
+                      </button>
+                    </div>
+                  } @else {
+                    <!-- Upload Button -->
+                    <button
+                      type="button"
+                      pButton
+                      icon="pi pi-upload"
+                      label="Upload Image"
+                      class="p-button-secondary"
+                      (click)="openSchemaImageUpload(i)">
+                    </button>
+                    @if (uploadingFieldIndex === i) {
+                      <div class="upload-spinner">
+                        <i class="pi pi-spinner pi-spin"></i>
+                        <span>Uploading...</span>
+                      </div>
+                    }
+                  }
+                </div>
               }
               @case ('checkbox') {
                 <div class="checkbox-wrapper">
@@ -68,8 +103,8 @@
                 </div>
               }
               @case ('dropdown') {
-                <p-select [id]="'sf-' + i" [options]="getDropdownOptions(i)" optionLabel="label" optionValue="value"
-                  formControlName="value" placeholder="Select an option"></p-select>
+                <p-select [attr.id]="'sf-' + i" [options]="getDropdownOptions(i)" optionLabel="label" optionValue="value"
+                  formControlName="value" placeholder="Select an option" appendTo="body"></p-select>
               }
               @case ('color') {
                 <p-colorPicker formControlName="value"></p-colorPicker>

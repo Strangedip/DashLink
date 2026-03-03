@@ -1,8 +1,21 @@
 <div class="node-card" (click)="onView()">
   <div class="node-card-content">
-    <div class="node-icon-wrapper">
-      <i class="pi pi-link node-icon"></i>
-    </div>
+    @if (nodeImageUrl) {
+      <div class="node-image-thumbnail">
+        <img 
+          [src]="getThumbnailUrl(nodeImageUrl)" 
+          alt="Node thumbnail" 
+          class="thumbnail-image"
+          loading="lazy"
+          decoding="async"
+          (error)="$any($event.target).style.display='none'"
+        />
+      </div>
+    } @else {
+      <div class="node-icon-wrapper">
+        <i class="pi pi-link node-icon"></i>
+      </div>
+    }
     <div class="node-info">
       <h3 class="node-title">{{ node.name }}</h3>
       @if (node.description) {

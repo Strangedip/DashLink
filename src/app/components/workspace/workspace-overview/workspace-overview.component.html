@@ -63,8 +63,8 @@
             <span>Member Contributions</span>
           </div>
           <p-select [options]="sortOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedSort" (onChange)="sortMembers()" [style]="{'min-width': '10rem'}"
-            appendTo="body" placeholder="Sort by"></p-select>
+            [(ngModel)]="selectedSort" (onChange)="sortMembers()"
+            styleClass="section-sort-select" appendTo="body" placeholder="Sort by"></p-select>
         </div>
 
         <div class="member-stats-list">
@@ -109,8 +109,8 @@
             <span>All Nodes ({{ totalNodes }})</span>
           </div>
           <p-select [options]="recentSortOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedRecentSort" (onChange)="sortRecentNodes()" [style]="{'min-width': '10rem'}"
-            appendTo="body" placeholder="Sort by"></p-select>
+            [(ngModel)]="selectedRecentSort" (onChange)="sortRecentNodes()"
+            styleClass="section-sort-select" appendTo="body" placeholder="Sort by"></p-select>
         </div>
 
         <div class="activity-list">

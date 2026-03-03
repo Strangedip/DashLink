@@ -19,6 +19,14 @@ import {
   WORKSPACE_FIELD_TYPES, WorkspaceFieldTypeOption, generateFieldId
 } from '../../../models/workspace.model';
 
+// ─── Cloudinary widget type declaration ───────────────────────────────────────
+declare global {
+  interface Window { cloudinary: any; }
+}
+
+const CLOUD_NAME = 'dkubkgfre';
+const UPLOAD_PRESET = 'Dashlink';
+
 @Component({
   selector: 'app-add-workspace-node-dialog',
   standalone: true,
@@ -36,6 +44,7 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
   schema: WorkspaceFieldSchema[] = [];
   useCustomSchema: boolean = true;
   fieldTypes: WorkspaceFieldTypeOption[] = WORKSPACE_FIELD_TYPES;
+  uploadingFieldIndex: number | null = null;
 
   isEditMode = false;
   existingNode: WorkspaceNode | null = null;
@@ -76,7 +85,7 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
     const sorted = [...this.schema].sort((a, b) => a.order - b.order);
     sorted.forEach(field => {
       const validators = field.mandatory ? [Validators.required] : [];
-      if (field.fieldType === 'url' || field.fieldType === 'image-url') {
+      if (field.fieldType === 'url') {
         validators.push(urlValidator());
       }
       if (field.fieldType === 'email') {
@@ -146,7 +155,7 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
     const newGroup = this.customFields.at(this.customFields.length - 1) as FormGroup;
     newGroup.get('fieldType')?.valueChanges.subscribe((type: string) => {
       const valueCtrl = newGroup.get('value');
-      if (type === 'url' || type === 'image-url') {
+      if (type === 'url') {
         valueCtrl?.setValidators([urlValidator()]);
       } else if (type === 'email') {
         valueCtrl?.setValidators([Validators.email]);
@@ -195,6 +204,65 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
       description: this.nodeForm.value.description || null,
       fields
     });
+  }
+
+  // ─── Cloudinary ─────────────────────────────────────────────────────────────
+
+  /** Opens the Cloudinary Upload Widget and patches secure_url into schema field value */
+  openSchemaImageUpload(index: number): void {
+    this.uploadingFieldIndex = index;
+    
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName:    CLOUD_NAME,
+        uploadPreset: UPLOAD_PRESET,
+        sources:      ['local', 'camera', 'url'],
+        multiple:     false,
+        resourceType: 'image',
+        maxFileSize:  5_000_000, // 5 MB
+        folder:       'workspaces',
+        maxFiles:     1,
+        showSkipCropButton: false,
+        cropping: true,
+        croppingAspectRatio: 4 / 3,
+        showCompletedButton: true,
+        styles: {
+          palette: {
+            window:      '#FFFFFF',
+            windowBorder:'#DDDDDD',
+            tabIcon:     '#0E4CAF',
+            menuIcons:   '#5A616A',
+            textDark:    '#000000',
+            textLight:   '#FFFFFF',
+            link:        '#0E4CAF',
+            action:      '#0E4CAF',
+            inactiveTabIcon: '#69778A',
+            error:       '#F44235',
+            inProgress:  '#0E4CAF',
+            complete:    '#20B832',
+            sourceBg:    '#E4EBF1'
+          }
+        }
+      },
+      (error: any, result: any) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          this.uploadingFieldIndex = null;
+          return;
+        }
+        if (result?.event === 'success') {
+          this.schemaFields.at(index).get('value')?.setValue(result.info.secure_url);
+          this.uploadingFieldIndex = null;
+          widget.close();
+        }
+      }
+    );
+    widget.open();
+  }
+
+  /** Clears the image URL from schema field */
+  clearSchemaImage(index: number): void {
+    this.schemaFields.at(index).get('value')?.setValue('');
   }
 
   onCancel(): void {

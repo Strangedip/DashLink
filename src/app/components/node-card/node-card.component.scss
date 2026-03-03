@@ -36,6 +36,11 @@
       border-color: var(--p-green-500);
     }
 
+    .node-image-thumbnail {
+      border-color: var(--p-green-500);
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+    }
+
     .node-icon { color: var(--p-green-400); transform: scale(1.1) rotate(-5deg); }
     .action-button { opacity: 1; }
   }
@@ -61,6 +66,33 @@
   border: 2px solid transparent;
   border-radius: 9px;
   transition: all 0.25s ease;
+}
+
+.node-image-thumbnail {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--p-surface-800);
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  position: relative;
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .node-icon {

@@ -6,6 +6,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { RatingModule } from 'primeng/rating';
 import { FormsModule } from '@angular/forms';
 import { WorkspaceNode, WorkspaceNodeField } from '../../../models/workspace.model';
+import { CloudinaryService } from '../../../services/cloudinary.service';
 
 @Component({
   selector: 'app-view-workspace-node-dialog',
@@ -23,7 +24,8 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +38,7 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
   private processFields(): void {
     if (!this.node.fields) return;
     for (const field of this.node.fields) {
-      if (field.fieldType === 'image-url' && field.value && !this.imageUrl) {
+      if (field.fieldType === 'image-upload' && field.value && !this.imageUrl) {
         this.imageUrl = field.value;
       }
       if (field.value !== null && field.value !== undefined && field.value !== '') {
@@ -47,6 +49,18 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
 
   get creatorInitial(): string {
     return (this.node.creatorName || 'U').charAt(0).toUpperCase();
+  }
+
+  getBannerUrl(imageUrl: string): string {
+    return this.cloudinaryService.getHeroUrl(imageUrl);
+  }
+
+  getDetailImageUrl(imageUrl: string): string {
+    return this.cloudinaryService.getDetailUrl(imageUrl);
+  }
+
+  getThumbnailUrl(imageUrl: string): string {
+    return this.cloudinaryService.getThumbnailUrl(imageUrl);
   }
 
   get createdDate(): string {
@@ -100,7 +114,7 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
       'phone': 'pi pi-phone',
       'date': 'pi pi-calendar',
       'datetime': 'pi pi-clock',
-      'image-url': 'pi pi-image',
+      'image-upload': 'pi pi-upload',
       'checkbox': 'pi pi-check-square',
       'dropdown': 'pi pi-list',
       'color': 'pi pi-palette',

@@ -4,6 +4,7 @@ import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 
 import { Node, CustomField } from '../../models/data.model';
+import { CloudinaryService } from '../../services/cloudinary.service';
 
 @Component({
   selector: 'app-view-node-dialog',
@@ -24,7 +25,8 @@ export class ViewNodeDialogComponent implements OnInit {
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private cloudinaryService: CloudinaryService
   ) { }
 
   ngOnInit(): void {
@@ -74,6 +76,14 @@ export class ViewNodeDialogComponent implements OnInit {
     if (!html) return '';
     // Basic sanitization - you might want to use DomSanitizer for production
     return html;
+  }
+
+  getBannerUrl(imageUrl: string): string {
+    return this.cloudinaryService.getHeroUrl(imageUrl);
+  }
+
+  getDetailImageUrl(imageUrl: string): string {
+    return this.cloudinaryService.getDetailUrl(imageUrl);
   }
 
   onClose(): void {

@@ -1,14 +1,15 @@
 <div class="ws-node-card" (click)="onClick()">
-  @if (imageUrl) {
-    <div class="node-thumbnail">
-      <img [src]="imageUrl" alt="" loading="lazy" (error)="$any($event.target).style.display='none'">
-    </div>
-  }
   <div class="ws-node-card-content">
     <div class="node-main">
-      <div class="node-icon-wrapper">
-        <i class="pi pi-file-edit node-icon"></i>
-      </div>
+      @if (imageUrl) {
+        <div class="node-thumbnail">
+          <img [src]="getThumbnailUrl(imageUrl)" alt="" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
+        </div>
+      } @else {
+        <div class="node-icon-wrapper">
+          <i class="pi pi-file-edit node-icon"></i>
+        </div>
+      }
       <div class="node-info">
         <h3 class="node-title">{{ node.name }}</h3>
         @if (node.description) {

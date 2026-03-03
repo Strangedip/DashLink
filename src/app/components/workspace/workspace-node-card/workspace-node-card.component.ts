@@ -7,6 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
 import { WorkspaceNode } from '../../../models/workspace.model';
 import { MenuService } from '../../../services/menu.service';
+import { CloudinaryService } from '../../../services/cloudinary.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -30,7 +31,7 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [];
   private menuSubscription: Subscription = new Subscription();
 
-  constructor(private menuService: MenuService, private datePipe: DatePipe) {}
+  constructor(private menuService: MenuService, private datePipe: DatePipe, private cloudinaryService: CloudinaryService) {}
 
   ngOnInit(): void {
     this.buildMenuItems();
@@ -70,9 +71,13 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
 
   get imageUrl(): string | null {
     const imageField = this.node.fields?.find(f =>
-      f.fieldType === 'image-url' && f.value
+      f.fieldType === 'image-upload' && f.value
     );
     return imageField?.value || null;
+  }
+
+  getThumbnailUrl(imageUrl: string): string {
+    return this.cloudinaryService.getThumbnailUrl(imageUrl);
   }
 
   get createdDate(): string {

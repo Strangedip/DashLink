@@ -74,7 +74,7 @@ export interface AIUsageStat {
   providedIn: 'root'
 })
 export class AiAnalysisService {
-  private readonly GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  private readonly GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   constructor(private firestore: Firestore) {}
 
@@ -189,7 +189,7 @@ export class AiAnalysisService {
           temperature: 0.6,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 8192,
+          maxOutputTokens: 16384,
         },
       }),
     });

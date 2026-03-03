@@ -1,7 +1,7 @@
 <div class="view-node-container">
   @if (imageUrl) {
     <div class="node-image-header">
-      <img [src]="imageUrl" alt="Node Image" (error)="$any($event.target).style.display='none'">
+      <img [src]="getBannerUrl(imageUrl)" alt="Node Image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
       <div class="image-fade-overlay"></div>
     </div>
   }
@@ -70,10 +70,10 @@
                   @case ('phone') {
                     <a [href]="'tel:' + field.value" class="field-link">{{ field.value }}</a>
                   }
-                  @case ('image-url') {
+                  @case ('image-upload') {
                     @if (field.value) {
                       <div class="field-image-wrapper">
-                        <img [src]="field.value" alt="Image" class="field-image" (error)="$any($event.target).style.display='none'">
+                        <img [src]="getDetailImageUrl(field.value)" alt="Image" class="field-image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
                       </div>
                       <a [href]="field.value" target="_blank" class="field-link image-source-link">
                         Open original <i class="pi pi-external-link"></i>

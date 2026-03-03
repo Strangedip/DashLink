@@ -1,6 +1,6 @@
 export type WorkspaceFieldType =
   'text' | 'long-text' | 'number' | 'url' | 'email' | 'phone' |
-  'date' | 'datetime' | 'image-url' |
+  'date' | 'datetime' | 'image-upload' |
   'checkbox' | 'dropdown' | 'color' | 'rating';
 
 export interface WorkspaceFieldTypeOption {
@@ -18,7 +18,7 @@ export const WORKSPACE_FIELD_TYPES: WorkspaceFieldTypeOption[] = [
   { name: 'Phone', code: 'phone', icon: 'pi pi-phone' },
   { name: 'Date', code: 'date', icon: 'pi pi-calendar' },
   { name: 'Date & Time', code: 'datetime', icon: 'pi pi-clock' },
-  { name: 'Image URL', code: 'image-url', icon: 'pi pi-image' },
+  { name: 'Image Upload', code: 'image-upload', icon: 'pi pi-upload' },
   { name: 'Checkbox', code: 'checkbox', icon: 'pi pi-check-square' },
   { name: 'Dropdown', code: 'dropdown', icon: 'pi pi-list' },
   { name: 'Color', code: 'color', icon: 'pi pi-palette' },
