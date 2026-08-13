@@ -1,10 +1,12 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
-  Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc,
+  Firestore, collection, doc, addDoc, updateDoc, deleteDoc,
   query, where, getDocs, setDoc, arrayUnion, arrayRemove, writeBatch,
   CollectionReference, Query, DocumentReference
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import { Observable, of, map, catchError, combineLatest, switchMap } from 'rxjs';
+import { FIRESTORE } from '../firebase/firebase.providers';
+import { collectionData, docData } from '../firebase/firestore-rx';
 import {
   Workspace, WorkspaceNode, WorkspaceCollection, WorkspaceMember,
   WorkspaceInvite, WorkspaceFieldSchema, WorkspaceNodeField,
@@ -16,11 +18,8 @@ import { LoggerService } from './logger.service';
   providedIn: 'root'
 })
 export class WorkspaceService {
-
-  constructor(
-    private firestore: Firestore,
-    private logger: LoggerService
-  ) {}
+  private firestore = inject(FIRESTORE);
+  private logger = inject(LoggerService);
 
   // ─── Workspace CRUD ──────────────────────────────────────────
 
@@ -69,7 +68,15 @@ export class WorkspaceService {
         updatedAt: now
       });
 
-      await this.createInvite(docRef.id, workspaceData.name, workspaceData.ownerName, inviteCode);
+      await this.createInvite(docRef.id, inviteCode, {
+        workspaceName: workspaceData.name,
+        ownerName: workspaceData.ownerName,
+        description: workspaceData.description,
+        memberLimit: workspaceData.memberLimit,
+        memberCount: workspaceData.memberIds?.length || 1,
+        goal: workspaceData.metadata?.goal,
+        category: workspaceData.metadata?.category
+      });
 
       return docRef.id;
     } catch (error: unknown) {
@@ -102,16 +109,28 @@ export class WorkspaceService {
 
   private async createInvite(
     workspaceId: string,
-    workspaceName: string,
-    ownerName: string,
-    inviteCode: string
+    inviteCode: string,
+    preview: {
+      workspaceName: string;
+      ownerName: string;
+      description?: string;
+      memberLimit?: number;
+      memberCount?: number;
+      goal?: string;
+      category?: string;
+    }
   ): Promise<void> {
     const inviteDocRef = doc(this.firestore, `workspace_invites/${inviteCode}`);
     await setDoc(inviteDocRef, {
       inviteCode,
       workspaceId,
-      workspaceName,
-      ownerName,
+      workspaceName: preview.workspaceName,
+      ownerName: preview.ownerName,
+      description: preview.description || '',
+      memberLimit: preview.memberLimit || 12,
+      memberCount: preview.memberCount || 1,
+      goal: preview.goal || '',
+      category: preview.category || '',
       active: true,
       createdAt: new Date()
     } as WorkspaceInvite);
@@ -132,14 +151,22 @@ export class WorkspaceService {
     }
   }
 
-  async regenerateInviteCode(workspaceId: string, workspaceName: string, ownerName: string, oldInviteCode: string): Promise<string> {
+  async regenerateInviteCode(workspace: Workspace, oldInviteCode: string): Promise<string> {
     try {
       const oldInviteRef = doc(this.firestore, `workspace_invites/${oldInviteCode}`);
       await deleteDoc(oldInviteRef);
 
       const newCode = generateInviteCode();
-      await this.createInvite(workspaceId, workspaceName, ownerName, newCode);
-      await this.updateWorkspace(workspaceId, { inviteCode: newCode });
+      await this.createInvite(workspace.id!, newCode, {
+        workspaceName: workspace.name,
+        ownerName: workspace.ownerName,
+        description: workspace.description,
+        memberLimit: workspace.memberLimit,
+        memberCount: workspace.memberIds?.length || 1,
+        goal: workspace.metadata?.goal,
+        category: workspace.metadata?.category
+      });
+      await this.updateWorkspace(workspace.id!, { inviteCode: newCode });
       return newCode;
     } catch (error: unknown) {
       this.logger.error('Error regenerating invite code:', error);
@@ -291,12 +318,12 @@ export class WorkspaceService {
       const rootNodes$ = collectionData(rootNodesRef, { idField: 'id' }) as Observable<WorkspaceNode[]>;
 
       const collectionsRef = collection(this.firestore, `workspaces/${workspaceId}/collections`);
-      const collectionNodes$ = collectionData(collectionsRef, { idField: 'id' }).pipe(
+      const collectionNodes$ = collectionData<{ id: string }>(collectionsRef, { idField: 'id' }).pipe(
         switchMap(collections => {
           if (collections.length === 0) return of([]);
           const nodeObservables = collections.map(col => {
             const nodesRef = collection(this.firestore, `workspaces/${workspaceId}/collections/${col.id}/nodes`) as CollectionReference<WorkspaceNode>;
-            return collectionData(nodesRef, { idField: 'id' }) as Observable<WorkspaceNode[]>;
+            return collectionData<WorkspaceNode>(nodesRef, { idField: 'id' });
           });
           return combineLatest(nodeObservables).pipe(
             map(arrays => arrays.flat())
@@ -365,6 +392,26 @@ export class WorkspaceService {
       this.logger.error('Error deleting workspace node:', error);
       throw error;
     }
+  }
+
+  async restoreWorkspaceCollection(workspaceId: string, collection: WorkspaceCollection): Promise<void> {
+    if (!collection.id) {
+      throw new Error('Collection id is required to restore.');
+    }
+    const { id, ...data } = collection;
+    const colDocRef = doc(this.firestore, `workspaces/${workspaceId}/collections/${id}`);
+    await setDoc(colDocRef, { ...data, updatedAt: new Date() });
+  }
+
+  async restoreWorkspaceNode(workspaceId: string, collectionId: string | null, node: WorkspaceNode): Promise<void> {
+    if (!node.id) {
+      throw new Error('Node id is required to restore.');
+    }
+    const { id, ...data } = node;
+    const path = collectionId
+      ? `workspaces/${workspaceId}/collections/${collectionId}/nodes/${id}`
+      : `workspaces/${workspaceId}/nodes/${id}`;
+    await setDoc(doc(this.firestore, path), { ...data, updatedAt: new Date() });
   }
 
   // ─── Schema Migration ────────────────────────────────────────

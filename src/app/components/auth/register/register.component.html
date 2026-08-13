@@ -1,75 +1,69 @@
-<div
-  class="auth-page-wrapper flex flex-column md:flex-row align-items-center justify-content-center min-h-screen p-3 lg:p-5">
-  <div class="app-intro text-center md:text-left mb-5 md:mb-0 md:mr-5 w-full md:w-6">
-    <h2 class="text-900 font-bold mb-3 text-4xl lg:text-5xl"> <span class="text-primary">DashLink</span>. Your go-to for
-      <span class="text-primary">effortless organization</span> and <span class="text-primary">real-time collaboration</span>.
-    </h2>
-    <p class="text-700 text-lg lg:text-xl line-height-3">A <strong class="text-800">smart workspace</strong> for all
-      your <strong class="text-800">links</strong>, <strong class="text-800">collections</strong>, and <strong
-        class="text-800">data</strong>. Organize personally or <strong class="text-800">collaborate with your team</strong> in shared workspaces — synced in real-time.</p>
+<div class="auth-page">
+  <div class="auth-intro">
+    <div class="brand-row">
+      <app-logo></app-logo>
+    </div>
+    <h1>Set up your workspace in a minute.</h1>
+    <p>Create a free account to organize personal collections or start a team workspace.</p>
   </div>
 
-  <div class="auth-container w-full md:w-6 flex align-items-center justify-content-center">
-    <p-card header="Register for DashLink" styleClass="p-card-register shadow-8 border-round-lg w-full max-w-30rem">
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
-        <div class="p-field">
-          <label for="email" class="block text-900 font-medium mb-2">Email</label>
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon><i class="pi pi-envelope"></i></p-inputIcon>
-            <input pInputText id="email" type="email" formControlName="email" placeholder="Enter Email" required class="w-full">
-          </p-iconField>
-          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          @if (registerForm.get('email')?.errors?.['required']) {
-          <p-message severity="error" text="Email is required." class="block mt-2"></p-message>
-          }
-          @if (registerForm.get('email')?.errors?.['email']) {
-          <p-message severity="error" text="Please enter a valid email address." class="block mt-2"></p-message>
-          }
-          }
-        </div>
+  <section class="auth-card" aria-labelledby="register-title">
+    <h2 id="register-title">Create account</h2>
+    <p class="auth-sub">Use email or continue with Google.</p>
 
-        <div class="p-field">
-          <label for="password" class="block text-900 font-medium mb-2">Password</label>
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
-            <input pInputText id="password" type="password" formControlName="password" placeholder="Enter Password" required class="w-full">
-          </p-iconField>
-          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          @if (registerForm.get('password')?.errors?.['required']) {
-          <p-message severity="error" text="Password is required." class="block mt-2"></p-message>
-          }
-          @if (registerForm.get('password')?.errors?.['minlength']) {
-          <p-message severity="error" text="Password must be at least 6 characters long."
-            class="block mt-2"></p-message>
-          }
-          }
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <div class="icon-input">
+          <app-icon name="envelope"></app-icon>
+          <input class="dl-input" id="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" inputmode="email">
         </div>
-
-        <div class="p-field">
-          <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirm Password</label>
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
-            <input pInputText id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Confirm Password" required
-              class="w-full">
-          </p-iconField>
-          @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-          @if (registerForm.get('confirmPassword')?.errors?.['required']) {
-          <p-message severity="error" text="Confirm Password is required." class="block mt-2"></p-message>
-          }
-          }
-          @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
-          <p-message severity="error" text="Passwords do not match." class="block mt-2"></p-message>
-          }
-        </div>
-
-        <p-button label="Register" type="submit" [disabled]="!registerForm.valid" styleClass="w-full"></p-button>
-      </form>
-      <p-button label="Sign up with Google" icon="pi pi-google" (click)="signInWithGoogle()"
-        styleClass="p-button-secondary w-full mt-3"></p-button>
-      <div class="p-card-footer text-center mt-3 pt-3 border-top-1 surface-border">
-        <p>Already have an account? <a style="cursor: pointer;" (click)="goToLogin()"
-            class="text-primary-500 font-medium">Login here</a></p>
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <p class="field-error">Enter a valid email address.</p>
+        }
       </div>
-    </p-card>
-  </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <div class="icon-input">
+            <app-icon name="lock"></app-icon>
+            <input class="dl-input" id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="At least 6 characters" autocomplete="new-password">
+          </div>
+          <button type="button" class="toggle-visibility" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <app-icon [name]="showPassword ? 'eye-slash' : 'eye'"></app-icon>
+          </button>
+        </div>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <p class="field-error">Password must be at least 6 characters.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Confirm password</label>
+        <div class="password-wrap">
+          <div class="icon-input">
+            <app-icon name="lock"></app-icon>
+            <input class="dl-input" id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Repeat password" autocomplete="new-password">
+          </div>
+          <button type="button" class="toggle-visibility" (click)="showConfirmPassword = !showConfirmPassword" [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+            <app-icon [name]="showConfirmPassword ? 'eye-slash' : 'eye'"></app-icon>
+          </button>
+        </div>
+        @if (registerForm.get('confirmPassword')?.touched && (registerForm.get('confirmPassword')?.invalid || registerForm.errors?.['passwordMismatch'])) {
+          <p class="field-error">Passwords must match.</p>
+        }
+      </div>
+
+      <app-btn label="Create account" type="submit" [disabled]="!registerForm.valid" [block]="true"></app-btn>
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+    <app-btn label="Continue with Google" icon="google" (click)="signInWithGoogle()" [block]="true" variant="outline"></app-btn>
+
+    <p class="auth-switch">
+      Already have an account?
+      <a (click)="goToLogin()" (keydown.enter)="goToLogin()" tabindex="0">Sign in</a>
+    </p>
+  </section>
 </div>

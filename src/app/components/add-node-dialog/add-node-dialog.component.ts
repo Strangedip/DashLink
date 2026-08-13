@@ -1,30 +1,17 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 import { urlValidator } from '../../validators/url.validator';
 
-// PrimeNG Imports
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { Textarea } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
-import { TooltipModule } from 'primeng/tooltip';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../ui/dialog';
+import { BtnComponent } from '../../ui/btn.component';
+import { DateFieldComponent } from '../../ui/date-field.component';
 
 import { Node, CustomField } from '../../models/data.model';
-
-// ─── Cloudinary widget type declaration ───────────────────────────────────────
-declare global {
-  interface Window { cloudinary: any; }
-}
+import { CloudinaryService } from '../../services/cloudinary.service';
 
 const CLOUD_NAME = 'dkubkgfre';        
 const UPLOAD_PRESET = 'Dashlink'; 
-// ──────────────────────────────────────────────────────────────────────────────
 
 interface FieldType {
   name: string;
@@ -32,28 +19,21 @@ interface FieldType {
 }
 
 @Component({
-  selector: 'app-add-node-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    Textarea,
-    ButtonModule,
-    CardModule,
-    MessageModule,
-    SelectModule,
-    InputNumberModule,
-    CalendarModule,
-    TooltipModule
-  ],
-  templateUrl: './add-node-dialog.component.html',
-  styleUrl: './add-node-dialog.component.scss'
+    selector: 'app-add-node-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        BtnComponent,
+        DateFieldComponent
+    ],
+    templateUrl: './add-node-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './add-node-dialog.component.scss'
 })
 export class AddNodeDialogComponent implements OnInit {
   collectionId!: string;
   nodeForm!: FormGroup;
-  uploadingFieldIndex: number | null = null; // Track which field is being uploaded
+  uploadingFieldIndex: number | null = null;
 
   fieldTypes: FieldType[] = [
     { name: 'Text',         code: 'text'     },
@@ -66,7 +46,8 @@ export class AddNodeDialogComponent implements OnInit {
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cloudinary: CloudinaryService
   ) { }
 
   ngOnInit(): void {
@@ -146,10 +127,22 @@ export class AddNodeDialogComponent implements OnInit {
   // ─── Cloudinary ─────────────────────────────────────────────────────────────
 
   /** Opens the Cloudinary Upload Widget and patches secure_url into fieldValue */
-  openImageUpload(index: number): void {
+  async openImageUpload(index: number): Promise<void> {
     this.uploadingFieldIndex = index;
-    
-    const widget = window.cloudinary.createUploadWidget(
+    try {
+      await this.cloudinary.ensureWidget();
+    } catch {
+      this.uploadingFieldIndex = null;
+      return;
+    }
+
+    const cloudinary = window.cloudinary;
+    if (!cloudinary) {
+      this.uploadingFieldIndex = null;
+      return;
+    }
+
+    const widget = cloudinary.createUploadWidget(
       {
         cloudName:    CLOUD_NAME,
         uploadPreset: UPLOAD_PRESET,
@@ -183,7 +176,6 @@ export class AddNodeDialogComponent implements OnInit {
       },
       (error: any, result: any) => {
         if (error) {
-          console.error('Cloudinary upload error:', error);
           this.uploadingFieldIndex = null;
           return;
         }

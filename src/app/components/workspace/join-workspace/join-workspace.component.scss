@@ -2,9 +2,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 120px);
-  padding: 1rem;
-  margin-top: 2rem;
+  min-height: calc(100dvh - var(--dl-nav-height));
+  padding: 1rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
 }
 
 .loading-state, .error-state {
@@ -19,7 +18,7 @@
 }
 
 .error-state {
-  i { font-size: 3rem; color: #ef4444; }
+  i, app-icon { font-size: 3rem; color: #ef4444; }
   h2 { margin: 0; color: var(--p-text-color); }
 }
 
@@ -43,6 +42,7 @@
     margin: 0.75rem 0 0.25rem;
     font-size: 1.5rem;
     color: var(--p-text-color);
+    overflow-wrap: anywhere;
   }
 
   .workspace-desc {
@@ -62,7 +62,7 @@
   align-items: center;
   justify-content: center;
 
-  i { font-size: 2rem; color: var(--p-green-500); }
+  i, app-icon { font-size: 2rem; color: var(--p-green-500); }
 }
 
 .join-card-details {
@@ -77,12 +77,14 @@
   align-items: flex-start;
   gap: 0.75rem;
 
-  > i {
+  > i,
+  > app-icon {
     color: var(--p-green-500);
     font-size: 1rem;
     margin-top: 0.15rem;
     width: 20px;
     text-align: center;
+    flex-shrink: 0;
   }
 
   > div {
@@ -127,7 +129,7 @@
 .already-member-msg {
   background: rgba(76, 175, 80, 0.1);
   color: var(--p-green-400);
-  i { color: var(--p-green-500); }
+  i, app-icon { color: var(--p-green-500); }
 }
 
 .banned-msg {
@@ -138,4 +140,11 @@
 .full-msg {
   background: rgba(234, 179, 8, 0.1);
   color: #eab308;
+}
+
+@media (max-width: 480px) {
+  .join-card-header { padding: 1.5rem 1rem; }
+  .join-card-details,
+  .join-card-actions { padding: 1rem; }
+  .join-card-header h2 { font-size: 1.25rem; }
 }

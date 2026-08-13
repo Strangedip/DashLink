@@ -34,7 +34,8 @@
   gap: 0.625rem;
   margin-bottom: 0.5rem;
 
-  i {
+  i,
+  app-icon {
     color: var(--p-green-500);
     font-size: 1.25rem;
   }
@@ -57,7 +58,7 @@
   flex-wrap: wrap;
 }
 
-.help-button {
+.help-toggle {
   padding: 0.25rem 0.5rem !important;
   font-size: 0.85rem !important;
   color: var(--p-green-500) !important;
@@ -95,7 +96,8 @@
   font-weight: 600;
   color: var(--p-green-400);
 
-  i {
+  i,
+  app-icon {
     font-size: 1rem;
   }
 }
@@ -155,7 +157,8 @@
     border-radius: 4px;
     margin-top: 1rem;
 
-    i {
+    i,
+    app-icon {
       color: var(--p-green-500);
       font-size: 0.875rem;
       margin-top: 0.125rem;
@@ -223,7 +226,8 @@
     color: var(--p-green-400);
     font-size: 0.9rem;
 
-    i {
+    i,
+    app-icon {
       font-size: 0.875rem;
     }
   }
@@ -257,7 +261,8 @@
   color: #f87171;
   font-size: 0.875rem;
 
-  i {
+  i,
+  app-icon {
     font-size: 1rem;
     flex-shrink: 0;
   }

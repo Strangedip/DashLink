@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /auth/login
+Allow: /auth/register
+Disallow: /dashboard
+Disallow: /collections/
+Disallow: /workspaces/
+
+Sitemap: https://dashlink-prj.web.app/sitemap.xml

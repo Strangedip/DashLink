@@ -1,118 +1,225 @@
-<div class="dashboard-container flex flex-column">
-  <div class="search-container w-full surface-0 border-round flex align-items-center">
-    <i class="pi pi-search" style="display: inline;"></i>
-    <span class="p-input-icon-left flex-grow-1">
-      <input type="text" pInputText [placeholder]="isGlobalSearch ? 'Search globally...' : 'Search current collection...'" [formControl]="searchControl" class="w-full">
-    </span>
-    <p-toggleswitch
-      [(ngModel)]="isGlobalSearch"
-      (ngModelChange)="toggleSearchMode($event)"
-      class="ml-2"
-      [ngStyle]="{'width': '3.5rem', 'height': '2rem'}"
-    >
-      <ng-template #handle let-checked="checked">
-        <i [ngClass]="['!text-xs', 'pi', checked ? 'pi-globe' : 'pi-folder']" style="font-size: 1rem;"></i>
-      </ng-template>
-    </p-toggleswitch>
+<div class="dl-page dashboard-page">
+  <div class="dl-toolbar">
+    <div class="dl-search">
+      <app-icon name="search"></app-icon>
+      <input
+        type="search"
+        class="w-full"
+        [formControl]="searchControl"
+        [placeholder]="activeTab === 'workspaces' ? 'Search workspaces...' : (isGlobalSearch ? 'Search everything...' : 'Search this folder...')"
+        autocomplete="off"
+        enterkeyhint="search">
+      @if (activeTab === 'personal') {
+        <div class="dl-scope" role="group" aria-label="Search scope">
+          <button type="button" [class.active]="!isGlobalSearch" (click)="toggleSearchMode(false)">Folder</button>
+          <button type="button" [class.active]="isGlobalSearch" (click)="toggleSearchMode(true)">All</button>
+        </div>
+      }
+    </div>
+
+    <div class="dl-tabs" role="tablist" aria-label="Home sections">
+      <button type="button" role="tab" [class.active]="activeTab === 'personal'" [attr.aria-selected]="activeTab === 'personal'" (click)="setActiveTab('personal')">
+        <app-icon name="folder"></app-icon>
+        My stuff
+      </button>
+      <button type="button" role="tab" [class.active]="activeTab === 'workspaces'" [attr.aria-selected]="activeTab === 'workspaces'" (click)="setActiveTab('workspaces')">
+        <app-icon name="users"></app-icon>
+        Teams
+      </button>
+    </div>
   </div>
 
-  <header class="dashboard-header flex flex-column w-full surface-0 border-round">
-    @if (!isGlobalSearch) {
-    <div class="header-content-row flex align-items-center justify-content-between w-full p-2">
-      <div class="header-left flex align-items-center" >
-        @if (showBackButton) {
-          <button pButton icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Parent" class="p-button-text p-button-sm mr-2"></button>
+  @if (activeTab === 'personal') {
+    <header class="page-header">
+      @if (!isGlobalSearch) {
+        <div class="header-row">
+          <div class="header-copy">
+            @if (showBackButton) {
+              <app-btn type="button" icon="arrow-left" variant="ghost" [rounded]="true" ariaLabel="Back" (click)="goBack()"></app-btn>
+            }
+            <div class="title-block">
+              <h1>{{ currentCollection?.name || 'My collections' }}</h1>
+              @if (currentCollection?.description) {
+                <p>{{ currentCollection?.description }}</p>
+              }
+            </div>
+          </div>
+          <app-btn type="button" icon="plus" label="Add" (click)="openAddMenu($event)" class="desktop-add"></app-btn>
+        </div>
+        @if (breadcrumbItems.length) {
+          <app-breadcrumb [items]="breadcrumbItems" [home]="home"></app-breadcrumb>
         }
-        <h2 class="collection-name text-2xl font-bold m-0">{{ currentCollection?.name || 'My Collections' }}</h2>
-      </div>
-      <div class="header-right flex align-items-center">
-        <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button p-button-plain mr-2"></button>
-        <p-menu #additionalMenu [model]="additionalMenuItems" [popup]="true" appendTo="body"></p-menu>
-      </div>
-    </div>
-    <div class="header-breadcrumb-row w-full">
-      <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
-    </div>
-    } @else {
-      <div class="global-search-active flex align-items-center justify-content-center w-full p-1">
-        <h2 class="text-xl font-bold m-0">Global Search is Active</h2>
+      } @else {
+        <div class="search-banner">
+          <app-icon name="globe"></app-icon>
+          <span>Searching all personal collections</span>
+        </div>
+      }
+    </header>
+
+    @if (prefs.recents().length && !searchControl.value) {
+      <div class="dl-recents" aria-label="Recent items">
+        <span class="dl-recents-label"><app-icon name="history"></app-icon> Recent</span>
+        <div class="dl-recents-list">
+          @for (item of prefs.recents(); track item.type + item.id) {
+            <button type="button" class="dl-recent-chip" (click)="openRecent(item)">
+              <app-icon [name]="item.type === 'workspace' ? 'users' : (item.type === 'collection' ? 'folder' : 'link')"></app-icon>
+              <span>{{ item.name }}</span>
+            </button>
+          }
+        </div>
       </div>
     }
-  </header>
 
-  <!-- Workspaces Section (only show when not searching) -->
-  @if ((workspaces$ | async)?.length && !searchControl.value) {
-    <div class="workspaces-section">
-      <div class="section-header flex align-items-center gap-2">
-        <i class="pi pi-users" style="color: var(--p-green-500);"></i>
-        <h3 class="m-0" style="font-size: 0.95rem; font-weight: 600; color: var(--p-text-color-secondary);">Shared Workspaces</h3>
-      </div>
-      <div class="workspaces-list">
-        @for (ws of (workspaces$ | async) || []; track ws.id) {
-          <app-workspace-card [workspace]="ws" [currentUserId]="currentUserId || ''" (openWorkspace)="goToWorkspace($event)"></app-workspace-card>
-        }
-      </div>
-    </div>
-  }
-
-  @if ((workspaces$ | async)?.length && searchControl.value) {
-    <div class="search-scope-note">
-      <i class="pi pi-filter"></i>
-      <span>Searching personal collections/nodes only. Shared workspaces are hidden during search.</span>
-      <button
-        type="button"
-        pButton
-        label="Clear"
-        class="p-button-text p-button-sm"
-        (click)="searchControl.setValue('')">
-      </button>
-    </div>
-  }
-
-  @if ((dashboardItems$ | async)?.length === 0 && searchControl.value) {
-    <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
-      <i class="pi pi-search empty-state-icon text-7xl text-400 mb-4"></i>
-      <p class="text-xl text-500">No personal matches found for "{{ searchControl.value }}".</p>
-      <button
-        type="button"
-        pButton
-        label="Clear Search"
-        class="p-button-text p-button-sm mt-2"
-        (click)="searchControl.setValue('')">
-      </button>
-    </div>
-  } @else if ((dashboardItems$ | async)?.length === 0 && !(workspaces$ | async)?.length) {
-    <div class="empty-state welcome-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center p-4">
-      <i class="pi pi-sparkles empty-state-icon"></i>
-      <h3 class="empty-state-title">Welcome to DashLink</h3>
-      <p>Create your first collection or node using the <i class="pi pi-plus" style="font-size: 0.8em;"></i> button above to get started.</p>
-    </div>
-  } @else if ((dashboardItems$ | async)?.length === 0) {
-    <!-- Only workspaces exist, no collections/nodes -->
-  } @else {
-    <div class="grid">
-      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items" [trackBy]="trackByItemId">
-        <ng-template #list let-items>
-          <div *ngFor="let item of items" class="col-12 flex-grow-1" style="padding: 0.2rem 0;">
-            <ng-container *ngIf="item.type === 'collection'">
+    @if ((dashboardItems$ | async); as items) {
+      @if (items.length === 0 && searchControl.value) {
+        <div class="dl-empty">
+          <app-icon name="search"></app-icon>
+          <h3>No matches</h3>
+          <p>Nothing in your personal collections matched “{{ searchControl.value }}”.</p>
+          <div class="dl-empty-actions">
+            <app-btn type="button" label="Clear search" (click)="searchControl.setValue('')" variant="outline"></app-btn>
+          </div>
+        </div>
+      } @else if (items.length === 0) {
+        <div class="dl-empty">
+          <app-icon name="sparkles"></app-icon>
+          <h3>Start with a folder or a link</h3>
+          <p>Collections group related items. Nodes are the actual links, notes, and details you want to keep.</p>
+          <div class="dl-empty-actions">
+            <app-btn type="button" icon="folder-open" label="New collection" (click)="openAddCollectionDialog()"></app-btn>
+            <app-btn type="button" icon="link" label="New node" (click)="openAddNodeDialog()" variant="outline"></app-btn>
+          </div>
+        </div>
+      } @else {
+        <div class="dl-list">
+          @for (item of items; track trackByItemId($index, item)) {
+            @if (item.type === 'collection') {
               <app-collection-card
                 [collection]="item"
-                (viewCollection)="goToCollection(item.id)"
+                [showPin]="true"
+                [pinned]="prefs.isPinned(item.id)"
+                (viewCollection)="item.id && goToCollection(item.id)"
                 (editCollection)="editCollection(item)"
-                (deleteCollectionRequest)="confirmDeleteItem(item.id, 'collection', $event.target)"
-              ></app-collection-card>
-            </ng-container>
-            <ng-container *ngIf="item.type === 'node'">
+                (deleteCollectionRequest)="item.id && confirmDeleteItem(item.id, 'collection', $event.target)"
+                (pinToggle)="togglePin($event)">
+              </app-collection-card>
+            } @else {
               <app-node-card
                 [node]="item"
                 (editNode)="editNode(item)"
                 (deleteNodeRequest)="confirmDeleteItem($event.id, 'node', $event.target)"
                 (nodeClicked)="openViewNodeDialog(item)">
               </app-node-card>
-            </ng-container>
+            }
+          }
+        </div>
+      }
+    }
+  } @else {
+    <header class="page-header">
+      <div class="header-row">
+        <div class="title-block">
+          <h1>Shared workspaces</h1>
+          <p>Collaborate with a team using a shared structure.</p>
+        </div>
+        <app-btn type="button" icon="plus" label="New" (click)="openAddMenu($event)" class="desktop-add"></app-btn>
+      </div>
+    </header>
+
+    @if (prefs.recents().length && !searchControl.value) {
+      <div class="dl-recents" aria-label="Recent items">
+        <span class="dl-recents-label"><app-icon name="history"></app-icon> Recent</span>
+        <div class="dl-recents-list">
+          @for (item of prefs.recents(); track item.type + item.id) {
+            <button type="button" class="dl-recent-chip" (click)="openRecent(item)">
+              <app-icon [name]="item.type === 'workspace' ? 'users' : (item.type === 'collection' ? 'folder' : 'link')"></app-icon>
+              <span>{{ item.name }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (workspaces$ | async; as workspaces) {
+      @if (filteredWorkspaces(workspaces).length === 0 && searchControl.value) {
+        <div class="dl-empty">
+          <app-icon name="search"></app-icon>
+          <h3>No workspaces found</h3>
+          <p>No team matched “{{ searchControl.value }}”.</p>
+        </div>
+      } @else if (workspaces.length === 0) {
+        <div class="dl-empty">
+          <app-icon name="users"></app-icon>
+          <h3>No teams yet</h3>
+          <p>Create a workspace for a group, or join one with an invite code.</p>
+          <div class="dl-empty-actions">
+            <app-btn type="button" icon="plus" label="Create workspace" (click)="openCreateWorkspaceDialog()"></app-btn>
+            <app-btn type="button" icon="sign-in" label="Join with code" (click)="openJoinDialog()" variant="outline"></app-btn>
           </div>
-        </ng-template>
-      </p-dataView>
+        </div>
+      } @else {
+        <div class="dl-list">
+          @for (ws of filteredWorkspaces(workspaces); track ws.id) {
+            <app-workspace-card [workspace]="ws" [currentUserId]="currentUserId || ''" (openWorkspace)="goToWorkspace($event)"></app-workspace-card>
+          }
+        </div>
+      }
+    }
+  }
+
+  <button type="button" class="dl-fab" (click)="openAddMenu($event)" aria-label="Add">
+    <app-icon name="plus"></app-icon>
+  </button>
+
+  @if (addSheetOpen) {
+    <div class="dl-overlay" (click)="addSheetOpen = false">
+      <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog" aria-label="Add">
+        <div class="dl-sheet-handle"></div>
+        <header class="dl-sheet-head">
+          <h2>Add</h2>
+          <button type="button" class="dl-icon-btn" (click)="addSheetOpen = false" aria-label="Close">
+            <app-icon name="times"></app-icon>
+          </button>
+        </header>
+        <div class="dl-sheet-body">
+          <div class="dl-action-list">
+            @for (item of additionalMenuItems; track $index) {
+              @if (!item.separator) {
+                <button type="button" class="dl-action-row" (click)="runAddMenuItem(item)">
+                  @if (item.icon) {
+                    <app-icon [name]="item.icon"></app-icon>
+                  }
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </section>
     </div>
   }
 </div>
+
+@if (joinDialogVisible) {
+  <div class="dl-overlay" (click)="joinDialogVisible = false">
+    <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog">
+      <div class="dl-sheet-handle"></div>
+      <header class="dl-sheet-head">
+        <h2>Join a workspace</h2>
+        <button type="button" class="dl-icon-btn" (click)="joinDialogVisible = false" aria-label="Close">
+          <app-icon name="times"></app-icon>
+        </button>
+      </header>
+      <div class="dl-sheet-body">
+        <p class="join-help">Paste the invite code your teammate shared. You’ll review the workspace before joining.</p>
+        <label class="join-label" for="join-code">Invite code</label>
+        <input id="join-code" type="text" class="dl-input" [(ngModel)]="joinCode" placeholder="e.g. aB3kX9pQ" autocomplete="off" (keyup.enter)="submitJoinCode()">
+        <div class="dl-dialog-footer">
+          <app-btn label="Cancel" variant="ghost" (click)="joinDialogVisible = false"></app-btn>
+          <app-btn label="Continue" icon="arrow-right" (click)="submitJoinCode()"></app-btn>
+        </div>
+      </div>
+    </section>
+  </div>
+}

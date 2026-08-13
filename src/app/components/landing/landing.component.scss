@@ -1,0 +1,145 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.landing {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(76, 175, 80, 0.18) 0%, transparent 46%),
+    radial-gradient(ellipse at 90% 70%, rgba(76, 175, 80, 0.08) 0%, transparent 42%),
+    var(--dl-bg);
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+  padding: calc(0.75rem + env(safe-area-inset-top)) 1rem 0.75rem;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  color: var(--dl-text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-height: var(--dl-touch);
+  display: inline-flex;
+  align-items: center;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.hero {
+  text-align: center;
+  max-width: 40rem;
+  margin: 1.5rem auto 2.5rem;
+}
+
+.hero-mark {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1.1rem;
+  margin-bottom: 1.1rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 5vw, 2.7rem);
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.hero p {
+  margin: 0.85rem 0 0;
+  color: var(--dl-text-muted);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions app-btn {
+    width: 100%;
+    display: flex;
+  }
+
+  .nav-actions app-btn {
+    display: none;
+  }
+}
+
+.features {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.features article {
+  background: var(--dl-card);
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius);
+  padding: 1.1rem 1.15rem;
+}
+
+.features app-icon {
+  color: var(--dl-accent-soft);
+  font-size: 1.15rem;
+}
+
+.features h2 {
+  margin: 0.45rem 0 0.3rem;
+  font-size: 1.05rem;
+}
+
+.features p {
+  margin: 0;
+  color: var(--dl-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.landing-foot {
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  text-align: center;
+  color: var(--dl-text-muted);
+  font-size: 0.8rem;
+}
+
+.landing-foot p { margin: 0; }
+
+@media (min-width: 768px) {
+  .features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

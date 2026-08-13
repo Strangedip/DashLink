@@ -36,7 +36,7 @@
     font-size: 0.9rem;
   }
 
-  input.p-inputtext,
+  input.dl-input,
   textarea {
     width: 100%;
     
@@ -65,11 +65,6 @@
   margin-top: 1.5rem;
 }
 
-p-message.p-inline-message {
+.dl-field-error {
   margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  background-color: transparent !important;
-  border: none !important;
-  color: var(--p-primary-color) !important;
 }

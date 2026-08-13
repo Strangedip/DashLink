@@ -1,52 +1,54 @@
-<div
-  class="auth-page-wrapper flex flex-column md:flex-row align-items-center justify-content-center min-h-screen p-3 lg:p-5">
-  <div class="app-intro text-center md:text-left mb-5 md:mb-0 md:mr-5 w-full md:w-6">
-    <h2 class="text-900 font-bold mb-3 text-4xl lg:text-5xl"> <span class="text-primary">DashLink</span>. Your go-to for
-      <span class="text-primary">effortless organization</span> and <span class="text-primary">real-time collaboration</span>.
-    </h2>
-    <p class="text-700 text-lg lg:text-xl line-height-3">A <strong class="text-800">smart workspace</strong> for all
-      your <strong class="text-800">links</strong>, <strong class="text-800">collections</strong>, and <strong
-        class="text-800">data</strong>. Organize personally or <strong class="text-800">collaborate with your team</strong> in shared workspaces — synced in real-time.</p>
+<div class="auth-page">
+  <div class="auth-intro">
+    <div class="brand-row">
+      <app-logo></app-logo>
+    </div>
+    <h1>Keep links, notes, and teams in one place.</h1>
+    <p>Save personal collections, then collaborate in shared workspaces — synced live.</p>
   </div>
 
-  <div class="auth-container w-full md:w-6 flex align-items-center justify-content-center">
-    <p-card header="Login to DashLink" styleClass="p-card-login shadow-8 border-round-lg w-full max-w-30rem">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3">
-        <div class="p-field">
-          <label for="email" class="block text-900 font-medium mb-2">Email</label>
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon><i class="pi pi-envelope"></i></p-inputIcon>
-            <input pInputText id="email" type="email" formControlName="email" placeholder="Enter Email" required class="w-full">
-          </p-iconField>
-          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-          @if (loginForm.get('email')?.errors?.['required']) {
-          <p-message severity="error" text="Email is required." class="block mt-2"></p-message>
-          }
-          @if (loginForm.get('email')?.errors?.['email']) {
-          <p-message severity="error" text="Please enter a valid email address." class="block mt-2"></p-message>
-          }
-          }
-        </div>
+  <section class="auth-card" aria-labelledby="login-title">
+    <h2 id="login-title">Welcome back</h2>
+    <p class="auth-sub">Sign in to open your dashboard.</p>
 
-        <div class="p-field">
-          <label for="password" class="block text-900 font-medium mb-2">Password</label>
-          <p-iconField iconPosition="left" class="w-full">
-            <p-inputIcon><i class="pi pi-lock"></i></p-inputIcon>
-            <input pInputText id="password" type="password" formControlName="password" placeholder="Enter Password" required class="w-full">
-          </p-iconField>
-          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <p-message severity="error" text="Password is required." class="block mt-2"></p-message>
-          }
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <div class="icon-input">
+          <app-icon name="envelope"></app-icon>
+          <input class="dl-input" id="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
         </div>
-
-        <p-button label="Login" type="submit" [disabled]="!loginForm.valid" styleClass="w-full"></p-button>
-      </form>
-      <p-button label="Sign in with Google" icon="pi pi-google" iconPos="left" (click)="signInWithGoogle()"
-        styleClass="p-button-secondary w-full mt-3"></p-button>
-      <div class="p-card-footer text-center mt-3 pt-3 border-top-1 surface-border">
-        <p>Don't have an account? <a style="cursor: pointer;" (click)="goToRegister()"
-            class="text-primary-500 font-medium">Register here</a></p>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <p class="field-error">Enter a valid email address.</p>
+        }
       </div>
-    </p-card>
-  </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <div class="icon-input">
+            <app-icon name="lock"></app-icon>
+            <input class="dl-input" id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Your password" autocomplete="current-password" enterkeyhint="go">
+          </div>
+          <button type="button" class="toggle-visibility" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <app-icon [name]="showPassword ? 'eye-slash' : 'eye'"></app-icon>
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <p class="field-error">Password is required.</p>
+        }
+        <button type="button" class="forgot-link" (click)="forgotPassword()">Forgot password?</button>
+      </div>
+
+      <app-btn label="Sign in" type="submit" [disabled]="!loginForm.valid" [block]="true"></app-btn>
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+    <app-btn label="Continue with Google" icon="google" (click)="signInWithGoogle()" [block]="true" variant="outline"></app-btn>
+
+    <p class="auth-switch">
+      New here?
+      <a (click)="goToRegister()" (keydown.enter)="goToRegister()" tabindex="0">Create an account</a>
+    </p>
+  </section>
 </div>

@@ -2,9 +2,9 @@
   <div class="node-card-content">
     @if (nodeImageUrl) {
       <div class="node-image-thumbnail">
-        <img 
-          [src]="getThumbnailUrl(nodeImageUrl)" 
-          alt="Node thumbnail" 
+        <img
+          [src]="getThumbnailUrl(nodeImageUrl)"
+          alt="Node thumbnail"
           class="thumbnail-image"
           loading="lazy"
           decoding="async"
@@ -13,7 +13,7 @@
       </div>
     } @else {
       <div class="node-icon-wrapper">
-        <i class="pi pi-link node-icon"></i>
+        <app-icon name="link" class="node-icon"></app-icon>
       </div>
     }
     <div class="node-info">
@@ -23,17 +23,12 @@
       }
     </div>
     <div class="node-actions" (click)="$event.stopPropagation()">
-      <button 
-        #deleteButton 
-        type="button" 
-        pButton 
-        icon="pi pi-ellipsis-v" 
-        (click)="onMenuToggle($event)" 
-        class="p-button-text p-button-rounded p-button-secondary action-button"
-        pTooltip="Options"
-        tooltipPosition="left">
-      </button>
-      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+      @if (primaryUrl) {
+        <app-btn class="card-quick" icon="external-link" variant="ghost" [rounded]="true" title="Open link" (click)="openLink($event)"></app-btn>
+        <app-btn class="card-quick" icon="share-alt" variant="ghost" [rounded]="true" title="Share" (click)="shareLink($event)"></app-btn>
+      }
+      <app-btn #deleteButton icon="ellipsis-v" variant="ghost" [rounded]="true" title="Options" (click)="onMenuToggle($event)"></app-btn>
+      <app-menu #menu [items]="menuItems"></app-menu>
     </div>
   </div>
 </div>

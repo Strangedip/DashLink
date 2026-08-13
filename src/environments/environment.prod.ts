@@ -1,5 +1,6 @@
 export const environment = {
     production: true,
+    siteUrl: 'https://dashlink-prj.web.app',
     firebaseConfig: {
         apiKey: "AIzaSyADF-fHnVFEMidvvQNf6vXXHq0jEpZepHg",
         authDomain: "dashlink-prj.firebaseapp.com",

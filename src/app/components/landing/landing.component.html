@@ -1,0 +1,43 @@
+<div class="landing">
+  <header class="landing-nav">
+    <app-logo></app-logo>
+    <div class="nav-actions">
+      <a routerLink="/auth/login" class="nav-link">Sign in</a>
+      <app-btn label="Get started" (click)="go('/auth/register')"></app-btn>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <img class="hero-mark" src="/logo.svg" width="72" height="72" alt="DashLink logo">
+      <h1>Organize links, notes, and teams in one place.</h1>
+      <p>Save personal collections, then collaborate in shared workspaces — synced live across devices.</p>
+      <div class="hero-actions">
+        <app-btn label="Create free account" icon="arrow-right" iconPos="right" (click)="go('/auth/register')"></app-btn>
+        <app-btn label="Sign in" variant="outline" (click)="go('/auth/login')"></app-btn>
+      </div>
+    </section>
+
+    <section class="features" aria-label="What you can do">
+      <article>
+        <app-icon name="folder"></app-icon>
+        <h2>Personal collections</h2>
+        <p>Group links, notes, images, and custom fields into nested folders you can search instantly.</p>
+      </article>
+      <article>
+        <app-icon name="users"></app-icon>
+        <h2>Team workspaces</h2>
+        <p>Invite people with a code, share a structure, and keep everyone looking at the same live data.</p>
+      </article>
+      <article>
+        <app-icon name="bolt"></app-icon>
+        <h2>Real-time sync</h2>
+        <p>Changes land immediately — on your phone, laptop, or a teammate’s screen.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="landing-foot">
+    <p>© {{ year }} DashLink</p>
+  </footer>
+</div>

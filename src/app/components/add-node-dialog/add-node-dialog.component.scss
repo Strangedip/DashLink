@@ -36,7 +36,7 @@
     font-size: 0.9rem;
   }
 
-  input.p-inputtext,
+  input.dl-input,
   textarea {
     width: 100%;
     
@@ -65,13 +65,8 @@
   margin-top: 1.5rem;
 }
 
-p-message.p-inline-message {
+.dl-field-error {
   margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  background-color: transparent !important;
-  border: none !important;
-  color: var(--p-primary-color) !important;
 }
 
 .custom-field-item {
@@ -105,9 +100,7 @@ p-message.p-inline-message {
     }
 
     // Also apply green focus to dropdowns in custom fields
-    .p-select,
-    .p-inputnumber,
-    .p-calendar,
+    .dl-select,
     input {
       &:focus-within,
       &.p-focus {
@@ -157,8 +150,6 @@ p-message.p-inline-message {
     }
   }
 }
-
-// ─── Image Upload Field Styling ─────────────────────────────────────────────
 
 .image-upload-field {
   display: flex;
@@ -231,7 +222,7 @@ p-message.p-inline-message {
       box-shadow: 0 4px 12px rgba(244, 66, 53, 0.4);
     }
 
-    i {
+    i, app-icon {
       color: white !important;
     }
   }

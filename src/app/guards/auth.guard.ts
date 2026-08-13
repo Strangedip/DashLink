@@ -12,11 +12,13 @@ export const authGuard: CanActivateFn = (route, state) => {
     map(user => {
       if (user) {
         return true;
-      } else {
-        return router.createUrlTree(['/auth/login'], {
-          queryParams: { returnUrl: state.url }
-        });
       }
+      if (typeof sessionStorage !== 'undefined' && state.url && !state.url.startsWith('/auth')) {
+        sessionStorage.setItem('dl.postAuth', state.url);
+      }
+      return router.createUrlTree(['/auth/login'], {
+        queryParams: { returnUrl: state.url }
+      });
     })
   );
 };

@@ -5,7 +5,6 @@
   min-height: 420px;
 }
 
-// ─── Scrollable sections ─────────────────────────────────
 .input-section,
 .results-section {
   flex: 1;
@@ -21,7 +20,6 @@
   }
 }
 
-// ─── Info Card ───────────────────────────────────────────
 .info-card {
   display: flex;
   gap: 0.75rem;
@@ -56,7 +54,6 @@
   }
 }
 
-// ─── Data Preview ────────────────────────────────────────
 .data-preview {
   background: var(--p-surface-800);
   border-radius: 10px;
@@ -73,7 +70,7 @@
     gap: 0.4rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    i { color: var(--p-green-500); }
+    app-icon, i { color: var(--p-green-500); }
   }
 }
 
@@ -133,7 +130,6 @@
   color: var(--p-text-color);
 }
 
-// ─── Custom Question ─────────────────────────────────────
 .custom-question {
   margin-bottom: 1rem;
 
@@ -161,7 +157,6 @@
   }
 }
 
-// ─── Usage Stat (informational) ──────────────────────────
 .usage-stat {
   display: flex;
   align-items: center;
@@ -173,7 +168,7 @@
   font-size: 0.8rem;
   color: var(--p-text-color-secondary);
 
-  i { color: var(--p-green-500); flex-shrink: 0; }
+  app-icon, i { color: var(--p-green-500); flex-shrink: 0; }
 
   strong { color: var(--p-text-color); }
 }
@@ -182,7 +177,6 @@
   margin-top: 1rem;
 }
 
-// ─── Analyzing Phase ─────────────────────────────────────
 .analyzing-section {
   flex: 1;
   display: flex;
@@ -222,7 +216,6 @@
   }
 }
 
-// ─── Results ─────────────────────────────────────────────
 .results-section {
   h3 {
     display: flex;
@@ -235,7 +228,7 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
 
-    i { color: var(--p-green-500); }
+    app-icon, i { color: var(--p-green-500); }
   }
 }
 
@@ -276,7 +269,7 @@
     color: var(--p-text-color);
   }
 
-  i { color: var(--p-green-500); }
+  app-icon, i { color: var(--p-green-500); }
 }
 
 .health-badge {
@@ -371,7 +364,7 @@
   &.warning { background: rgba(255, 152, 0, 0.12); color: #FF9800; }
   &.ok      { background: rgba(76, 175, 80, 0.12); color: var(--p-green-500); }
 
-  i { font-size: 0.65rem; }
+  app-icon, i { font-size: 0.65rem; }
 }
 
 .analysis-text {
@@ -398,7 +391,7 @@
     margin-bottom: 0.35rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    i { font-size: 0.7rem; }
+    app-icon, i { font-size: 0.7rem; }
   }
 
   ul {
@@ -448,7 +441,7 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-bottom: 0.5rem;
-    i { font-size: 0.75rem; }
+    app-icon, i { font-size: 0.75rem; }
   }
 
   ul {
@@ -504,7 +497,6 @@
   }
 }
 
-// ─── Error Phase ─────────────────────────────────────────
 .error-section {
   flex: 1;
   display: flex;
@@ -545,7 +537,7 @@
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    i { color: var(--p-green-500); }
+    app-icon, i { color: var(--p-green-500); }
   }
 
   ol {
@@ -564,7 +556,6 @@
   }
 }
 
-// ─── Footer ──────────────────────────────────────────────
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

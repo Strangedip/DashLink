@@ -2,10 +2,10 @@
 
 A modern, collaborative workspace platform for organizing and managing data with real-time collaboration features and AI-powered insights.
 
-![Angular](https://img.shields.io/badge/Angular-18.2-DD0031?logo=angular)
-![Firebase](https://img.shields.io/badge/Firebase-10.0-FFCA28?logo=firebase)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript)
-![PrimeNG](https://img.shields.io/badge/PrimeNG-18.0-007ACC)
+![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular)
+![Firebase](https://img.shields.io/badge/Firebase-12-FFCA28?logo=firebase)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript)
+![Optimus UI](https://img.shields.io/badge/Optimus_UI-2-0ea5e9)
 
 ## Overview
 
@@ -178,18 +178,18 @@ DashLink combines personal data organization with collaborative workspaces, offe
 
 ## Tech Stack
 
-- **Frontend**: Angular 18 (Standalone Components)
+- **Frontend**: Angular 22 (standalone components)
 - **Backend**: Firebase (Firestore, Authentication, Hosting)
-- **UI Library**: PrimeNG 18 (Lara Dark Theme)
+- **UI Library**: Optimus UI (MIT, Lara dark theme)
 - **Styling**: SCSS + PrimeFlex utilities
 - **State Management**: RxJS Observables
-- **AI Integration**: Google Gemini 1.5 Flash API
+- **AI Integration**: Google Gemini API
 - **TypeScript**: Strict mode with full type safety
 
 ## Setup & Development
 
 ### Prerequisites
-- Node.js 20.19.2+
+- Node.js 22.22+
 - npm
 - Firebase account
 - (Optional) Google Gemini API key for AI features

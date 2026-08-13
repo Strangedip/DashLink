@@ -1,15 +1,81 @@
-<nav class="fixed-navbar">
-  <div class="navbar-content">
-    <div class="app-logo"><span class="text-primary">DashLink</span></div>
-    <button *ngIf="authService.user$ | async" pButton pTooltip="Logout" icon="pi pi-sign-out" (click)="logout()"
-      class="p-button-plain"></button>
-  </div>
-</nav>
+@if (!isAuthRoute) {
+  <header class="app-nav">
+    <div class="app-nav-inner">
+      <app-logo link="/dashboard"></app-logo>
 
-<div class="workspace-wrapper">
-  <p-toast></p-toast>
+      @if (authService.user$ | async; as user) {
+        <button
+          type="button"
+          class="user-btn"
+          (click)="toggleAccount($event)"
+          [attr.aria-expanded]="accountOpen"
+          [attr.aria-label]="'Account menu for ' + (user.displayName || user.email)">
+          @if (user.photoURL) {
+            <app-avatar [image]="user.photoURL" [size]="40"></app-avatar>
+          } @else {
+            <app-avatar [label]="userInitial(user)" [size]="40"></app-avatar>
+          }
+        </button>
 
-  <main class="main-content-area">
+        @if (accountOpen) {
+          <div class="account-backdrop" (click)="closeAccount()"></div>
+          <section class="account-panel" role="dialog" aria-label="Account">
+            <div class="account-id">
+              @if (user.photoURL) {
+                <app-avatar [image]="user.photoURL" [size]="44"></app-avatar>
+              } @else {
+                <app-avatar [label]="userInitial(user)" [size]="44"></app-avatar>
+              }
+              <div class="account-copy">
+                @if (accountName) {
+                  <p class="account-name">{{ accountName }}</p>
+                }
+                <p class="account-email">{{ user.email }}</p>
+              </div>
+            </div>
+
+            @if (editingName) {
+              <div class="account-name-edit">
+                <input class="dl-input" [value]="nameDraft" (input)="nameDraft = $any($event.target).value" placeholder="Display name" maxlength="40" autocomplete="nickname">
+                <button type="button" class="account-row" (click)="saveDisplayName()" [disabled]="savingName">
+                  <app-icon name="check"></app-icon>
+                  Save name
+                </button>
+              </div>
+            } @else {
+              <button type="button" class="account-row" (click)="editingName = true; nameDraft = accountName">
+                <app-icon name="pencil"></app-icon>
+                {{ accountName ? 'Edit name' : 'Add a display name' }}
+              </button>
+            }
+
+            <button type="button" class="account-row" (click)="copyEmail()">
+              <app-icon name="copy"></app-icon>
+              Copy email
+            </button>
+
+            @if (showInstallHint) {
+              <p class="account-hint">
+                <app-icon name="plus"></app-icon>
+                {{ installHint }}
+              </p>
+            }
+
+            <button type="button" class="account-logout" (click)="confirmLogout()">
+              <app-icon name="sign-out"></app-icon>
+              Log out
+            </button>
+          </section>
+        }
+      }
+    </div>
+  </header>
+}
+
+<div class="app-shell" [class.auth-shell]="isAuthRoute">
+  <app-toast-host></app-toast-host>
+  <app-dialog-host></app-dialog-host>
+  <main class="app-main">
     <router-outlet></router-outlet>
   </main>
 </div>

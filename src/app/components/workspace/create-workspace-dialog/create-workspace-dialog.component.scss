@@ -23,8 +23,8 @@
 }
 
 .step-dot {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--p-surface-700);
   border: 2px solid var(--p-surface-500);
@@ -193,7 +193,7 @@
   border-radius: 6px;
   margin-bottom: 1rem;
 
-  i { color: var(--p-green-500); margin-top: 0.15rem; }
+  i, app-icon { color: var(--p-green-500); margin-top: 0.15rem; flex-shrink: 0; }
   p { margin: 0; font-size: 0.85rem; color: var(--p-text-color-secondary); }
 }
 
@@ -268,6 +268,16 @@
   padding-top: 1.25rem;
   border-top: 1px solid var(--p-surface-border);
   margin-top: 1.5rem;
+}
+
+@media screen and (max-width: 576px) {
+  .step-line { width: 36px; }
+  .p-dialog-footer {
+    flex-wrap: wrap;
+    flex-direction: column;
+    .footer-spacer { display: none; }
+    app-btn { width: 100%; display: flex; }
+  }
 }
 
 p-message.p-inline-message {

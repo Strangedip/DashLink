@@ -1,18 +1,11 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { Textarea } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ChipModule } from 'primeng/chip';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { StepperModule } from 'primeng/stepper';
-import { TooltipModule } from 'primeng/tooltip';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { IconComponent } from '../../../ui/icon.component';
+import { CheckComponent } from '../../../ui/check.component';
+import { ToggleComponent } from '../../../ui/toggle.component';
 import {
   Workspace, WorkspaceFieldSchema, WorkspaceMetadata,
   WORKSPACE_FIELD_TYPES, WorkspaceFieldTypeOption,
@@ -20,15 +13,14 @@ import {
 } from '../../../models/workspace.model';
 
 @Component({
-  selector: 'app-create-workspace-dialog',
-  standalone: true,
-  imports: [
-    CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, InputNumberModule,
-    Textarea, ButtonModule, MessageModule, SelectModule, CheckboxModule,
-    ChipModule, ToggleSwitchModule, StepperModule, TooltipModule
-  ],
-  templateUrl: './create-workspace-dialog.component.html',
-  styleUrl: './create-workspace-dialog.component.scss'
+    selector: 'app-create-workspace-dialog',
+    imports: [
+        CommonModule, ReactiveFormsModule, FormsModule,
+        BtnComponent, IconComponent, CheckComponent, ToggleComponent
+    ],
+    templateUrl: './create-workspace-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './create-workspace-dialog.component.scss'
 })
 export class CreateWorkspaceDialogComponent implements OnInit {
   activeStep: number = 0;

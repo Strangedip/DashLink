@@ -1,123 +1,135 @@
-<div class="workspace-dashboard-container flex flex-column">
-  <!-- Workspace Header Banner -->
+<div class="dl-page workspace-page">
   @if (workspace) {
-    <div class="ws-banner">
+    <section class="ws-banner">
       <div class="ws-banner-top">
         <div class="ws-banner-left">
-          <button pButton icon="pi pi-arrow-left" (click)="goToDashboard()" pTooltip="Back to Dashboard" class="p-button-text p-button-sm back-btn"></button>
+          <app-btn type="button" icon="arrow-left" (click)="goToDashboard()" ariaLabel="Back to home" variant="ghost" [rounded]="true"></app-btn>
           <div class="ws-title-block">
-            <h1 class="ws-name">{{ workspace.name }}</h1>
-            @if (workspace.metadata.category) {
-              <span class="ws-category">{{ workspace.metadata.category }}</span>
-            }
+            <h1>{{ workspace.name }}</h1>
+            <div class="ws-meta-row">
+              @if (workspace.metadata.category) {
+                <span class="ws-category">{{ workspace.metadata.category }}</span>
+              }
+              <span class="member-count">
+                <app-icon name="users"></app-icon>
+                {{ activeMembers.length }}/{{ workspace.memberLimit }}
+              </span>
+            </div>
           </div>
         </div>
-        <div class="ws-banner-right">
-          <div class="ws-members-preview">
-            <p-avatarGroup>
-              @for (member of activeMembers | slice:0:4; track member.userId) {
-                @if (member.photoURL) {
-                  <p-avatar [image]="member.photoURL" shape="circle"
-                    [pTooltip]="member.displayName" [style]="{ width: '26px', height: '26px' }"></p-avatar>
-                } @else {
-                  <p-avatar [label]="getMemberInitial(member)" shape="circle"
-                    [pTooltip]="member.displayName"
-                    [style]="{ width: '26px', height: '26px', 'font-size': '0.6rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
-                }
-              }
-              @if (activeMembers.length > 4) {
-                <p-avatar [label]="'+' + (activeMembers.length - 4)" shape="circle"
-                  [style]="{ width: '26px', height: '26px', 'font-size': '0.55rem', background: 'var(--p-surface-700)', color: 'var(--p-text-color-secondary)' }"></p-avatar>
-              }
-            </p-avatarGroup>
-          </div>
-          <button pButton icon="pi pi-chart-bar" (click)="openOverview()" pTooltip="Overview" class="p-button-text p-button-sm"></button>
-          <button pButton icon="pi pi-cog" (click)="openSettings()" pTooltip="Settings" class="p-button-text p-button-sm"></button>
+        <div class="ws-banner-actions">
+          <app-btn type="button" icon="chart-bar" (click)="openOverview()" ariaLabel="Overview" title="Overview" variant="ghost" [rounded]="true"></app-btn>
+          <app-btn type="button" icon="cog" (click)="openSettings()" ariaLabel="Settings" title="Settings" variant="ghost" [rounded]="true"></app-btn>
         </div>
       </div>
-
       @if (workspace.metadata.goal) {
-        <div class="ws-goal-strip">
-          <i class="pi pi-bullseye"></i>
-          <span>{{ workspace.metadata.goal }}</span>
-        </div>
+        <p class="ws-goal"><app-icon name="bullseye"></app-icon> {{ workspace.metadata.goal }}</p>
       }
-    </div>
+    </section>
   }
 
-  <!-- Search -->
-  <div class="search-container w-full surface-0 border-round flex align-items-center">
-    <i class="pi pi-search" style="display: inline;"></i>
-    <span class="p-input-icon-left flex-grow-1">
-      <input type="text" pInputText placeholder="Search nodes and collections..." [formControl]="searchControl" class="w-full">
-    </span>
+  <div class="dl-toolbar">
+    <div class="dl-search">
+      <app-icon name="search" aria-hidden="true"></app-icon>
+      <input type="search" class="w-full" [formControl]="searchControl" placeholder="Search this workspace..." autocomplete="off" enterkeyhint="search">
+    </div>
   </div>
 
-  <!-- Sub-header -->
-  <header class="dashboard-header flex flex-column w-full surface-0 border-round">
-    <div class="header-content-row flex align-items-center justify-content-between w-full">
-      <div class="header-left flex align-items-center">
+  <header class="page-header">
+    <div class="header-row">
+      <div class="header-copy">
         @if (showBackButton) {
-          <button pButton icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back" class="p-button-text p-button-sm mr-2"></button>
+          <app-btn type="button" icon="arrow-left" (click)="goBack()" ariaLabel="Back" variant="ghost" [rounded]="true"></app-btn>
         }
-        <h2 class="collection-name font-bold m-0">
-          {{ currentCollection?.name || workspace?.name || 'Workspace' }}
-        </h2>
+        <div class="title-block">
+          <h2>{{ currentCollection?.name || 'Workspace items' }}</h2>
+        </div>
       </div>
-      <div class="header-right flex align-items-center">
-        @if (!isBanned) {
-          <button pButton icon="pi pi-plus" (click)="additionalMenu.toggle($event)" pTooltip="Add New" class="p-button p-button-plain"></button>
-          <p-menu #additionalMenu [model]="additionalMenuItems" [popup]="true" appendTo="body"></p-menu>
-        }
-      </div>
+      @if (!isBanned) {
+        <app-btn type="button" icon="plus" label="Add" (click)="openAddMenu($event)" class="desktop-add"></app-btn>
+      }
     </div>
     @if (breadcrumbItems.length > 0) {
-      <div class="header-breadcrumb-row w-full">
-        <p-breadcrumb [model]="breadcrumbItems" [home]="home"></p-breadcrumb>
-      </div>
+      <app-breadcrumb [items]="breadcrumbItems" [home]="home"></app-breadcrumb>
     }
   </header>
 
-  <!-- Content -->
   @if (isBanned) {
     <div class="banned-notice">
-      <i class="pi pi-ban"></i>
-      <p>You have been banned from this workspace. You can view existing content but cannot add or edit.</p>
+      <app-icon name="ban"></app-icon>
+      <p>You’ve been banned from this workspace. You can still view content, but you can’t add or edit.</p>
     </div>
   }
 
-  @if ((dashboardItems$ | async)?.length === 0) {
-    <div class="empty-state flex flex-column align-items-center justify-content-center flex-grow-1 text-center">
-      <i class="pi pi-inbox empty-state-icon"></i>
-      <h3 class="empty-state-title">Start building your workspace</h3>
-      <p class="text-base text-500">Add your first node or collection using the <i class="pi pi-plus" style="font-size: 0.8em;"></i> button above.</p>
-    </div>
-  } @else {
-    <div class="grid">
-      <p-dataView #dv [value]="(dashboardItems$ | async) || []" layout="list" class="col-12 dashboard-list-items" [trackBy]="trackByItemId">
-        <ng-template #list let-items>
-          <div *ngFor="let item of items" class="col-12 flex-grow-1" style="padding: 0.2rem 0;">
-            <ng-container *ngIf="item.type === 'collection'">
-              <app-collection-card
-                [collection]="item"
-                (viewCollection)="goToCollection(item.id)"
-                (editCollection)="editCollection(item)"
-                (deleteCollectionRequest)="confirmDeleteItem(item.id, 'collection')">
-              </app-collection-card>
-            </ng-container>
-            <ng-container *ngIf="item.type === 'workspace-node'">
-              <app-workspace-node-card
-                [node]="item"
-                [isOwner]="isOwner"
-                [currentUserId]="currentUserId || ''"
-                (nodeClicked)="openViewNodeDialog(item)"
-                (editNode)="editNode(item)"
-                (deleteNodeRequest)="confirmDeleteItem($event.id, 'workspace-node')">
-              </app-workspace-node-card>
-            </ng-container>
+  @if ((dashboardItems$ | async); as items) {
+    @if (items.length === 0) {
+      <div class="dl-empty">
+        <app-icon name="inbox"></app-icon>
+        <h3>{{ searchControl.value ? 'No matches' : 'This workspace is empty' }}</h3>
+        <p>{{ searchControl.value ? 'Try a different search term.' : 'Add a node for a shared item, or a collection to group related work.' }}</p>
+        @if (!isBanned && !searchControl.value) {
+          <div class="dl-empty-actions">
+            <app-btn type="button" icon="file-edit" label="Add node" (click)="openAddNodeDialog()"></app-btn>
+            <app-btn type="button" icon="folder-open" label="Add collection" (click)="openAddCollectionDialog()" variant="outline"></app-btn>
           </div>
-        </ng-template>
-      </p-dataView>
+        }
+      </div>
+    } @else {
+      <div class="dl-list">
+        @for (item of items; track trackByItemId($index, item)) {
+          @if (item.type === 'collection') {
+            <app-collection-card
+              [collection]="item"
+              (viewCollection)="item.id && goToCollection(item.id)"
+              (editCollection)="editCollection(item)"
+              (deleteCollectionRequest)="item.id && confirmDeleteItem(item.id, 'collection')">
+            </app-collection-card>
+          } @else {
+            <app-workspace-node-card
+              [node]="item"
+              [isOwner]="isOwner"
+              [currentUserId]="currentUserId || ''"
+              (nodeClicked)="openViewNodeDialog(item)"
+              (editNode)="editNode(item)"
+              (deleteNodeRequest)="confirmDeleteItem($event.id, 'workspace-node')">
+            </app-workspace-node-card>
+          }
+        }
+      </div>
+    }
+  }
+
+  @if (!isBanned) {
+    <button type="button" class="dl-fab" (click)="openAddMenu($event)" aria-label="Add">
+      <app-icon name="plus"></app-icon>
+    </button>
+  }
+
+  @if (addSheetOpen) {
+    <div class="dl-overlay" (click)="addSheetOpen = false">
+      <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog" aria-label="Add to workspace">
+        <div class="dl-sheet-handle"></div>
+        <header class="dl-sheet-head">
+          <h2>Add</h2>
+          <button type="button" class="dl-icon-btn" (click)="addSheetOpen = false" aria-label="Close">
+            <app-icon name="times"></app-icon>
+          </button>
+        </header>
+        <div class="dl-sheet-body">
+          <div class="dl-action-list">
+            @for (item of additionalMenuItems; track $index) {
+              @if (!item.separator) {
+                <button type="button" class="dl-action-row" (click)="runAddMenuItem(item)">
+                  @if (item.icon) {
+                    <app-icon [name]="item.icon"></app-icon>
+                  }
+                  <span>{{ item.label }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </section>
     </div>
   }
 </div>

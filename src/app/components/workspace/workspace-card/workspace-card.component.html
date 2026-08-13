@@ -1,7 +1,7 @@
 <div class="workspace-card" (click)="onClick()">
   <div class="workspace-card-content">
     <div class="workspace-icon-wrapper">
-      <i class="pi pi-users workspace-icon"></i>
+      <app-icon name="users" class="workspace-icon"></app-icon>
     </div>
     <div class="workspace-info">
       <div class="workspace-title-row">
@@ -15,19 +15,19 @@
       }
       <div class="workspace-meta">
         <span class="meta-item">
-          <i class="pi pi-user"></i>
+          <app-icon name="user"></app-icon>
           {{ memberCount }}/{{ workspace.memberLimit }}
         </span>
         @if (workspace.metadata.category) {
           <span class="meta-item">
-            <i class="pi pi-tag"></i>
+            <app-icon name="tag"></app-icon>
             {{ workspace.metadata.category }}
           </span>
         }
       </div>
     </div>
     <div class="workspace-arrow">
-      <i class="pi pi-chevron-right"></i>
+      <app-icon name="chevron-right"></app-icon>
     </div>
   </div>
 </div>

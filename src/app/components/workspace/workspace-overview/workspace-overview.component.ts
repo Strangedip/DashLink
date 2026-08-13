@@ -1,15 +1,13 @@
-import { Component, OnInit, DestroyRef } from '@angular/core';
+import { Component, OnInit, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, filter, switchMap, take } from 'rxjs';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
-import { TooltipModule } from 'primeng/tooltip';
-import { SelectModule } from 'primeng/select';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { DialogService } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { AvatarComponent } from '../../../ui/avatar.component';
+import { IconComponent } from '../../../ui/icon.component';
 import { Workspace, WorkspaceNode, WorkspaceMember } from '../../../models/workspace.model';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { AuthService } from '../../../services/auth.service';
@@ -28,15 +26,14 @@ interface NodeRow {
 }
 
 @Component({
-  selector: 'app-workspace-overview',
-  standalone: true,
-  imports: [
-    CommonModule, FormsModule, ButtonModule, AvatarModule,
-    TooltipModule, SelectModule, ProgressBarModule
-  ],
-  providers: [DatePipe],
-  templateUrl: './workspace-overview.component.html',
-  styleUrl: './workspace-overview.component.scss'
+    selector: 'app-workspace-overview',
+    imports: [
+        CommonModule, FormsModule, BtnComponent, AvatarComponent, IconComponent
+    ],
+    providers: [DatePipe],
+    templateUrl: './workspace-overview.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './workspace-overview.component.scss'
 })
 export class WorkspaceOverviewComponent implements OnInit {
   workspace: Workspace | null = null;

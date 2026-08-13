@@ -1,27 +1,22 @@
 <div class="bulk-upload-container">
-  <!-- Header Info -->
+  
   <div class="upload-info">
     <div class="info-header">
-      <i class="pi pi-upload"></i>
+      <app-icon name="upload"></app-icon>
       <h3>Bulk Upload</h3>
     </div>
     <p class="info-text">
       Upload multiple collections and nodes at once using JSON format.
-      <button 
-        pButton 
-        icon="pi pi-question-circle" 
-        class="p-button-text p-button-sm help-button" 
-        (click)="toggleHelp()"
-        [label]="showHelp ? 'Hide Guide' : 'Show Guide'">
-      </button>
+      <app-btn icon="question-circle" class="help-toggle" (click)="toggleHelp()" [label]="showHelp ? 'Hide Guide' : 'Show Guide'" variant="ghost" size="sm">
+      </app-btn>
     </p>
   </div>
 
-  <!-- Help Section -->
+  
   @if (showHelp) {
     <div class="help-section">
       <div class="help-header">
-        <i class="pi pi-info-circle"></i>
+        <app-icon name="info-circle"></app-icon>
         <span>JSON Format Guide</span>
       </div>
       
@@ -33,7 +28,7 @@
           <li><strong>subCollections</strong>: Nested collections within a parent collection</li>
         </ul>
         <p class="note-text">
-          <i class="pi pi-info-circle"></i>
+          <app-icon name="info-circle"></app-icon>
           <strong>Note:</strong> Standalone nodes at the root level will only be created if you're currently viewing a collection.
         </p>
 
@@ -65,13 +60,8 @@
         <div class="example-section">
           <div class="example-header">
             <span>Example JSON</span>
-            <button 
-              pButton 
-              icon="pi pi-copy" 
-              label="Copy" 
-              class="p-button-sm p-button-text"
-              (click)="copyExample()">
-            </button>
+            <app-btn icon="copy" label="Copy" (click)="copyExample()" size="sm" variant="ghost">
+            </app-btn>
           </div>
           <pre class="example-code">{{ exampleJson }}</pre>
         </div>
@@ -79,47 +69,33 @@
     </div>
   }
 
-  <!-- JSON Input -->
+  
   <div class="input-section">
     <label for="jsonInput">
-      <i class="pi pi-code"></i>
+      <app-icon name="code"></app-icon>
       Paste Your JSON
     </label>
     <textarea
       id="jsonInput"
-      pInputTextarea
+      class="dl-textarea w-full json-textarea"
       [(ngModel)]="jsonInput"
       placeholder="Paste your JSON here..."
-      [rows]="12"
-      [autoResize]="false"
-      class="json-textarea">
+      rows="12">
     </textarea>
     
     @if (validationError) {
       <div class="validation-error">
-        <i class="pi pi-exclamation-circle"></i>
+        <app-icon name="exclamation-circle"></app-icon>
         <span>{{ validationError }}</span>
       </div>
     }
   </div>
 
-  <!-- Footer Actions -->
+  
   <div class="dialog-footer">
-    <button 
-      pButton 
-      label="Cancel" 
-      icon="pi pi-times" 
-      class="p-button-text"
-      (click)="onCancel()"
-      [disabled]="isProcessing">
-    </button>
-    <button 
-      pButton 
-      label="Upload" 
-      icon="pi pi-cloud-upload" 
-      (click)="processUpload()"
-      [loading]="isProcessing"
-      [disabled]="!jsonInput.trim()">
-    </button>
+    <app-btn label="Cancel" icon="times" (click)="onCancel()" [disabled]="isProcessing" variant="ghost">
+    </app-btn>
+    <app-btn label="Upload" icon="cloud-upload" (click)="processUpload()" [loading]="isProcessing" [disabled]="!jsonInput.trim()">
+    </app-btn>
   </div>
 </div>

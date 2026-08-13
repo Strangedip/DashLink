@@ -1,18 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, getDocs, CollectionReference, Query, DocumentReference } from '@angular/fire/firestore';
-import { Observable, tap, switchMap, combineLatest, of, map, catchError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import {
+  Firestore, collection, doc, addDoc, updateDoc, deleteDoc, setDoc, getDocs,
+  CollectionReference, DocumentReference
+} from 'firebase/firestore';
+import { Observable, switchMap, combineLatest, of, map, catchError } from 'rxjs';
 import { Collection, Node } from '../models/data.model';
 import { LoggerService } from './logger.service';
+import { FIRESTORE } from '../firebase/firebase.providers';
+import { collectionData, docData } from '../firebase/firestore-rx';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FirebaseService {
-
-  constructor(
-    private firestore: Firestore,
-    private logger: LoggerService
-  ) { }
+  private firestore = inject(FIRESTORE);
+  private logger = inject(LoggerService);
 
   // --- Collection Operations ---
 
@@ -97,14 +99,14 @@ export class FirebaseService {
   getAllNodes(userId: string): Observable<Node[]> {
     try {
       const collectionsRef = collection(this.firestore, `users/${userId}/collections`);
-      return collectionData(collectionsRef, { idField: 'id' }).pipe(
+      return collectionData<{ id: string }>(collectionsRef, { idField: 'id' }).pipe(
         switchMap(collections => {
           if (collections.length === 0) {
             return of([]);
           }
           const nodeObservables = collections.map(collectionItem => {
             const nodesRef = collection(this.firestore, `users/${userId}/collections/${collectionItem.id}/nodes`) as CollectionReference<Node>;
-            return collectionData(nodesRef, { idField: 'id' });
+            return collectionData<Node>(nodesRef, { idField: 'id' });
           });
           return combineLatest(nodeObservables).pipe(
             map(nodeArrays => nodeArrays.flat())
@@ -167,45 +169,68 @@ export class FirebaseService {
     }
   }
 
+  async restoreCollection(userId: string, collection: Collection): Promise<void> {
+    if (!collection.id) {
+      throw new Error('Collection id is required to restore.');
+    }
+    const { id, ...data } = collection;
+    const collectionDocRef = doc(this.firestore, `users/${userId}/collections/${id}`);
+    await setDoc(collectionDocRef, { ...data, updatedAt: new Date() });
+  }
+
+  async restoreNode(userId: string, collectionId: string, node: Node): Promise<void> {
+    if (!node.id) {
+      throw new Error('Node id is required to restore.');
+    }
+    const { id, ...data } = node;
+    const nodeDocRef = doc(this.firestore, `users/${userId}/collections/${collectionId}/nodes/${id}`);
+    await setDoc(nodeDocRef, { ...data, updatedAt: new Date() });
+  }
+
   // Get sub-collections of a given parent collection
   getSubCollections(userId: string, parentCollectionId: string | null): Observable<Collection[]> {
-    try {
-      const collectionsRef = collection(this.firestore, `users/${userId}/collections`) as CollectionReference<Collection>;
-      const q = query(collectionsRef, where('parentCollectionId', '==', parentCollectionId)) as Query<Collection>;
-      return (collectionData(q, { idField: 'id' }) as Observable<Collection[]>).pipe(
-        catchError((error: unknown) => {
-          this.logger.error('Error fetching sub-collections:', error);
-          return of([]);
-        })
-      );
-    } catch (error: unknown) {
-      this.logger.error('Error in getSubCollections:', error);
-      return of([]);
-    }
+    return this.getCollections(userId).pipe(
+      map(collections => collections.filter(item => this.sameParent(item.parentCollectionId, parentCollectionId)))
+    );
   }
 
   async ensureDefaultUserCollection(userId: string): Promise<Collection> {
     try {
       const collectionsRef = collection(this.firestore, `users/${userId}/collections`) as CollectionReference<Collection>;
-      const q = query(collectionsRef, where('parentCollectionId', '==', null)) as Query<Collection>;
-      const querySnapshot = await getDocs(q);
+      const snapshot = await getDocs(collectionsRef);
+      const existing = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...(docSnap.data() as Omit<Collection, 'id'>)
+      }));
 
-      if (querySnapshot.empty) {
-        const newCollection: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'> = {
-          name: 'My Collections',
-          userId: userId,
-          parentCollectionId: null,
-        };
-        const now = new Date();
-        const docRef = await addDoc(collectionsRef, { ...newCollection, createdAt: now, updatedAt: now });
-        return { id: docRef.id, ...newCollection, createdAt: now, updatedAt: now };
-      } else {
-        const firstDoc = querySnapshot.docs[0];
-        return { id: firstDoc.id, ...firstDoc.data() as Omit<Collection, 'id'> };
+      const roots = existing.filter(item => this.sameParent(item.parentCollectionId, null));
+      const namedRoot = roots.find(item => item.name === 'My Collections');
+      if (namedRoot) {
+        return namedRoot;
       }
+      if (roots.length > 0) {
+        return roots[0];
+      }
+      if (existing.length > 0) {
+        return existing[0];
+      }
+
+      const newCollection: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'> = {
+        name: 'My Collections',
+        userId: userId,
+        parentCollectionId: null,
+      };
+      const now = new Date();
+      const docRef = await addDoc(collectionsRef, { ...newCollection, createdAt: now, updatedAt: now });
+      return { id: docRef.id, ...newCollection, createdAt: now, updatedAt: now };
     } catch (error: unknown) {
       this.logger.error('Error ensuring default user collection:', error);
       throw error;
     }
+  }
+
+  private sameParent(value: string | null | undefined, expected: string | null): boolean {
+    const normalized = value == null || value === '' ? null : value;
+    return normalized === expected;
   }
 } 

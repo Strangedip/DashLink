@@ -10,19 +10,19 @@ export interface WorkspaceFieldTypeOption {
 }
 
 export const WORKSPACE_FIELD_TYPES: WorkspaceFieldTypeOption[] = [
-  { name: 'Text', code: 'text', icon: 'pi pi-align-left' },
-  { name: 'Long Text', code: 'long-text', icon: 'pi pi-align-justify' },
-  { name: 'Number', code: 'number', icon: 'pi pi-hashtag' },
-  { name: 'URL', code: 'url', icon: 'pi pi-link' },
-  { name: 'Email', code: 'email', icon: 'pi pi-envelope' },
-  { name: 'Phone', code: 'phone', icon: 'pi pi-phone' },
-  { name: 'Date', code: 'date', icon: 'pi pi-calendar' },
-  { name: 'Date & Time', code: 'datetime', icon: 'pi pi-clock' },
-  { name: 'Image Upload', code: 'image-upload', icon: 'pi pi-upload' },
-  { name: 'Checkbox', code: 'checkbox', icon: 'pi pi-check-square' },
-  { name: 'Dropdown', code: 'dropdown', icon: 'pi pi-list' },
-  { name: 'Color', code: 'color', icon: 'pi pi-palette' },
-  { name: 'Rating', code: 'rating', icon: 'pi pi-star' },
+  { name: 'Text', code: 'text', icon: 'align-left' },
+  { name: 'Long Text', code: 'long-text', icon: 'align-justify' },
+  { name: 'Number', code: 'number', icon: 'hashtag' },
+  { name: 'URL', code: 'url', icon: 'link' },
+  { name: 'Email', code: 'email', icon: 'envelope' },
+  { name: 'Phone', code: 'phone', icon: 'phone' },
+  { name: 'Date', code: 'date', icon: 'calendar' },
+  { name: 'Date & Time', code: 'datetime', icon: 'clock' },
+  { name: 'Image Upload', code: 'image-upload', icon: 'upload' },
+  { name: 'Checkbox', code: 'checkbox', icon: 'check-square' },
+  { name: 'Dropdown', code: 'dropdown', icon: 'list' },
+  { name: 'Color', code: 'color', icon: 'palette' },
+  { name: 'Rating', code: 'rating', icon: 'star' },
 ];
 
 export const COMPATIBLE_TYPE_GROUPS: WorkspaceFieldType[][] = [
@@ -95,7 +95,6 @@ export interface Workspace {
   updatedAt: Date;
 }
 
-
 export interface WorkspaceNode {
   id?: string;
   workspaceId: string;
@@ -134,6 +133,11 @@ export interface WorkspaceInvite {
   workspaceId: string;
   workspaceName: string;
   ownerName: string;
+  description?: string;
+  memberLimit?: number;
+  memberCount?: number;
+  goal?: string;
+  category?: string;
   active: boolean;
   createdAt: Date;
 }

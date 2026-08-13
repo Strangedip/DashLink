@@ -1,14 +1,25 @@
 <div class="settings-container">
-  <p-tabs [(value)]="activeTab">
-    <p-tablist>
-      <p-tab value="0"><i class="pi pi-info-circle"></i>&nbsp; Info</p-tab>
-      <p-tab value="1"><i class="pi pi-users"></i>&nbsp; Members ({{ activeMembers.length }}/{{ workspace.memberLimit }})</p-tab>
-      <p-tab value="2"><i class="pi pi-share-alt"></i>&nbsp; Invite</p-tab>
-    </p-tablist>
+  <div class="flex w-full gap-1 overflow-x-auto rounded-full border border-dl-border bg-dl-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Settings sections">
+    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
+      [class.bg-white/10]="activeTab === '0'" [class.text-dl-text]="activeTab === '0'"
+      [attr.aria-selected]="activeTab === '0'" (click)="activeTab = '0'">
+      <app-icon name="info-circle"></app-icon> Info
+    </button>
+    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
+      [class.bg-white/10]="activeTab === '1'" [class.text-dl-text]="activeTab === '1'"
+      [attr.aria-selected]="activeTab === '1'" (click)="activeTab = '1'">
+      <app-icon name="users"></app-icon>
+      <span class="hidden sm:inline">Members ({{ activeMembers.length }}/{{ workspace.memberLimit }})</span>
+      <span class="sm:hidden">Team</span>
+    </button>
+    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
+      [class.bg-white/10]="activeTab === '2'" [class.text-dl-text]="activeTab === '2'"
+      [attr.aria-selected]="activeTab === '2'" (click)="activeTab = '2'">
+      <app-icon name="share-alt"></app-icon> Invite
+    </button>
+  </div>
 
-    <p-tabpanels>
-      <!-- Info Tab -->
-      <p-tabpanel value="0">
+  @if (activeTab === '0') {
         <div class="info-section">
           <div class="info-item">
             <span class="info-label">Workspace</span>
@@ -21,52 +32,52 @@
             </div>
           }
           <div class="info-item">
-            <span class="info-label"><i class="pi pi-users"></i> Member Limit</span>
+            <span class="info-label"><app-icon name="users"></app-icon> Member Limit</span>
             <div class="member-limit-row">
               @if (editingMemberLimit && isOwner) {
-                <p-inputNumber [(ngModel)] ="memberLimitValue" [min]="activeMembers.length || 2" [max]="32" [showButtons]="true" [style]="{'width': '8rem'}"></p-inputNumber>
-                <button pButton icon="pi pi-check" class="p-button-text p-button-sm p-button-success" (click)="toggleEditMemberLimit()" pTooltip="Save"></button>
+                <input type="number" class="dl-input" [(ngModel)]="memberLimitValue" [min]="activeMembers.length || 2" max="32" style="width: 8rem">
+                <app-btn icon="check" (click)="toggleEditMemberLimit()" title="Save" variant="ghost" size="sm"></app-btn>
               } @else {
                 <span class="info-value">{{ workspace.memberLimit }} members</span>
                 @if (isOwner) {
-                  <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="toggleEditMemberLimit()" pTooltip="Edit limit"></button>
+                  <app-btn icon="pencil" (click)="toggleEditMemberLimit()" title="Edit limit" variant="ghost" size="sm"></app-btn>
                 }
               }
             </div>
           </div>
           @if (workspace.metadata.goal) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-bullseye"></i> Goal</span>
+              <span class="info-label"><app-icon name="bullseye"></app-icon> Goal</span>
               <span class="info-value">{{ workspace.metadata.goal }}</span>
             </div>
           }
           @if (workspace.metadata.rules) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-book"></i> Rules</span>
+              <span class="info-label"><app-icon name="book"></app-icon> Rules</span>
               <span class="info-value">{{ workspace.metadata.rules }}</span>
             </div>
           }
           @if (workspace.metadata.duration) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-clock"></i> Duration</span>
+              <span class="info-label"><app-icon name="clock"></app-icon> Duration</span>
               <span class="info-value">{{ workspace.metadata.duration }}</span>
             </div>
           }
           @if (workspace.metadata.penalty) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-exclamation-triangle"></i> Penalty</span>
+              <span class="info-label"><app-icon name="exclamation-triangle"></app-icon> Penalty</span>
               <span class="info-value">{{ workspace.metadata.penalty }}</span>
             </div>
           }
           @if (workspace.metadata.category) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-tag"></i> Category</span>
+              <span class="info-label"><app-icon name="tag"></app-icon> Category</span>
               <span class="info-value">{{ workspace.metadata.category }}</span>
             </div>
           }
           @if (workspace.metadata.tags?.length) {
             <div class="info-item">
-              <span class="info-label"><i class="pi pi-tags"></i> Tags</span>
+              <span class="info-label"><app-icon name="tags"></app-icon> Tags</span>
               <div class="tags-display">
                 @for (tag of workspace.metadata.tags; track tag) {
                   <span class="tag-chip">{{ tag }}</span>
@@ -77,7 +88,7 @@
 
           @if (workspace.useCustomSchema && workspace.schema.length) {
             <div class="schema-preview">
-              <span class="info-label"><i class="pi pi-list"></i> Node Schema</span>
+              <span class="info-label"><app-icon name="list"></app-icon> Node Schema</span>
               <div class="schema-items">
                 @for (field of workspace.schema; track field.fieldId) {
                   <div class="schema-item">
@@ -94,35 +105,33 @@
 
           @if (isOwner) {
             <div class="owner-actions">
-              <button pButton label="Edit Workspace" icon="pi pi-pencil" (click)="openEditWorkspace()" class="p-button-text p-button-sm"></button>
-              <button pButton label="Delete Workspace" icon="pi pi-trash" (click)="confirmDelete = true" class="p-button-text p-button-sm p-button-danger"></button>
+              <app-btn label="Edit Workspace" icon="pencil" (click)="openEditWorkspace()" variant="ghost" size="sm"></app-btn>
+              <app-btn label="Delete Workspace" icon="trash" (click)="confirmDelete = true" variant="ghost-danger" size="sm"></app-btn>
             </div>
 
             @if (confirmDelete) {
               <div class="delete-confirm-box">
-                <p><i class="pi pi-exclamation-triangle"></i> This will permanently delete the workspace, all collections, and all nodes. This action cannot be undone.</p>
+                <p><app-icon name="exclamation-triangle"></app-icon> This will permanently delete the workspace, all collections, and all nodes. This action cannot be undone.</p>
                 <div class="delete-confirm-actions">
-                  <button pButton label="Cancel" icon="pi pi-times" (click)="confirmDelete = false" class="p-button-text p-button-sm"></button>
-                  <button pButton label="Yes, Delete" icon="pi pi-trash" (click)="deleteWorkspace()" class="p-button-danger p-button-sm"></button>
+                  <app-btn label="Cancel" icon="times" (click)="confirmDelete = false" variant="ghost" size="sm"></app-btn>
+                  <app-btn label="Yes, Delete" icon="trash" (click)="deleteWorkspace()" variant="danger" size="sm"></app-btn>
                 </div>
               </div>
             }
           }
         </div>
-      </p-tabpanel>
+  }
 
-      <!-- Members Tab -->
-      <p-tabpanel value="1">
+  @if (activeTab === '1') {
         <div class="members-section">
           <div class="members-list">
             @for (member of activeMembers; track member.userId) {
               <div class="member-item">
                 <div class="member-info">
                   @if (member.photoURL) {
-                    <p-avatar [image]="member.photoURL" shape="circle" [style]="{ width: '36px', height: '36px' }"></p-avatar>
+                    <app-avatar [image]="member.photoURL" [size]="36"></app-avatar>
                   } @else {
-                    <p-avatar [label]="getMemberInitial(member)" shape="circle"
-                      [style]="{ width: '36px', height: '36px', 'font-size': '0.85rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+                    <app-avatar [label]="getMemberInitial(member)" [size]="36"></app-avatar>
                   }
                   <div class="member-details">
                     <span class="member-name">{{ member.displayName }}</span>
@@ -134,10 +143,8 @@
                 </div>
                 @if (isOwner && member.role !== 'owner') {
                   <div class="member-actions">
-                    <button pButton icon="pi pi-ban" class="p-button-text p-button-sm p-button-warning"
-                      (click)="banMember(member)" pTooltip="Ban"></button>
-                    <button pButton icon="pi pi-user-minus" class="p-button-text p-button-sm p-button-danger"
-                      (click)="removeMember(member)" pTooltip="Remove"></button>
+                    <app-btn icon="ban" (click)="banMember(member)" title="Ban" variant="warn" size="sm"></app-btn>
+                    <app-btn icon="user-minus" (click)="removeMember(member)" title="Remove" variant="ghost-danger" size="sm"></app-btn>
                   </div>
                 }
               </div>
@@ -150,8 +157,7 @@
               @for (member of bannedMembers; track member.userId) {
                 <div class="member-item banned">
                   <div class="member-info">
-                    <p-avatar [label]="getMemberInitial(member)" shape="circle"
-                      [style]="{ width: '36px', height: '36px', 'font-size': '0.85rem', background: 'rgba(239,68,68,0.15)', color: '#ef4444' }"></p-avatar>
+                    <app-avatar [label]="getMemberInitial(member)" [size]="36" bg="rgba(239,68,68,0.15)" color="#ef4444"></app-avatar>
                     <div class="member-details">
                       <span class="member-name">{{ member.displayName }}</span>
                       <span class="member-email">{{ member.email }}</span>
@@ -160,8 +166,7 @@
                   </div>
                   @if (isOwner) {
                     <div class="member-actions">
-                      <button pButton icon="pi pi-replay" label="Unban" class="p-button-text p-button-sm"
-                        (click)="unbanMember(member)"></button>
+                      <app-btn icon="replay" label="Unban" (click)="unbanMember(member)" variant="ghost" size="sm"></app-btn>
                     </div>
                   }
                 </div>
@@ -169,28 +174,23 @@
             </div>
           }
         </div>
-      </p-tabpanel>
+  }
 
-      <!-- Invite Tab -->
-      <p-tabpanel value="2">
+  @if (activeTab === '2') {
         <div class="invite-section">
           <p class="invite-desc">Share this link with others to invite them to join this workspace.</p>
           <div class="invite-link-box">
-            <input type="text" pInputText [value]="inviteLink" readonly class="invite-input">
-            <button pButton [icon]="copied ? 'pi pi-check' : 'pi pi-copy'" (click)="copyInviteLink()"
-              class="p-button-sm" [class.p-button-success]="copied" pTooltip="Copy to clipboard"></button>
+            <input type="text" class="dl-input invite-input" [value]="inviteLink" readonly>
+            <app-btn [icon]="copied ? 'check' : 'copy'" (click)="copyInviteLink()" title="Copy to clipboard" size="sm"></app-btn>
           </div>
           @if (isOwner) {
-            <button pButton label="Regenerate Link" icon="pi pi-refresh" (click)="regenerateInvite()"
-              class="p-button-text p-button-sm regen-btn"></button>
+            <app-btn label="Regenerate Link" icon="refresh" (click)="regenerateInvite()" class="regen-btn" variant="ghost" size="sm"></app-btn>
             <small class="regen-note">Regenerating will invalidate the previous link.</small>
           }
         </div>
-      </p-tabpanel>
-    </p-tabpanels>
-  </p-tabs>
+  }
 
   <div class="dialog-footer">
-    <button pButton label="Close" icon="pi pi-times" (click)="onClose()" class="p-button-text p-button-sm"></button>
+    <app-btn label="Close" icon="times" (click)="onClose()" variant="ghost" size="sm"></app-btn>
   </div>
 </div>

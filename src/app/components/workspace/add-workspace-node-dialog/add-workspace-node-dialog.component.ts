@@ -1,43 +1,31 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { Textarea } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { SelectModule } from 'primeng/select';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ColorPickerModule } from 'primeng/colorpicker';
-import { RatingModule } from 'primeng/rating';
-import { TooltipModule } from 'primeng/tooltip';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { IconComponent } from '../../../ui/icon.component';
+import { CheckComponent } from '../../../ui/check.component';
+import { DateFieldComponent } from '../../../ui/date-field.component';
+import { RatingComponent } from '../../../ui/rating.component';
 import { urlValidator } from '../../../validators/url.validator';
+import { CloudinaryService } from '../../../services/cloudinary.service';
 import {
   WorkspaceFieldSchema, WorkspaceNodeField, WorkspaceNode,
   WORKSPACE_FIELD_TYPES, WorkspaceFieldTypeOption, generateFieldId
 } from '../../../models/workspace.model';
 
-// ─── Cloudinary widget type declaration ───────────────────────────────────────
-declare global {
-  interface Window { cloudinary: any; }
-}
-
 const CLOUD_NAME = 'dkubkgfre';
 const UPLOAD_PRESET = 'Dashlink';
 
 @Component({
-  selector: 'app-add-workspace-node-dialog',
-  standalone: true,
-  imports: [
-    CommonModule, ReactiveFormsModule, InputTextModule, Textarea,
-    ButtonModule, MessageModule, SelectModule, InputNumberModule,
-    CalendarModule, CheckboxModule, ColorPickerModule, RatingModule,
-    TooltipModule
-  ],
-  templateUrl: './add-workspace-node-dialog.component.html',
-  styleUrl: './add-workspace-node-dialog.component.scss'
+    selector: 'app-add-workspace-node-dialog',
+    imports: [
+        CommonModule, ReactiveFormsModule,
+        BtnComponent, IconComponent, CheckComponent, DateFieldComponent, RatingComponent
+    ],
+    templateUrl: './add-workspace-node-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './add-workspace-node-dialog.component.scss'
 })
 export class AddWorkspaceNodeDialogComponent implements OnInit {
   nodeForm!: FormGroup;
@@ -54,7 +42,8 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cloudinary: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -209,10 +198,22 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
   // ─── Cloudinary ─────────────────────────────────────────────────────────────
 
   /** Opens the Cloudinary Upload Widget and patches secure_url into schema field value */
-  openSchemaImageUpload(index: number): void {
+  async openSchemaImageUpload(index: number): Promise<void> {
     this.uploadingFieldIndex = index;
-    
-    const widget = window.cloudinary.createUploadWidget(
+    try {
+      await this.cloudinary.ensureWidget();
+    } catch {
+      this.uploadingFieldIndex = null;
+      return;
+    }
+
+    const cloudinary = window.cloudinary;
+    if (!cloudinary) {
+      this.uploadingFieldIndex = null;
+      return;
+    }
+
+    const widget = cloudinary.createUploadWidget(
       {
         cloudName:    CLOUD_NAME,
         uploadPreset: UPLOAD_PRESET,
@@ -246,7 +247,6 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
       },
       (error: any, result: any) => {
         if (error) {
-          console.error('Cloudinary upload error:', error);
           this.uploadingFieldIndex = null;
           return;
         }

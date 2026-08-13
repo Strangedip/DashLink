@@ -51,6 +51,7 @@
   border-bottom: 1px solid rgba(76, 175, 80, 0.2);
 
   i { color: var(--p-green-500); font-size: 0.85rem; }
+  app-icon { color: var(--p-green-500); font-size: 0.85rem; }
 }
 
 .schema-field-entry {
@@ -155,7 +156,7 @@
     top: 0.5rem;
     right: 0.5rem;
     z-index: 10;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s ease;
   }
 
@@ -174,7 +175,7 @@
   font-size: 0.9rem;
   color: var(--p-text-color-secondary);
 
-  i {
+  i, app-icon {
     font-size: 1.5rem;
     color: var(--p-green-500);
   }
@@ -213,7 +214,7 @@
 
   .p-field {
     flex: 1 1 auto;
-    min-width: 140px;
+    min-width: min(140px, 100%);
     margin-bottom: 0;
   }
 

@@ -1,25 +1,22 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
-import { Textarea } from 'primeng/inputtextarea';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { IconComponent } from '../../../ui/icon.component';
 import { Workspace, WorkspaceNode, WorkspaceCollection, WorkspaceMember } from '../../../models/workspace.model';
 import { AiAnalysisService, AIAnalysisData, AIAnalysisResult, AIUsageStat } from '../../../services/ai-analysis.service';
 
 type Phase = 'input' | 'analyzing' | 'results' | 'error';
 
 @Component({
-  selector: 'app-ai-analysis-dialog',
-  standalone: true,
-  imports: [
-    CommonModule, FormsModule, ButtonModule, MessageModule,
-    Textarea, ProgressBarModule
-  ],
-  templateUrl: './ai-analysis-dialog.component.html',
-  styleUrl: './ai-analysis-dialog.component.scss'
+    selector: 'app-ai-analysis-dialog',
+    imports: [
+        CommonModule, FormsModule, BtnComponent, IconComponent
+    ],
+    templateUrl: './ai-analysis-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './ai-analysis-dialog.component.scss'
 })
 export class AiAnalysisDialogComponent implements OnInit {
   workspace!: Workspace;
@@ -96,8 +93,7 @@ export class AiAnalysisDialogComponent implements OnInit {
 
       this.result = result;
       this.phase = 'results';
-    } catch (error: any) {
-      console.error('AI Analysis failed:', error);
+    } catch (error: unknown) {
       this.errorMessage = this.humaniseError(error);
       this.phase = 'error';
     } finally {

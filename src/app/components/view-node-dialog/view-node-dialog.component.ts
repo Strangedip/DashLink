@@ -1,37 +1,45 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../ui/dialog';
+import { BtnComponent } from '../../ui/btn.component';
+import { IconComponent } from '../../ui/icon.component';
 
 import { Node, CustomField } from '../../models/data.model';
 import { CloudinaryService } from '../../services/cloudinary.service';
+import { ShareService } from '../../services/share.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
-  selector: 'app-view-node-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ButtonModule
-  ],
-  providers: [DatePipe],
-  templateUrl: './view-node-dialog.component.html',
-  styleUrl: './view-node-dialog.component.scss'
+    selector: 'app-view-node-dialog',
+    imports: [
+        CommonModule,
+        BtnComponent,
+        IconComponent
+    ],
+    providers: [DatePipe],
+    templateUrl: './view-node-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './view-node-dialog.component.scss'
 })
 export class ViewNodeDialogComponent implements OnInit {
   node!: Node;
   imageUrl: string | null = null;
   displayCustomFields: CustomField[] = [];
+  primaryUrl: string | null = null;
 
   constructor(
     public ref: DynamicDialogRef,
     @Inject(DynamicDialogConfig) public config: DynamicDialogConfig,
     private datePipe: DatePipe,
-    private cloudinaryService: CloudinaryService
+    private cloudinaryService: CloudinaryService,
+    private shareService: ShareService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
     if (this.config.data && this.config.data.node) {
       this.node = this.config.data.node;
+      this.primaryUrl = this.shareService.primaryUrlFromNode(this.node);
       this.processCustomFields();
     }
   }
@@ -74,7 +82,6 @@ export class ViewNodeDialogComponent implements OnInit {
 
   private sanitizeHtml(html: string | undefined | null): string {
     if (!html) return '';
-    // Basic sanitization - you might want to use DomSanitizer for production
     return html;
   }
 
@@ -89,4 +96,21 @@ export class ViewNodeDialogComponent implements OnInit {
   onClose(): void {
     this.ref.close();
   }
-} 
+
+  openLink(): void {
+    if (this.primaryUrl) {
+      this.shareService.open(this.primaryUrl);
+    }
+  }
+
+  async shareLink(): Promise<void> {
+    const result = await this.shareService.share({
+      title: this.node.name,
+      text: this.node.description || this.node.name,
+      url: this.primaryUrl || undefined
+    });
+    if (result === 'copied') {
+      this.toastService.showSuccess('Copied', 'Link copied to clipboard.');
+    }
+  }
+}

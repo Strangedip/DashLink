@@ -125,7 +125,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  i {
+  i,
+  app-icon {
     color: var(--p-green-500);
     font-size: 0.9rem;
   }
@@ -134,7 +135,8 @@
     font-size: 0.8rem;
     margin-bottom: 0.625rem;
     
-    i {
+    i,
+    app-icon {
       font-size: 0.85rem;
     }
   }
@@ -192,7 +194,8 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 
-  i {
+  i,
+  app-icon {
     color: var(--p-green-500);
     font-size: 0.75rem;
   }
@@ -200,7 +203,8 @@
   @media screen and (max-width: 576px) {
     font-size: 0.7rem;
     
-    i {
+    i,
+    app-icon {
       font-size: 0.7rem;
     }
   }
@@ -233,7 +237,8 @@
   transition: all 0.2s ease;
   word-break: break-all;
 
-  i {
+  i,
+  app-icon {
     font-size: 0.75rem;
     flex-shrink: 0;
   }
@@ -246,7 +251,8 @@
   @media screen and (max-width: 576px) {
     font-size: 0.85rem;
     
-    i {
+    i,
+    app-icon {
       font-size: 0.7rem;
     }
   }
@@ -323,7 +329,8 @@
   text-align: center;
   color: var(--p-text-color-secondary);
 
-  i {
+  i,
+  app-icon {
     font-size: 2.5rem;
     color: var(--p-surface-500);
     margin-bottom: 0.75rem;
@@ -337,7 +344,8 @@
   @media screen and (max-width: 576px) {
     padding: 2rem 1rem;
     
-    i {
+    i,
+    app-icon {
       font-size: 2rem;
     }
     
@@ -349,17 +357,20 @@
 
 // Compact Footer
 .node-footer {
-  padding: 0.625rem 1rem;
+  padding: 0.75rem 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   background: var(--p-surface-900);
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: flex-end;
   flex-shrink: 0;
 
   @media screen and (max-width: 576px) {
-    padding: 0.5rem 0.875rem;
-    
-    button {
+    padding: 0.75rem 0.875rem;
+    flex-direction: column-reverse;
+
+    app-btn, button {
       width: 100%;
       justify-content: center;
     }

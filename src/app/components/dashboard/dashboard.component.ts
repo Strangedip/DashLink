@@ -1,6 +1,6 @@
-import { Component, OnInit, DestroyRef, ViewChild } from '@angular/core';
+import { Component, OnInit, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
@@ -13,50 +13,36 @@ import { NodeCardComponent } from '../node-card/node-card.component';
 import { WorkspaceCardComponent } from '../workspace/workspace-card/workspace-card.component';
 import { AddCollectionDialogComponent } from '../add-collection-dialog/add-collection-dialog.component';
 import { AddNodeDialogComponent } from '../add-node-dialog/add-node-dialog.component';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ViewNodeDialogComponent } from '../view-node-dialog/view-node-dialog.component';
 import { BulkUploadDialogComponent } from '../bulk-upload-dialog/bulk-upload-dialog.component';
 import { CreateWorkspaceDialogComponent } from '../workspace/create-workspace-dialog/create-workspace-dialog.component';
-import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, finalize } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith, lastValueFrom, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InputTextModule } from 'primeng/inputtext';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-
-// PrimeNG Imports
-import { MenuItem } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { MenuModule, Menu } from 'primeng/menu';
-import { TooltipModule } from 'primeng/tooltip';
-import { DataViewModule } from 'primeng/dataview';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { MenuItem } from '../../ui/menu-item';
+import { DialogService } from '../../ui/dialog';
+import { BtnComponent } from '../../ui/btn.component';
+import { BreadcrumbComponent } from '../../ui/breadcrumb.component';
+import { IconComponent } from '../../ui/icon.component';
+import { PreferencesService, RecentItem } from '../../services/preferences.service';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    CollectionCardComponent,
-    NodeCardComponent,
-    WorkspaceCardComponent,
-    ButtonModule,
-    CardModule,
-    MenuModule,
-    TooltipModule,
-    DataViewModule,
-    InputTextModule,
-    BreadcrumbModule,
-    ProgressSpinnerModule,
-    ToggleSwitchModule,
-    FormsModule
-  ],
-  providers: [],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+    selector: 'app-dashboard',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        CollectionCardComponent,
+        NodeCardComponent,
+        WorkspaceCardComponent,
+        BtnComponent,
+        BreadcrumbComponent,
+        IconComponent,
+        FormsModule
+    ],
+    providers: [],
+    templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   private currentUserIdSubject = new BehaviorSubject<string | null>(null);
@@ -70,7 +56,8 @@ export class DashboardComponent implements OnInit {
 
   currentCollection: Collection | undefined;
   additionalMenuItems: MenuItem[] = [];
-  dashboardItems$: Observable<(Collection | Node)[]> | undefined;
+  addSheetOpen = false;
+  dashboardItems$: Observable<((Collection & { type: 'collection' }) | (Node & { type: 'node' }))[]> | undefined;
   showBackButton: boolean = false;
 
   searchControl = new FormControl('');
@@ -79,9 +66,12 @@ export class DashboardComponent implements OnInit {
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem | undefined;
 
-  @ViewChild('additionalMenu') additionalMenu!: Menu;
-
   workspaces$: Observable<Workspace[]> | undefined;
+  activeTab: 'personal' | 'workspaces' = 'personal';
+  joinDialogVisible = false;
+  joinCode = '';
+  private latestItems: ((Collection & { type: 'collection' }) | (Node & { type: 'node' }))[] = [];
+  private pendingOpenNode: string | null = null;
 
   constructor(
     private firebaseService: FirebaseService,
@@ -92,18 +82,12 @@ export class DashboardComponent implements OnInit {
     private dialogService: DialogService,
     private toastService: ToastService,
     private destroyRef: DestroyRef,
-    private logger: LoggerService
+    private logger: LoggerService,
+    readonly prefs: PreferencesService
   ) { }
 
   ngOnInit(): void {
-    this.additionalMenuItems = [
-      { label: 'Add Collection', icon: 'pi pi-folder-open', command: () => this.openAddCollectionDialog() },
-      { label: 'Add Node', icon: 'pi pi-link', command: () => this.openAddNodeDialog() },
-      { separator: true },
-      { label: 'Create Workspace', icon: 'pi pi-users', command: () => this.openCreateWorkspaceDialog() },
-      { separator: true },
-      { label: 'Bulk Upload', icon: 'pi pi-upload', command: () => this.openBulkUploadDialog() }
-    ];
+    this.updateMenuItems();
 
     this.authService.user$.pipe(
       map(user => user?.uid || null),
@@ -119,7 +103,7 @@ export class DashboardComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     );
 
-    this.home = { icon: 'pi pi-home', routerLink: '/' };
+    this.home = { icon: 'home', routerLink: '/' };
 
     this.route.paramMap.pipe(
       switchMap(params => this.isGlobalSearchSubject.pipe(
@@ -173,11 +157,17 @@ export class DashboardComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      this.pendingOpenNode = params.get('openNode');
+      this.tryOpenPendingNode();
+    });
+
     this.dashboardItems$ = combineLatest([
       this.currentUserIdSubject.pipe(filter(uid => !!uid)),
       this.currentCollectionIdSubject,
       this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
-      this.isGlobalSearchSubject
+      this.isGlobalSearchSubject,
+      this.prefs.pins$
     ]).pipe(
       tap(() => this.isLoading = true),
       switchMap(([userId, collectionId, searchTerm, isGlobal]) => {
@@ -190,9 +180,20 @@ export class DashboardComponent implements OnInit {
           collectionsObs = this.firebaseService.getCollections(userId!);
           nodesObs = this.firebaseService.getAllNodes(userId!);
         } else {
-          collectionsObs = collectionId
-            ? this.firebaseService.getSubCollections(userId!, collectionId)
-            : this.firebaseService.getSubCollections(userId!, null);
+          collectionsObs = this.firebaseService.getCollections(userId!).pipe(
+            map(all => {
+              const isRootView = !collectionId || !this.currentCollection?.parentCollectionId;
+              const children = all.filter(item => this.sameParent(item.parentCollectionId, collectionId));
+              if (!isRootView) {
+                return children;
+              }
+              const extras = all.filter(item =>
+                this.sameParent(item.parentCollectionId, null) && item.id && item.id !== collectionId
+              );
+              const seen = new Set(children.map(child => child.id));
+              return [...extras.filter(item => !seen.has(item.id)), ...children];
+            })
+          );
 
           nodesObs = collectionId
             ? this.firebaseService.getNodes(userId!, collectionId)
@@ -206,6 +207,9 @@ export class DashboardComponent implements OnInit {
               ...nodes.map(n => ({ ...n, type: 'node' as const }))
             ];
             return combined.sort((a, b) => {
+              const aPinned = a.type === 'collection' && this.prefs.isPinned(a.id);
+              const bPinned = b.type === 'collection' && this.prefs.isPinned(b.id);
+              if (aPinned !== bPinned) return aPinned ? -1 : 1;
               if (a.type === 'collection' && b.type === 'node') return -1;
               if (a.type === 'node' && b.type === 'collection') return 1;
               return (a.name || '').localeCompare(b.name || '');
@@ -225,7 +229,6 @@ export class DashboardComponent implements OnInit {
                   for (const field of node.customFields) {
                     let searchableFieldValue: string | number | undefined;
 
-                    // Handle Firestore Timestamp objects for fieldValue
                     if (field.fieldValue && typeof field.fieldValue.toDate === 'function') {
                       try {
                         const date = field.fieldValue.toDate();
@@ -256,11 +259,25 @@ export class DashboardComponent implements OnInit {
               }
             });
           }),
-          tap(() => this.isLoading = false),
-          takeUntilDestroyed(this.destroyRef)
+          tap((items) => {
+            this.latestItems = items;
+            this.isLoading = false;
+            this.tryOpenPendingNode();
+          }),
+          catchError((error: unknown) => {
+            this.logger.error('Error loading dashboard items:', error);
+            this.isLoading = false;
+            return of([]);
+          })
         );
-      })
+      }),
+      takeUntilDestroyed(this.destroyRef)
     );
+  }
+
+  private sameParent(value: string | null | undefined, expected: string | null): boolean {
+    const normalized = value == null || value === '' ? null : value;
+    return normalized === expected;
   }
 
   async updateBreadcrumbs(): Promise<void> {
@@ -314,6 +331,13 @@ export class DashboardComponent implements OnInit {
     if (this.isGlobalSearch) {
       this.isGlobalSearchSubject.next(false);
     }
+    const collection = this.latestItems.find(item => item.type === 'collection' && item.id === collectionId);
+    this.prefs.addRecent({
+      id: collectionId,
+      type: 'collection',
+      name: collection?.name || 'Collection',
+      path: `/collections/${collectionId}`
+    });
     this.router.navigate(['/collections', collectionId]);
   }
 
@@ -341,7 +365,7 @@ export class DashboardComponent implements OnInit {
       data: { parentCollectionId: this.currentCollectionId }
     });
 
-    ref.onClose.pipe(take(1)).subscribe((newCollectionData: Collection) => {
+    ref?.onClose.pipe(take(1)).subscribe((newCollectionData: Collection) => {
       if (newCollectionData) {
         const dataToAdd: Omit<Collection, 'id' | 'createdAt' | 'updatedAt'> = {
           name: newCollectionData.name,
@@ -373,7 +397,7 @@ export class DashboardComponent implements OnInit {
       data: { collectionId: this.currentCollectionId }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((newNodeData: Node) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((newNodeData: Node) => {
       if (newNodeData) {
         const dataToAdd: Omit<Node, 'id' | 'createdAt' | 'updatedAt'> = {
           name: newNodeData.name,
@@ -405,7 +429,7 @@ export class DashboardComponent implements OnInit {
       data: { collection, parentCollectionId: collection.parentCollectionId }
     });
 
-    ref.onClose.pipe(take(1)).subscribe((updatedCollectionData: Collection) => {
+    ref?.onClose.pipe(take(1)).subscribe((updatedCollectionData: Collection) => {
       if (updatedCollectionData) {
         const dataToUpdate: Partial<Collection> = {
           name: updatedCollectionData.name,
@@ -435,7 +459,7 @@ export class DashboardComponent implements OnInit {
       data: { node: node, collectionId: this.currentCollectionId }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((updatedNodeData: Node) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((updatedNodeData: Node) => {
       if (updatedNodeData) {
         const dataToUpdate: Partial<Node> = {
           name: updatedNodeData.name,
@@ -450,6 +474,13 @@ export class DashboardComponent implements OnInit {
   }
 
   openViewNodeDialog(node: Node): void {
+    this.prefs.addRecent({
+      id: node.id!,
+      type: 'node',
+      name: node.name,
+      path: `/collections/${node.collectionId}`,
+      collectionId: node.collectionId
+    });
     this.dialogService.open(ViewNodeDialogComponent, {
       header: node.name ?? 'Node Details',
       width: '550px',
@@ -475,9 +506,8 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    ref.onClose.subscribe((success: boolean) => {
+    ref?.onClose.subscribe((success: boolean) => {
       if (success) {
-        // Refresh the current view by re-emitting the current collection ID
         this.currentCollectionIdSubject.next(this.currentCollectionId);
       }
     });
@@ -488,46 +518,50 @@ export class DashboardComponent implements OnInit {
       this.toastService.showInfo('Information', 'Cannot delete items in global search mode. Please navigate to a specific collection or item.');
       return;
     }
-    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-      header: `Confirm Delete ${type === 'collection' ? 'Collection' : 'Node'}`,
-      width: '400px',
-      data: { message: `Are you sure you want to delete this ${type === 'collection' ? 'collection' : 'node'}?` },
-      style: { 'max-width': '90vw' }
-    });
+    const item = this.latestItems.find(entry => entry.id === id && (type === 'collection' ? entry.type === 'collection' : entry.type === 'node'));
+    if (!item || !this.currentUserId) {
+      this.toastService.showError('Error', 'Could not find that item.');
+      return;
+    }
 
-    dialogRef.onClose.pipe(take(1)).subscribe(result => {
-      if (result) {
-        this.isLoading = true;
-        if (type === 'collection') {
-          this.firebaseService.deleteCollection(this.currentUserId!, id).then(() => {
-            this.toastService.showSuccess('Success', 'Collection deleted successfully!');
-          }).catch((error: unknown) => {
-            this.toastService.showError('Error', 'Failed to delete collection.');
-            this.logger.error('Error deleting collection:', error);
-          }).finally(() => {
-            this.isLoading = false;
-          });
-        } else {
-          if (this.currentCollectionId) {
-            this.firebaseService.deleteNode(this.currentUserId!, this.currentCollectionId, id).then(() => {
-              this.toastService.showSuccess('Success', 'Node deleted successfully!');
-            }).catch((error: unknown) => {
-              const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-              this.toastService.showError('Error', `Error deleting node: ${errorMessage}`);
-              this.logger.error('Error deleting node:', error);
-            }).finally(() => {
-              this.isLoading = false;
-            });
-          } else {
-            this.toastService.showError('Error', 'Cannot delete node: current collection ID is missing.');
-            this.isLoading = false;
-          }
-        }
-      }
-    });
+    const snapshot = { ...item };
+    this.isLoading = true;
+    const finish = () => { this.isLoading = false; };
+
+    if (type === 'collection') {
+      const { type: _type, ...collection } = snapshot as Collection & { type: 'collection' };
+      this.firebaseService.deleteCollection(this.currentUserId, id).then(() => {
+        this.prefs.remove(id);
+        this.toastService.showUndo('Collection deleted', 'Tap Undo if that was a mistake.', () => {
+          void this.firebaseService.restoreCollection(this.currentUserId!, collection as Collection);
+        });
+      }).catch((error: unknown) => {
+        this.toastService.showError('Error', 'Failed to delete collection.');
+        this.logger.error('Error deleting collection:', error);
+      }).finally(finish);
+    } else if (this.currentCollectionId) {
+      const { type: _type, ...node } = snapshot as Node & { type: 'node' };
+      this.firebaseService.deleteNode(this.currentUserId, this.currentCollectionId, id).then(() => {
+        this.prefs.remove(id);
+        this.toastService.showUndo('Node deleted', 'Tap Undo if that was a mistake.', () => {
+          void this.firebaseService.restoreNode(this.currentUserId!, this.currentCollectionId!, node as Node);
+        });
+      }).catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        this.toastService.showError('Error', `Error deleting node: ${errorMessage}`);
+        this.logger.error('Error deleting node:', error);
+      }).finally(finish);
+    } else {
+      this.toastService.showError('Error', 'Cannot delete node: current collection ID is missing.');
+      finish();
+    }
   }
 
   toggleSearchMode(newValue: boolean): void {
+    if (this.isGlobalSearch === newValue) {
+      return;
+    }
+    this.isGlobalSearch = newValue;
     this.isGlobalSearchSubject.next(newValue);
 
     if (newValue) {
@@ -546,7 +580,7 @@ export class DashboardComponent implements OnInit {
       style: { 'max-width': '96vw' }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe(async (result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe(async (result: any) => {
       if (!result) return;
       try {
         const user = await lastValueFrom(this.authService.user$.pipe(take(1)));
@@ -586,6 +620,108 @@ export class DashboardComponent implements OnInit {
   }
 
   goToWorkspace(workspace: Workspace): void {
+    this.prefs.addRecent({
+      id: workspace.id!,
+      type: 'workspace',
+      name: workspace.name,
+      path: `/workspaces/${workspace.id}`,
+      workspaceId: workspace.id
+    });
     this.router.navigate(['/workspaces', workspace.id]);
+  }
+
+  setActiveTab(tab: 'personal' | 'workspaces'): void {
+    this.activeTab = tab;
+    if (tab === 'workspaces' && this.isGlobalSearch) {
+      this.isGlobalSearch = false;
+      this.isGlobalSearchSubject.next(false);
+    }
+    this.updateMenuItems();
+  }
+
+  updateMenuItems(): void {
+    if (this.activeTab === 'workspaces') {
+      this.additionalMenuItems = [
+        { label: 'Create workspace', icon: 'users', command: () => this.openCreateWorkspaceDialog() },
+        { label: 'Join with code', icon: 'sign-in', command: () => this.openJoinDialog() }
+      ];
+      return;
+    }
+
+    this.additionalMenuItems = [
+      { label: 'Add collection', icon: 'folder-open', command: () => this.openAddCollectionDialog() },
+      { label: 'Add node', icon: 'link', command: () => this.openAddNodeDialog() },
+      { separator: true },
+      { label: 'Bulk upload', icon: 'upload', command: () => this.openBulkUploadDialog() }
+    ];
+  }
+
+  filteredWorkspaces(workspaces: Workspace[] | null | undefined): Workspace[] {
+    const list = workspaces || [];
+    const query = (this.searchControl.value || '').trim().toLowerCase();
+    if (!query || this.activeTab !== 'workspaces') {
+      return list;
+    }
+    return list.filter(workspace =>
+      workspace.name?.toLowerCase().includes(query) ||
+      workspace.description?.toLowerCase().includes(query) ||
+      workspace.metadata?.category?.toLowerCase().includes(query)
+    );
+  }
+
+  openJoinDialog(): void {
+    this.joinCode = '';
+    this.joinDialogVisible = true;
+  }
+
+  submitJoinCode(): void {
+    const code = this.joinCode.trim();
+    if (!code) {
+      this.toastService.showInfo('Invite code needed', 'Paste the code from your teammate.');
+      return;
+    }
+    this.joinDialogVisible = false;
+    this.router.navigate(['/workspaces/join', code]);
+  }
+
+  openAddMenu(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.addSheetOpen = true;
+  }
+
+  runAddMenuItem(item: MenuItem): void {
+    this.addSheetOpen = false;
+    item.command?.();
+  }
+
+  togglePin(collectionId: string): void {
+    this.prefs.togglePin(collectionId);
+  }
+
+  openRecent(item: RecentItem): void {
+    if (item.type === 'workspace') {
+      this.router.navigate(['/workspaces', item.workspaceId || item.id]);
+      return;
+    }
+    if (item.type === 'collection') {
+      this.router.navigate(['/collections', item.id]);
+      return;
+    }
+    if (item.collectionId) {
+      this.router.navigate(['/collections', item.collectionId], { queryParams: { openNode: item.id } });
+    }
+  }
+
+  private tryOpenPendingNode(): void {
+    if (!this.pendingOpenNode) {
+      return;
+    }
+    const node = this.latestItems.find(item => item.type === 'node' && item.id === this.pendingOpenNode);
+    if (node && node.type === 'node') {
+      this.pendingOpenNode = null;
+      this.router.navigate([], { queryParams: { openNode: null }, queryParamsHandling: 'merge', replaceUrl: true });
+      this.openViewNodeDialog(node);
+    }
   }
 }

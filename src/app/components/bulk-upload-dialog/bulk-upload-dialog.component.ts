@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../ui/dialog';
+import { BtnComponent } from '../../ui/btn.component';
+import { IconComponent } from '../../ui/icon.component';
 import { FirebaseService } from '../../services/firebase.service';
 import { ToastService } from '../../services/toast.service';
 import { LoggerService } from '../../services/logger.service';
@@ -28,17 +28,17 @@ interface BulkNode {
 }
 
 @Component({
-  selector: 'app-bulk-upload-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextarea
-  ],
-  providers: [],
-  templateUrl: './bulk-upload-dialog.component.html',
-  styleUrls: ['./bulk-upload-dialog.component.scss']
+    selector: 'app-bulk-upload-dialog',
+    imports: [
+        CommonModule,
+        FormsModule,
+        BtnComponent,
+        IconComponent
+    ],
+    providers: [],
+    templateUrl: './bulk-upload-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./bulk-upload-dialog.component.scss']
 })
 export class BulkUploadDialogComponent implements OnInit {
   private ref = inject(DynamicDialogRef);

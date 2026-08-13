@@ -1,26 +1,173 @@
-.auth-page-wrapper {
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: calc(1.25rem + env(safe-area-inset-top)) 1rem calc(1.5rem + env(safe-area-inset-bottom));
   background:
-    radial-gradient(ellipse at 15% 60%, rgba(76, 175, 80, 0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 25%, rgba(76, 175, 80, 0.05) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 95%, rgba(76, 175, 80, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse at 10% 0%, rgba(76, 175, 80, 0.16) 0%, transparent 46%),
+    radial-gradient(ellipse at 90% 80%, rgba(76, 175, 80, 0.08) 0%, transparent 42%),
+    var(--dl-bg);
 }
 
-.app-intro {
-  h2 span.text-primary {
-    background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.auth-intro {
+  max-width: 28rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.auth-intro h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.auth-intro p {
+  margin: 0.5rem 0 0;
+  color: var(--dl-text-muted);
+  line-height: 1.5;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  background: var(--dl-card);
+  border: 1px solid var(--dl-border);
+  border-radius: 20px;
+  padding: 1.25rem;
+}
+
+.auth-card h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.auth-sub {
+  margin: 0.25rem 0 1.1rem;
+  color: var(--dl-text-muted);
+  font-size: 0.9rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dl-text-muted);
+}
+
+.field-error {
+  margin: 0.35rem 0 0;
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
+.icon-input {
+  position: relative;
+
+  app-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--dl-text-muted);
+    pointer-events: none;
   }
 
-  p {
-    max-width: 500px;
+  input {
+    padding-left: 2.6rem;
   }
 }
 
-:host ::ng-deep .p-card-register {
+.password-wrap {
+  position: relative;
+
+  input {
+    padding-right: 2.75rem !important;
+  }
+
+  .toggle-visibility {
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    color: var(--dl-text-muted);
+    cursor: pointer;
+  }
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  color: var(--dl-text-muted);
+  font-size: 0.8rem;
+
+  &::before, &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--dl-border);
+  }
+}
+
+.auth-switch {
+  margin: 1rem 0 0;
   text-align: center;
-  backdrop-filter: blur(12px);
-  background: color-mix(in srgb, var(--p-surface-card) 85%, transparent) !important;
-  border: 1px solid rgba(76, 175, 80, 0.12) !important;
+  color: var(--dl-text-muted);
+  font-size: 0.9rem;
+
+  a {
+    color: var(--p-green-400);
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+@media (min-width: 960px) {
+  .auth-page {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    padding: 2.5rem;
+  }
+
+  .auth-intro {
+    margin: 0;
+    max-width: 28rem;
+  }
+
+  .auth-intro h1 {
+    font-size: 2.4rem;
+  }
+
+  .auth-card {
+    margin: 0;
+  }
 }

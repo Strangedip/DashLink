@@ -1,26 +1,21 @@
-import { Component, OnInit, DestroyRef, ViewChild } from '@angular/core';
+import { Component, OnInit, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-import { MenuItem } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { MenuModule, Menu } from 'primeng/menu';
-import { TooltipModule } from 'primeng/tooltip';
-import { DataViewModule } from 'primeng/dataview';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { InputTextModule } from 'primeng/inputtext';
-import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
+import { MenuItem } from '../../../ui/menu-item';
+import { DialogService } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { BreadcrumbComponent } from '../../../ui/breadcrumb.component';
+import { IconComponent } from '../../../ui/icon.component';
 
 import { AuthService } from '../../../services/auth.service';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
 import { LoggerService } from '../../../services/logger.service';
+import { PreferencesService } from '../../../services/preferences.service';
 import { Workspace, WorkspaceNode, WorkspaceCollection, WorkspaceMember } from '../../../models/workspace.model';
 import { CollectionCardComponent } from '../../collection-card/collection-card.component';
 import { WorkspaceNodeCardComponent } from '../workspace-node-card/workspace-node-card.component';
@@ -29,20 +24,17 @@ import { AddCollectionDialogComponent } from '../../add-collection-dialog/add-co
 import { ViewWorkspaceNodeDialogComponent } from '../view-workspace-node-dialog/view-workspace-node-dialog.component';
 import { WorkspaceSettingsDialogComponent } from '../workspace-settings-dialog/workspace-settings-dialog.component';
 import { CreateWorkspaceDialogComponent } from '../create-workspace-dialog/create-workspace-dialog.component';
-import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: 'app-workspace-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule, ReactiveFormsModule, FormsModule,
-    ButtonModule, MenuModule, TooltipModule, DataViewModule,
-    BreadcrumbModule, ProgressSpinnerModule, InputTextModule,
-    AvatarModule, AvatarGroupModule,
-    CollectionCardComponent, WorkspaceNodeCardComponent
-  ],
-  templateUrl: './workspace-dashboard.component.html',
-  styleUrl: './workspace-dashboard.component.scss'
+    selector: 'app-workspace-dashboard',
+    imports: [
+        CommonModule, ReactiveFormsModule, FormsModule,
+        BtnComponent, BreadcrumbComponent, IconComponent,
+        CollectionCardComponent, WorkspaceNodeCardComponent
+    ],
+    templateUrl: './workspace-dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './workspace-dashboard.component.scss'
 })
 export class WorkspaceDashboardComponent implements OnInit {
   private workspaceIdSubject = new BehaviorSubject<string | null>(null);
@@ -60,15 +52,15 @@ export class WorkspaceDashboardComponent implements OnInit {
   isLoading = false;
   showBackButton = false;
 
-  dashboardItems$: Observable<(WorkspaceCollection | WorkspaceNode)[]> | undefined;
+  dashboardItems$: Observable<((WorkspaceCollection & { type: 'collection' }) | (WorkspaceNode & { type: 'workspace-node' }))[]> | undefined;
   searchControl = new FormControl('');
   private _searchFilter = '';
 
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem | undefined;
   additionalMenuItems: MenuItem[] = [];
-
-  @ViewChild('additionalMenu') additionalMenu!: Menu;
+  addSheetOpen = false;
+  private latestItems: ((WorkspaceCollection & { type: 'collection' }) | (WorkspaceNode & { type: 'workspace-node' }))[] = [];
 
   constructor(
     private workspaceService: WorkspaceService,
@@ -78,7 +70,8 @@ export class WorkspaceDashboardComponent implements OnInit {
     private dialogService: DialogService,
     private toastService: ToastService,
     private destroyRef: DestroyRef,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private prefs: PreferencesService
   ) {}
 
   get isOwner(): boolean {
@@ -98,6 +91,8 @@ export class WorkspaceDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.buildMenuItems();
+
     this.authService.user$.pipe(
       filter(user => !!user),
       take(1),
@@ -131,10 +126,19 @@ export class WorkspaceDashboardComponent implements OnInit {
       this.workspace = ws;
       this.buildMenuItems();
       this.home = {
-        icon: 'pi pi-home',
-        command: () => this.router.navigate(['/workspaces', this.workspaceId])
+        icon: 'home',
+        routerLink: ['/workspaces', this.workspaceId!]
       };
       this.updateBreadcrumbs();
+      if (ws?.id) {
+        this.prefs.addRecent({
+          id: ws.id,
+          type: 'workspace',
+          name: ws.name,
+          path: `/workspaces/${ws.id}`,
+          workspaceId: ws.id
+        });
+      }
     });
 
     this.dashboardItems$ = combineLatest([
@@ -176,7 +180,10 @@ export class WorkspaceDashboardComponent implements OnInit {
                 return nameMatch || descMatch;
               });
           }),
-          tap(() => this.isLoading = false)
+          tap((items) => {
+            this.latestItems = items;
+            this.isLoading = false;
+          })
         );
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -185,8 +192,8 @@ export class WorkspaceDashboardComponent implements OnInit {
 
   private buildMenuItems(): void {
     this.additionalMenuItems = [
-      { label: 'Add Node', icon: 'pi pi-file-edit', command: () => this.openAddNodeDialog() },
-      { label: 'Add Collection', icon: 'pi pi-folder-open', command: () => this.openAddCollectionDialog() },
+      { label: 'Add Node', icon: 'file-edit', command: () => this.openAddNodeDialog() },
+      { label: 'Add Collection', icon: 'folder-open', command: () => this.openAddCollectionDialog() },
     ];
   }
 
@@ -203,6 +210,14 @@ export class WorkspaceDashboardComponent implements OnInit {
   }
 
   goToCollection(collectionId: string): void {
+    const collection = this.latestItems.find(item => item.type === 'collection' && item.id === collectionId);
+    this.prefs.addRecent({
+      id: collectionId,
+      type: 'collection',
+      name: collection?.name || 'Collection',
+      path: `/workspaces/${this.workspaceId}/collections/${collectionId}`,
+      workspaceId: this.workspaceId || undefined
+    });
     this.router.navigate(['/workspaces', this.workspaceId, 'collections', collectionId]);
   }
 
@@ -233,7 +248,7 @@ export class WorkspaceDashboardComponent implements OnInit {
       }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((result: any) => {
       if (!result) return;
 
       if (existingNode?.id) {
@@ -275,7 +290,7 @@ export class WorkspaceDashboardComponent implements OnInit {
       data: { parentCollectionId: this.collectionId }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((result: any) => {
       if (!result) return;
       this.workspaceService.addWorkspaceCollection(this.workspaceId!, {
         name: result.name,
@@ -297,7 +312,7 @@ export class WorkspaceDashboardComponent implements OnInit {
       data: { collection, parentCollectionId: collection.parentCollectionId }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((result: any) => {
       if (!result) return;
       this.workspaceService.updateWorkspaceCollection(this.workspaceId!, collection.id!, {
         name: result.name,
@@ -309,6 +324,16 @@ export class WorkspaceDashboardComponent implements OnInit {
   }
 
   openViewNodeDialog(node: WorkspaceNode): void {
+    this.prefs.addRecent({
+      id: node.id!,
+      type: 'node',
+      name: node.name,
+      path: node.collectionId
+        ? `/workspaces/${this.workspaceId}/collections/${node.collectionId}`
+        : `/workspaces/${this.workspaceId}`,
+      collectionId: node.collectionId || undefined,
+      workspaceId: this.workspaceId || undefined
+    });
     this.dialogService.open(ViewWorkspaceNodeDialogComponent, {
       header: node.name ?? 'Node Details',
       width: '550px',
@@ -327,31 +352,45 @@ export class WorkspaceDashboardComponent implements OnInit {
       this.toastService.showError('Permission Denied', 'Only the workspace owner can delete items.');
       return;
     }
+    const item = this.latestItems.find(entry => entry.id === id);
+    if (!item || !this.workspaceId) {
+      this.toastService.showError('Error', 'Could not find that item.');
+      return;
+    }
 
-    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-      header: `Delete ${type === 'collection' ? 'Collection' : 'Node'}`,
-      width: '400px',
-      style: { 'max-width': '90vw' },
-      data: { message: `Are you sure you want to delete this ${type === 'collection' ? 'collection' : 'node'}?` }
-    });
-
-    dialogRef.onClose.pipe(take(1)).subscribe(result => {
-      if (!result) return;
-      this.isLoading = true;
-      if (type === 'collection') {
-        this.workspaceService.deleteWorkspaceCollection(this.workspaceId!, id).then(() => {
-          this.toastService.showSuccess('Deleted', 'Collection deleted.');
-        }).catch(() => this.toastService.showError('Error', 'Failed to delete.')).finally(() => this.isLoading = false);
-      } else {
-        this.workspaceService.deleteWorkspaceNode(this.workspaceId!, this.collectionId, id).then(() => {
-          this.toastService.showSuccess('Deleted', 'Node deleted.');
-        }).catch(() => this.toastService.showError('Error', 'Failed to delete.')).finally(() => this.isLoading = false);
-      }
-    });
+    this.isLoading = true;
+    if (type === 'collection') {
+      const { type: _type, ...collection } = item as WorkspaceCollection & { type: 'collection' };
+      this.workspaceService.deleteWorkspaceCollection(this.workspaceId, id).then(() => {
+        this.prefs.remove(id);
+        this.toastService.showUndo('Collection deleted', 'Tap Undo if that was a mistake.', () => {
+          void this.workspaceService.restoreWorkspaceCollection(this.workspaceId!, collection as WorkspaceCollection);
+        });
+      }).catch(() => this.toastService.showError('Error', 'Failed to delete.')).finally(() => this.isLoading = false);
+    } else {
+      const { type: _type, ...node } = item as WorkspaceNode & { type: 'workspace-node' };
+      this.workspaceService.deleteWorkspaceNode(this.workspaceId, this.collectionId, id).then(() => {
+        this.prefs.remove(id);
+        this.toastService.showUndo('Node deleted', 'Tap Undo if that was a mistake.', () => {
+          void this.workspaceService.restoreWorkspaceNode(this.workspaceId!, this.collectionId, node as WorkspaceNode);
+        });
+      }).catch(() => this.toastService.showError('Error', 'Failed to delete.')).finally(() => this.isLoading = false);
+    }
   }
 
   openOverview(): void {
     this.router.navigate(['/workspaces', this.workspaceId, 'overview']);
+  }
+
+  openAddMenu(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.addSheetOpen = true;
+  }
+
+  runAddMenuItem(item: MenuItem): void {
+    this.addSheetOpen = false;
+    item.command?.();
   }
 
   openSettings(): void {
@@ -362,7 +401,7 @@ export class WorkspaceDashboardComponent implements OnInit {
       data: { workspace: this.workspace, isOwner: this.isOwner }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe((result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe((result: any) => {
       if (result?.action === 'edit') {
         this.openEditWorkspaceDialog();
       } else if (result?.action === 'deleted') {
@@ -379,7 +418,7 @@ export class WorkspaceDashboardComponent implements OnInit {
       data: { workspace: this.workspace }
     });
 
-    dialogRef.onClose.pipe(take(1)).subscribe(async (result: any) => {
+    dialogRef?.onClose.pipe(take(1)).subscribe(async (result: any) => {
       if (!result) return;
       try {
         const oldSchema = this.workspace?.schema || [];

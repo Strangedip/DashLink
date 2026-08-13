@@ -1,13 +1,12 @@
 .node-card {
-  background: var(--p-surface-900);
-  border: 1px solid var(--p-surface-border);
-  border-radius: 10px;
+  background: var(--dl-card);
+  border: 1px solid var(--dl-border);
+  border-radius: var(--dl-radius-sm);
   padding: 0;
   width: 100%;
   box-sizing: border-box;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
 
@@ -20,48 +19,42 @@
     height: 100%;
     background: var(--p-green-500);
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.2s ease;
   }
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.12);
-    border-color: rgba(76, 175, 80, 0.3);
-    background: linear-gradient(135deg, var(--p-surface-900) 0%, rgba(76, 175, 80, 0.04) 100%);
+  &:active { transform: scale(0.995); }
 
-    &::before { opacity: 1; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.12);
+      border-color: rgba(76, 175, 80, 0.35);
+      background: linear-gradient(135deg, var(--dl-card) 0%, rgba(76, 175, 80, 0.06) 100%);
 
-    .node-icon-wrapper {
-      background: rgba(76, 175, 80, 0.18);
-      border-color: var(--p-green-500);
+      &::before { opacity: 1; }
+      .node-icon-wrapper {
+        background: rgba(76, 175, 80, 0.18);
+        border-color: var(--p-green-500);
+      }
+      .node-icon { color: var(--p-green-400); }
     }
-
-    .node-image-thumbnail {
-      border-color: var(--p-green-500);
-      box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
-    }
-
-    .node-icon { color: var(--p-green-400); transform: scale(1.1) rotate(-5deg); }
-    .action-button { opacity: 1; }
   }
-
-  &:active { transform: translateY(0); }
 }
 
 .node-card-content {
   display: flex;
   align-items: center;
-  padding: 0.625rem 0.75rem;
-  gap: 0.75rem;
+  padding: 1rem 1rem 1rem 1.05rem;
+  gap: 1rem;
+  min-height: 76px;
 }
 
 .node-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   background: rgba(76, 175, 80, 0.1);
   border: 2px solid transparent;
   border-radius: 9px;
@@ -69,9 +62,9 @@
 }
 
 .node-image-thumbnail {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   flex-shrink: 0;
   border-radius: 9px;
   overflow: hidden;
@@ -110,16 +103,14 @@
 }
 
 .node-title {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.98rem;
+  font-weight: 600;
   color: var(--p-text-color);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
-
-  @media screen and (max-width: 576px) { font-size: 0.85rem; }
 }
 
 .node-description {
@@ -139,12 +130,14 @@
 .node-actions {
   display: flex;
   align-items: center;
+  gap: 0.15rem;
   flex-shrink: 0;
 
   .action-button {
-    opacity: 0.5;
-    transition: opacity 0.25s ease;
-    &:hover { opacity: 1; background: rgba(76, 175, 80, 0.1) !important; }
+    opacity: 1;
+    width: var(--dl-touch);
+    height: var(--dl-touch);
+    &:hover { background: rgba(76, 175, 80, 0.1) !important; }
   }
 
   .p-menu { z-index: 1001; }

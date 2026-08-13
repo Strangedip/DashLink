@@ -2,19 +2,19 @@
   <div [formGroup]="collectionForm">
     <div class="p-field">
       <label for="name">Collection Name</label>
-      <input id="name" type="text" pInputText formControlName="name" placeholder="Collection Name" required>
+      <input id="name" type="text" class="dl-input" formControlName="name" placeholder="Collection Name" required>
       @if (collectionForm.get('name')?.invalid && collectionForm.get('name')?.touched) {
-        <p-message severity="error" text="Collection Name is required."></p-message>
+        <p class="dl-field-error">Collection Name is required.</p>
       }
     </div>
 
     <div class="p-field">
       <label for="description">Description</label>
-      <textarea class="inputtext" id="description" placeholder="Description (Optional)" pTextarea formControlName="description"></textarea>
+      <textarea class="dl-textarea w-full" id="description" placeholder="Description (Optional)" formControlName="description"></textarea>
     </div>
   </div>
   <div class="p-dialog-footer">
-    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
-    <p-button label="Add" icon="pi pi-check" (click)="onSubmit()" [disabled]="!collectionForm.valid"></p-button>
+    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
+    <app-btn label="Add" icon="check" (click)="onSubmit()" [disabled]="!collectionForm.valid"></app-btn>
   </div>
 </div>

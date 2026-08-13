@@ -2,61 +2,64 @@
   <div [formGroup]="nodeForm">
     <div class="p-field">
       <label for="name">Node Name</label>
-      <input id="name" type="text" pInputText formControlName="name" placeholder="Node Name" required>
+      <input id="name" type="text" class="dl-input" formControlName="name" placeholder="Node Name" required>
       @if (nodeForm.get('name')?.invalid && nodeForm.get('name')?.touched) {
-        <p-message severity="error" text="Node Name is required."></p-message>
+        <p class="dl-field-error">Node Name is required.</p>
       }
     </div>
 
     <div class="p-field">
       <label for="description">Description</label>
       <textarea 
-        pTextarea
         id="description" 
         formControlName="description" 
         placeholder="Description (Optional)"
         rows="3"
-        class="w-full">
+        class="dl-textarea w-full">
       </textarea>
     </div>
 
     <h3>Custom Fields</h3>
     <div formArrayName="customFields">
-      @for (field of customFields.controls; track i; let i = $index) {
+      @for (field of customFields.controls; track $index; let i = $index) {
         <div [formGroupName]="i" class="custom-field-item">
           <div class="p-field">
             <label [for]="'fieldType' + i">Field Type</label>
-            <p-select [attr.id]="'fieldType' + i" [options]="fieldTypes" optionLabel="name" optionValue="code" formControlName="fieldType" placeholder="Select a Type" required appendTo="body"></p-select>
+            <select class="dl-select" [id]="'fieldType' + i" formControlName="fieldType" required>
+              <option value="" disabled>Select a Type</option>
+              @for (t of fieldTypes; track t.code) {
+                <option [value]="t.code">{{ t.name }}</option>
+              }
+            </select>
             @if (field.get('fieldType')?.invalid && field.get('fieldType')?.touched) {
-              <p-message severity="error" text="Field Type is required."></p-message>
+              <p class="dl-field-error">Field Type is required.</p>
             }
           </div>
           <div class="p-field">
             <label [for]="'fieldName' + i">Field Name</label>
-            <input [id]="'fieldName' + i" type="text" pInputText formControlName="fieldName" placeholder="Field Name" required>
+            <input [id]="'fieldName' + i" type="text" class="dl-input" formControlName="fieldName" placeholder="Field Name" required>
             @if (field.get('fieldName')?.invalid && field.get('fieldName')?.touched) {
-              <p-message severity="error" text="Field Name is required."></p-message>
+              <p class="dl-field-error">Field Name is required.</p>
             }
           </div>
           <div class="p-field">
             <label [for]="'fieldValue' + i">Field Value</label>
             @switch (field.get('fieldType')?.value) {
               @case ('text') {
-                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter text value">
+                <input [id]="'fieldValue' + i" type="text" class="dl-input" formControlName="fieldValue" placeholder="Enter text value">
               }
               @case ('url') {
-                <input [id]="'fieldValue' + i" type="url" pInputText formControlName="fieldValue" placeholder="Enter URL (e.g., https://example.com)" />
+                <input [id]="'fieldValue' + i" type="url" class="dl-input" formControlName="fieldValue" placeholder="Enter URL (e.g., https://example.com)" />
               }
               @case ('number') {
-                <p-inputNumber [id]="'fieldValue' + i" formControlName="fieldValue" placeholder="Enter number"></p-inputNumber>
+                <input type="number" class="dl-input" [id]="'fieldValue' + i" formControlName="fieldValue" placeholder="Enter number">
               }
               @case ('date') {
-                <p-calendar [attr.id]="'fieldValue' + i" formControlName="fieldValue" dateFormat="mm/dd/yy" placeholder="Select date" appendTo="body"></p-calendar>
+                <app-date-field [inputId]="'fieldValue' + i" formControlName="fieldValue"></app-date-field>
               }
               @case ('imageUrl') {
                 <div class="image-upload-field">
                   @if (field.get('fieldValue')?.value) {
-                    <!-- Image Preview -->
                     <div class="image-preview-wrapper">
                       <img
                         [src]="field.get('fieldValue')?.value"
@@ -67,47 +70,32 @@
                         (error)="$any($event.target).style.display='none'"
                       />
                       <div class="preview-overlay"></div>
-                      <button
-                        type="button"
-                        pButton
-                        icon="pi pi-times"
-                        class="p-button-danger p-button-rounded p-button-sm remove-image-btn"
-                        (click)="clearImage(i)"
-                        pTooltip="Remove image"
-                        tooltipPosition="top">
-                      </button>
+                      <app-btn type="button" icon="times" class="remove-image-btn" (click)="clearImage(i)" title="Remove image" variant="danger" [rounded]="true" size="sm">
+                      </app-btn>
                     </div>
                   }
               
-                  <!-- Upload/Change Button -->
-                  <button
-                    type="button"
-                    pButton
-                    [icon]="uploadingFieldIndex === i ? 'pi pi-spin pi-spinner' : (field.get('fieldValue')?.value ? 'pi pi-refresh' : 'pi pi-upload')"
-                    [label]="uploadingFieldIndex === i ? 'Uploading...' : (field.get('fieldValue')?.value ? 'Change Image' : 'Upload Image')"
-                    class="p-button-outlined p-button-sm"
-                    [style]="{'width': '100%'}"
-                    (click)="openImageUpload(i)"
-                    [disabled]="uploadingFieldIndex === i">
-                  </button>
+                  
+                  <app-btn type="button" [icon]="field.get('fieldValue')?.value ? 'refresh' : 'upload'" [label]="uploadingFieldIndex === i ? 'Uploading...' : (field.get('fieldValue')?.value ? 'Change Image' : 'Upload Image')" [block]="true" (click)="openImageUpload(i)" [disabled]="uploadingFieldIndex === i" [loading]="uploadingFieldIndex === i" variant="outline" size="sm">
+                  </app-btn>
                 </div>
               }
               @default {
-                <input [id]="'fieldValue' + i" type="text" pInputText formControlName="fieldValue" placeholder="Enter value">
+                <input [id]="'fieldValue' + i" type="text" class="dl-input" formControlName="fieldValue" placeholder="Enter value">
               }
             }
           </div>
           <div class="remove-field-button-container">
-            <button type="button" pButton icon="pi pi-minus" class="p-button-danger p-button-sm p-button-rounded" (click)="removeCustomField(i)"></button>
+            <app-btn type="button" icon="minus" (click)="removeCustomField(i)" variant="danger" size="sm" [rounded]="true"></app-btn>
           </div>
         </div>
       }
     </div>
-    <button type="button" pButton icon="pi pi-plus" label="Add Custom Field" (click)="addCustomField()" class="p-button-text p-button-sm"></button>
+    <app-btn type="button" icon="plus" label="Add Custom Field" (click)="addCustomField()" variant="ghost" size="sm"></app-btn>
 
   </div>
   <div class="p-dialog-footer">
-    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
-    <p-button label="Save" icon="pi pi-check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></p-button>
+    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
+    <app-btn label="Save" icon="check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></app-btn>
   </div>
 </div>

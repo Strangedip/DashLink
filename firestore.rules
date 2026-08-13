@@ -1,57 +1,82 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to user's root document (if any)
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function workspaceDoc(workspaceId) {
+      return get(/databases/$(database)/documents/workspaces/$(workspaceId)).data;
+    }
+
+    function isWorkspaceMember(workspaceId) {
+      return signedIn() && request.auth.uid in workspaceDoc(workspaceId).memberIds;
+    }
+
+    function isWorkspaceOwner(workspaceId) {
+      return signedIn() && workspaceDoc(workspaceId).ownerId == request.auth.uid;
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if signedIn() && request.auth.uid == userId;
 
-      // Allow read/write access to nodes directly under a user
       match /nodes/{nodeId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if signedIn() && request.auth.uid == userId;
       }
     }
 
-    // Allow read/write access to collections belonging to a user
     match /users/{userId}/collections/{collectionId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if signedIn() && request.auth.uid == userId;
 
-      // Allow read/write access to nodes within a collection
       match /nodes/{nodeId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if signedIn() && request.auth.uid == userId;
       }
     }
 
-    // Workspace documents - any authenticated user can read/create/update
-    // Owner-only delete. App-level code enforces granular permissions.
     match /workspaces/{workspaceId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow read: if isWorkspaceMember(workspaceId);
 
-      // Workspace sub-collections and nodes - authenticated users can read/write
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.auth.uid in request.resource.data.memberIds;
+
+      allow delete: if isWorkspaceOwner(workspaceId);
+
+      allow update: if signedIn() && (
+        request.auth.uid in resource.data.memberIds
+        || (
+          !(request.auth.uid in resource.data.memberIds)
+          && request.auth.uid in request.resource.data.memberIds
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds', 'members', 'updatedAt'])
+          && exists(/databases/$(database)/documents/workspace_invites/$(resource.data.inviteCode))
+          && get(/databases/$(database)/documents/workspace_invites/$(resource.data.inviteCode)).data.active == true
+          && get(/databases/$(database)/documents/workspace_invites/$(resource.data.inviteCode)).data.workspaceId == workspaceId
+        )
+      );
+
       match /collections/{collectionId} {
-        allow read, write: if request.auth != null;
-        
+        allow read, write: if isWorkspaceMember(workspaceId);
+
         match /nodes/{nodeId} {
-          allow read, write: if request.auth != null;
+          allow read, write: if isWorkspaceMember(workspaceId);
         }
       }
 
       match /nodes/{nodeId} {
-        allow read, write: if request.auth != null;
+        allow read, write: if isWorkspaceMember(workspaceId);
       }
     }
 
-    // Invite lookup documents - readable/writable by any authenticated user
     match /workspace_invites/{inviteCode} {
-      allow read, create, update, delete: if request.auth != null;
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn()
+        && exists(/databases/$(database)/documents/workspaces/$(resource.data.workspaceId))
+        && isWorkspaceOwner(resource.data.workspaceId);
     }
 
-    // AI analysis usage tracking - each user can only read/write their own doc
-    // Document ID format: {userId}_{workspaceId}
     match /aiAnalysisUsage/{docId} {
-      allow read, write: if request.auth != null && docId.matches(request.auth.uid + '_.*');
+      allow read, write: if signedIn() && docId.matches(request.auth.uid + '_.*');
     }
   }
 }

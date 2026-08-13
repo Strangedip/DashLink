@@ -173,4 +173,55 @@ export class CloudinaryService {
       `/upload/w_${maxWidth},c_limit,q_auto,f_auto/`
     );
   }
+
+  ensureWidget(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return Promise.reject(new Error('Cloudinary widget is browser-only'));
+    }
+    if (window.cloudinary?.createUploadWidget) {
+      return Promise.resolve();
+    }
+    if (!this.widgetReady) {
+      this.widgetReady = new Promise<void>((resolve, reject) => {
+        const existing = document.querySelector<HTMLScriptElement>('script[data-cloudinary-widget]');
+        const onReady = () => {
+          if (window.cloudinary?.createUploadWidget) {
+            resolve();
+          } else {
+            this.widgetReady = null;
+            reject(new Error('Cloudinary widget failed to load'));
+          }
+        };
+        if (existing) {
+          existing.addEventListener('load', onReady);
+          existing.addEventListener('error', () => {
+            this.widgetReady = null;
+            reject(new Error('Cloudinary widget failed to load'));
+          });
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://upload-widget.cloudinary.com/global/all.js';
+        script.async = true;
+        script.dataset['cloudinaryWidget'] = 'true';
+        script.onload = onReady;
+        script.onerror = () => {
+          this.widgetReady = null;
+          reject(new Error('Cloudinary widget failed to load'));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    return this.widgetReady;
+  }
+
+  private widgetReady: Promise<void> | null = null;
+}
+
+declare global {
+  interface Window {
+    cloudinary?: {
+      createUploadWidget: (...args: any[]) => { open: () => void; close: () => void };
+    };
+  }
 }

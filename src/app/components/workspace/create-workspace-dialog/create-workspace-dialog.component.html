@@ -1,5 +1,5 @@
 <div class="dialog-container">
-  <!-- Step Indicators -->
+  
   <div class="step-indicators">
     <div class="step-dot" [class.active]="activeStep === 0" [class.done]="activeStep > 0" (click)="activeStep = 0">
       <span>1</span>
@@ -19,64 +19,64 @@
     <span [class.active]="activeStep === 2">Schema</span>
   </div>
 
-  <!-- Step 1: Basic Info -->
+  
   @if (activeStep === 0) {
     <div class="step-content" [formGroup]="basicForm">
       <div class="p-field">
         <label for="ws-name">Workspace Name <span class="required">*</span></label>
-        <input id="ws-name" type="text" pInputText formControlName="name" placeholder="e.g. Gym Challenge 2026" maxlength="50">
+        <input id="ws-name" type="text" class="dl-input" formControlName="name" placeholder="e.g. Gym Challenge 2026" maxlength="50">
         @if (basicForm.get('name')?.invalid && basicForm.get('name')?.touched) {
-          <p-message severity="error" text="Workspace name is required."></p-message>
+        <p class="dl-field-error">Workspace name is required.</p>
         }
       </div>
       <div class="p-field">
         <label for="ws-desc">Description</label>
-        <textarea pTextarea id="ws-desc" formControlName="description" placeholder="Brief description of this workspace..." rows="3" maxlength="200" class="w-full"></textarea>
+        <textarea class="dl-textarea" id="ws-desc" formControlName="description" placeholder="Brief description of this workspace..." rows="3" maxlength="200"></textarea>
         <small class="char-count">{{ (basicForm.get('description')?.value || '').length }}/200</small>
       </div>
       <div class="p-field">
         <label for="ws-limit">Member Limit <span class="required">*</span></label>
-        <p-inputNumber id="ws-limit" formControlName="memberLimit" [min]="2" [max]="32" [showButtons]="true" placeholder="Max members"></p-inputNumber>
+        <input id="ws-limit" type="number" class="dl-input" formControlName="memberLimit" min="2" max="32" placeholder="Max members">
         <small class="field-hint">Maximum 32 members per workspace</small>
       </div>
       <div class="p-field">
         <label for="ws-ai-key">
           Google Gemini API Key
-          <i class="pi pi-info-circle" pTooltip="Optional: Add your Gemini API key to enable AI workspace analysis. Get a free key at https://makersuite.google.com/app/apikey" tooltipPosition="top"></i>
+          <app-icon name="info-circle" title="Optional: Add your Gemini API key to enable AI workspace analysis. Get a free key at https://makersuite.google.com/app/apikey"></app-icon>
         </label>
-        <input id="ws-ai-key" type="password" pInputText formControlName="aiApiKey" placeholder="AIzaSy... (optional)">
+        <input id="ws-ai-key" type="password" class="dl-input" formControlName="aiApiKey" placeholder="AIzaSy... (optional)">
         <small class="field-hint">Required only for AI Analysis feature (10 free analyses/day per user)</small>
       </div>
     </div>
   }
 
-  <!-- Step 2: Metadata -->
+  
   @if (activeStep === 1) {
     <div class="step-content" [formGroup]="metadataForm">
       <div class="p-field">
         <label for="ws-goal">Goal <span class="required">*</span></label>
-        <textarea pTextarea id="ws-goal" formControlName="goal" placeholder="What is this workspace's objective?" rows="2" class="w-full"></textarea>
+        <textarea class="dl-textarea" id="ws-goal" formControlName="goal" placeholder="What is this workspace's objective?" rows="2"></textarea>
         @if (metadataForm.get('goal')?.invalid && metadataForm.get('goal')?.touched) {
-          <p-message severity="error" text="Goal is required."></p-message>
+        <p class="dl-field-error">Goal is required.</p>
         }
       </div>
       <div class="p-field">
         <label for="ws-rules">Rules</label>
-        <textarea pTextarea id="ws-rules" formControlName="rules" placeholder="Workspace rules and guidelines..." rows="2" class="w-full"></textarea>
+        <textarea class="dl-textarea" id="ws-rules" formControlName="rules" placeholder="Workspace rules and guidelines..." rows="2"></textarea>
       </div>
       <div class="field-row">
         <div class="p-field flex-1">
           <label for="ws-duration">Duration</label>
-          <input id="ws-duration" type="text" pInputText formControlName="duration" placeholder="e.g. 30 days">
+          <input id="ws-duration" type="text" class="dl-input" formControlName="duration" placeholder="e.g. 30 days">
         </div>
         <div class="p-field flex-1">
           <label for="ws-penalty">Penalty</label>
-          <input id="ws-penalty" type="text" pInputText formControlName="penalty" placeholder="e.g. 500 INR">
+          <input id="ws-penalty" type="text" class="dl-input" formControlName="penalty" placeholder="e.g. 500 INR">
         </div>
       </div>
       <div class="p-field">
         <label for="ws-category">Category</label>
-        <input id="ws-category" type="text" pInputText formControlName="category" placeholder="e.g. Fitness, Study, Work">
+        <input id="ws-category" type="text" class="dl-input" formControlName="category" placeholder="e.g. Fitness, Study, Work">
       </div>
       <div class="p-field">
         <label>Tags</label>
@@ -85,34 +85,34 @@
             @for (tag of tags; track tag; let i = $index) {
               <span class="tag-chip">
                 {{ tag }}
-                <i class="pi pi-times tag-remove" (click)="removeTag(i)"></i>
+                <app-icon name="times" class="tag-remove" (click)="removeTag(i)"></app-icon>
               </span>
             }
           </div>
           @if (tags.length < 10) {
-            <input type="text" pInputText [(ngModel)]="tagInput" [ngModelOptions]="{standalone: true}" (keydown)="onTagKeydown($event)"
-              placeholder="Type and press Enter..." class="tag-input">
+            <input type="text" class="dl-input tag-input" [(ngModel)]="tagInput" [ngModelOptions]="{standalone: true}" (keydown)="onTagKeydown($event)"
+              placeholder="Type and press Enter...">
           }
         </div>
       </div>
     </div>
   }
 
-  <!-- Step 3: Schema -->
+  
   @if (activeStep === 2) {
     <div class="step-content">
       <div class="schema-toggle">
         <label>Use Custom Schema</label>
-        <p-toggleswitch [(ngModel)]="useCustomSchema" [ngModelOptions]="{standalone: true}"></p-toggleswitch>
+        <app-toggle [(ngModel)]="useCustomSchema" [ngModelOptions]="{standalone: true}"></app-toggle>
       </div>
       @if (!useCustomSchema) {
         <div class="schema-info-box">
-          <i class="pi pi-info-circle"></i>
+          <app-icon name="info-circle"></app-icon>
           <p>Members will use free-form node creation with custom fields, similar to your personal collections.</p>
         </div>
       } @else {
         <div class="schema-info-box">
-          <i class="pi pi-info-circle"></i>
+          <app-icon name="info-circle"></app-icon>
           <p>Define the fields that members must fill when creating a node in this workspace.</p>
         </div>
 
@@ -122,32 +122,36 @@
               <div class="field-header">
                 <span class="field-order">#{{ i + 1 }}</span>
                 <div class="field-header-actions">
-                  <button type="button" pButton icon="pi pi-arrow-up" class="p-button-text p-button-sm p-button-rounded" (click)="moveFieldUp(i)" [disabled]="i === 0" pTooltip="Move Up"></button>
-                  <button type="button" pButton icon="pi pi-arrow-down" class="p-button-text p-button-sm p-button-rounded" (click)="moveFieldDown(i)" [disabled]="i === schemaFieldControls.length - 1" pTooltip="Move Down"></button>
-                  <button type="button" pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-rounded p-button-danger" (click)="removeSchemaField(i)" pTooltip="Remove"></button>
+                  <app-btn type="button" icon="arrow-up" (click)="moveFieldUp(i)" [disabled]="i === 0" title="Move Up" variant="ghost" size="sm" [rounded]="true"></app-btn>
+                  <app-btn type="button" icon="arrow-down" (click)="moveFieldDown(i)" [disabled]="i === schemaFieldControls.length - 1" title="Move Down" variant="ghost" size="sm" [rounded]="true"></app-btn>
+                  <app-btn type="button" icon="trash" (click)="removeSchemaField(i)" title="Remove" variant="ghost-danger" size="sm" [rounded]="true"></app-btn>
                 </div>
               </div>
               <div class="field-body">
                 <div class="field-row">
                   <div class="p-field flex-1">
                     <label [for]="'sf-name-' + i">Field Name <span class="required">*</span></label>
-                    <input [id]="'sf-name-' + i" type="text" pInputText formControlName="fieldName" placeholder="e.g. Workout Photo">
+                    <input [id]="'sf-name-' + i" type="text" class="dl-input" formControlName="fieldName" placeholder="e.g. Workout Photo">
                   </div>
                   <div class="p-field flex-1">
                     <label [for]="'sf-type-' + i">Field Type <span class="required">*</span></label>
-                    <p-select [attr.id]="'sf-type-' + i" [options]="fieldTypes" optionLabel="name" optionValue="code" formControlName="fieldType" placeholder="Select Type" appendTo="body"></p-select>
+                    <select class="dl-select" [id]="'sf-type-' + i" formControlName="fieldType">
+                      <option [ngValue]="null" disabled>Select Type</option>
+                      @for (ft of fieldTypes; track ft.code) {
+                        <option [ngValue]="ft.code">{{ ft.name }}</option>
+                      }
+                    </select>
                   </div>
                 </div>
                 <div class="field-row">
                   <div class="p-field mandatory-check">
-                    <p-checkbox formControlName="mandatory" [binary]="true" inputId="'sf-mand-' + i"></p-checkbox>
-                    <label [for]="'sf-mand-' + i" class="mandatory-label">Mandatory field</label>
+                    <app-check formControlName="mandatory" [inputId]="'sf-mand-' + i">Mandatory field</app-check>
                   </div>
                 </div>
                 @if (field.get('fieldType')?.value === 'dropdown') {
                   <div class="p-field">
                     <label [for]="'sf-opts-' + i">Options (comma-separated)</label>
-                    <input [id]="'sf-opts-' + i" type="text" pInputText formControlName="options" placeholder="e.g. Option A, Option B, Option C">
+                    <input [id]="'sf-opts-' + i" type="text" class="dl-input" formControlName="options" placeholder="e.g. Option A, Option B, Option C">
                   </div>
                 }
               </div>
@@ -155,24 +159,22 @@
           }
         </div>
 
-        <button type="button" pButton icon="pi pi-plus" label="Add Field" (click)="addSchemaField()" class="p-button-text p-button-sm add-field-btn"></button>
+        <app-btn type="button" icon="plus" label="Add Field" (click)="addSchemaField()" class="add-field-btn" variant="ghost" size="sm"></app-btn>
       }
     </div>
   }
 
-  <!-- Footer Navigation -->
+  
   <div class="p-dialog-footer">
-    <p-button label="Cancel" icon="pi pi-times" (click)="onCancel()" styleClass="p-button-text"></p-button>
+    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
     @if (activeStep > 0) {
-      <p-button label="Back" icon="pi pi-arrow-left" (click)="prevStep()" styleClass="p-button-text"></p-button>
+      <app-btn label="Back" icon="arrow-left" (click)="prevStep()" variant="ghost"></app-btn>
     }
     <div class="footer-spacer"></div>
     @if (activeStep < 2) {
-      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (click)="nextStep()"
-        [disabled]="(activeStep === 0 && !isBasicValid()) || (activeStep === 1 && !isMetadataValid())"></p-button>
+      <app-btn label="Next" icon="arrow-right" iconPos="right" (click)="nextStep()" [disabled]="(activeStep === 0 && !isBasicValid()) || (activeStep === 1 && !isMetadataValid())"></app-btn>
     } @else {
-      <p-button [label]="isEditMode ? 'Update' : 'Create'" icon="pi pi-check" (click)="onSubmit()"
-        [disabled]="!isBasicValid() || !isMetadataValid() || !isSchemaValid()"></p-button>
+      <app-btn [label]="isEditMode ? 'Update' : 'Create'" icon="check" (click)="onSubmit()" [disabled]="!isBasicValid() || !isMetadataValid() || !isSchemaValid()"></app-btn>
     }
   </div>
 </div>

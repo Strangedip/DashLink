@@ -1,15 +1,14 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { IconComponent } from '../../../ui/icon.component';
 import { Workspace } from '../../../models/workspace.model';
 
 @Component({
-  selector: 'app-workspace-card',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, TooltipModule],
-  templateUrl: './workspace-card.component.html',
-  styleUrl: './workspace-card.component.scss'
+    selector: 'app-workspace-card',
+    imports: [CommonModule, IconComponent],
+    templateUrl: './workspace-card.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './workspace-card.component.scss'
 })
 export class WorkspaceCardComponent {
   @Input() workspace!: Workspace;

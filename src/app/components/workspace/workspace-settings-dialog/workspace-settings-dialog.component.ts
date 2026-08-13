@@ -1,26 +1,22 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { AvatarModule } from 'primeng/avatar';
-import { TooltipModule } from 'primeng/tooltip';
-import { TabsModule } from 'primeng/tabs';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../../ui/dialog';
+import { BtnComponent } from '../../../ui/btn.component';
+import { AvatarComponent } from '../../../ui/avatar.component';
+import { IconComponent } from '../../../ui/icon.component';
 import { Workspace, WorkspaceMember } from '../../../models/workspace.model';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
-  selector: 'app-workspace-settings-dialog',
-  standalone: true,
-  imports: [
-    CommonModule, FormsModule, ButtonModule, InputTextModule,
-    InputNumberModule, AvatarModule, TooltipModule, TabsModule
-  ],
-  templateUrl: './workspace-settings-dialog.component.html',
-  styleUrl: './workspace-settings-dialog.component.scss'
+    selector: 'app-workspace-settings-dialog',
+    imports: [
+        CommonModule, FormsModule, BtnComponent, AvatarComponent, IconComponent
+    ],
+    templateUrl: './workspace-settings-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './workspace-settings-dialog.component.scss'
 })
 export class WorkspaceSettingsDialogComponent implements OnInit {
   workspace!: Workspace;
@@ -77,9 +73,7 @@ export class WorkspaceSettingsDialogComponent implements OnInit {
   async regenerateInvite(): Promise<void> {
     if (!this.isOwner) return;
     try {
-      const newCode = await this.workspaceService.regenerateInviteCode(
-        this.workspace.id!, this.workspace.name, this.workspace.ownerName, this.workspace.inviteCode
-      );
+      const newCode = await this.workspaceService.regenerateInviteCode(this.workspace, this.workspace.inviteCode);
       this.workspace.inviteCode = newCode;
       this.buildInviteLink();
       this.toastService.showSuccess('Regenerated', 'New invite link generated.');

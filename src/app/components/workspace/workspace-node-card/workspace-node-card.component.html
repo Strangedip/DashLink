@@ -7,7 +7,7 @@
         </div>
       } @else {
         <div class="node-icon-wrapper">
-          <i class="pi pi-file-edit node-icon"></i>
+          <app-icon name="file-edit" class="node-icon"></app-icon>
         </div>
       }
       <div class="node-info">
@@ -18,16 +18,14 @@
         <div class="node-meta">
           <div class="creator-info">
             @if (node.creatorPhotoURL) {
-              <p-avatar [image]="node.creatorPhotoURL" shape="circle"
-                [style]="{ width: '20px', height: '20px' }"></p-avatar>
+              <app-avatar [image]="node.creatorPhotoURL" [size]="20"></app-avatar>
             } @else {
-              <p-avatar [label]="creatorInitial" shape="circle"
-                [style]="{ width: '20px', height: '20px', 'font-size': '0.65rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+              <app-avatar [label]="creatorInitial" [size]="20"></app-avatar>
             }
             <span class="creator-name">{{ node.creatorName }}</span>
           </div>
           <span class="date-info">
-            <i class="pi pi-calendar"></i>
+            <app-icon name="calendar"></app-icon>
             {{ createdDate }}
           </span>
         </div>
@@ -35,12 +33,15 @@
     </div>
     @if (hasActions) {
       <div class="node-actions" (click)="$event.stopPropagation()">
-        <button type="button" pButton icon="pi pi-ellipsis-v"
-          (click)="onMenuToggle($event)"
-          class="p-button-text p-button-rounded p-button-secondary action-button"
-          pTooltip="Options" tooltipPosition="left">
-        </button>
-        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
+        @if (primaryUrl) {
+          <app-btn type="button" icon="external-link" (click)="openLink($event)" class="action-button card-quick" title="Open link" variant="ghost" [rounded]="true"></app-btn>
+          <app-btn type="button" icon="share-alt" (click)="shareLink($event)" class="action-button card-quick" title="Share" variant="ghost" [rounded]="true"></app-btn>
+        }
+        @if (menuItems.length) {
+          <app-btn type="button" icon="ellipsis-v" (click)="onMenuToggle($event)" class="action-button" title="Options" variant="ghost" [rounded]="true">
+          </app-btn>
+          <app-menu #menu [items]="menuItems"></app-menu>
+        }
       </div>
     }
   </div>

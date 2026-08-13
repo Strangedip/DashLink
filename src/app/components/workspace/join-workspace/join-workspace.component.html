@@ -1,59 +1,59 @@
 <div class="join-workspace-container">
   @if (isLoading) {
     <div class="loading-state">
-      <p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <app-icon name="spinner" class="text-3xl text-dl-accent"></app-icon>
       <p>Loading workspace details...</p>
     </div>
   } @else if (error) {
     <div class="error-state">
-      <i class="pi pi-exclamation-circle"></i>
+      <app-icon name="exclamation-circle"></app-icon>
       <h2>Oops!</h2>
       <p>{{ error }}</p>
-      <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-sm"></button>
+      <app-btn label="Go to Dashboard" icon="home" (click)="goToDashboard()"></app-btn>
     </div>
-  } @else if (workspace) {
+  } @else if (invite || workspace) {
     <div class="join-card">
       <div class="join-card-header">
         <div class="workspace-icon-large">
-          <i class="pi pi-users"></i>
+          <app-icon name="users"></app-icon>
         </div>
-        <h2>{{ workspace.name }}</h2>
-        @if (workspace.description) {
-          <p class="workspace-desc">{{ workspace.description }}</p>
+        <h2>{{ previewName }}</h2>
+        @if (previewDescription) {
+          <p class="workspace-desc">{{ previewDescription }}</p>
         }
       </div>
 
       <div class="join-card-details">
-        @if (workspace.metadata.goal) {
+        @if (previewGoal) {
           <div class="detail-item">
-            <i class="pi pi-bullseye"></i>
+            <app-icon name="bullseye"></app-icon>
             <div>
               <span class="detail-label">Goal</span>
-              <span class="detail-value">{{ workspace.metadata.goal }}</span>
+              <span class="detail-value">{{ previewGoal }}</span>
             </div>
           </div>
         }
-        @if (workspace.metadata.category) {
+        @if (previewCategory) {
           <div class="detail-item">
-            <i class="pi pi-tag"></i>
+            <app-icon name="tag"></app-icon>
             <div>
               <span class="detail-label">Category</span>
-              <span class="detail-value">{{ workspace.metadata.category }}</span>
+              <span class="detail-value">{{ previewCategory }}</span>
             </div>
           </div>
         }
         <div class="detail-item">
-          <i class="pi pi-user"></i>
+          <app-icon name="user"></app-icon>
           <div>
             <span class="detail-label">Created by</span>
-            <span class="detail-value">{{ workspace.ownerName }}</span>
+            <span class="detail-value">{{ previewOwner }}</span>
           </div>
         </div>
         <div class="detail-item">
-          <i class="pi pi-users"></i>
+          <app-icon name="users"></app-icon>
           <div>
             <span class="detail-label">Members</span>
-            <span class="detail-value">{{ activeMemberCount }} / {{ workspace.memberLimit }}</span>
+            <span class="detail-value">{{ activeMemberCount }} / {{ memberLimit }}</span>
           </div>
         </div>
       </div>
@@ -61,25 +61,24 @@
       <div class="join-card-actions">
         @if (alreadyMember && !isBanned) {
           <div class="already-member-msg">
-            <i class="pi pi-check-circle"></i>
+            <app-icon name="check-circle"></app-icon>
             <span>You are already a member of this workspace.</span>
           </div>
-          <button pButton label="Open Workspace" icon="pi pi-arrow-right" (click)="goToWorkspace()" class="w-full"></button>
+          <app-btn label="Open Workspace" icon="arrow-right" (click)="goToWorkspace()" [block]="true"></app-btn>
         } @else if (isBanned) {
           <div class="banned-msg">
-            <i class="pi pi-ban"></i>
+            <app-icon name="ban"></app-icon>
             <span>You have been banned from this workspace.</span>
           </div>
-          <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-text w-full"></button>
+          <app-btn label="Go to Dashboard" icon="home" (click)="goToDashboard()" [block]="true" variant="ghost"></app-btn>
         } @else if (isFull) {
           <div class="full-msg">
-            <i class="pi pi-exclamation-triangle"></i>
+            <app-icon name="exclamation-triangle"></app-icon>
             <span>This workspace has reached its member limit.</span>
           </div>
-          <button pButton label="Go to Dashboard" icon="pi pi-home" (click)="goToDashboard()" class="p-button-text w-full"></button>
+          <app-btn label="Go to Dashboard" icon="home" (click)="goToDashboard()" [block]="true" variant="ghost"></app-btn>
         } @else {
-          <button pButton label="Join Workspace" icon="pi pi-sign-in" (click)="joinWorkspace()"
-            [loading]="isJoining" class="w-full join-btn"></button>
+          <app-btn label="Join Workspace" icon="sign-in" (click)="joinWorkspace()" [loading]="isJoining" [block]="true" class="join-btn"></app-btn>
         }
       </div>
     </div>

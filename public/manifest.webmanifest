@@ -1,0 +1,30 @@
+{
+  "name": "DashLink",
+  "short_name": "DashLink",
+  "description": "Organize links, notes, and team workspaces in one place — synced live.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c110e",
+  "theme_color": "#0c110e",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

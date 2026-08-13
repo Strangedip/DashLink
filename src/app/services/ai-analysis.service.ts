@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
+import { inject, Injectable } from '@angular/core';
+import { Firestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { FIRESTORE } from '../firebase/firebase.providers';
 import { Workspace, WorkspaceNode, WorkspaceCollection } from '../models/workspace.model';
 
 export interface AIAnalysisData {
@@ -75,8 +76,7 @@ export interface AIUsageStat {
 })
 export class AiAnalysisService {
   private readonly GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-
-  constructor(private firestore: Firestore) {}
+  private firestore = inject(FIRESTORE);
 
   /** Returns how many total analyses this user has run in this workspace. */
   async getUsageStat(userId: string, workspaceId: string): Promise<AIUsageStat> {

@@ -1,46 +1,51 @@
 <div class="overview-page-container">
-  <!-- Page Header -->
+  
   <header class="page-header">
     <div class="header-left">
-      <button pButton icon="pi pi-arrow-left" (click)="goBack()" pTooltip="Back to Workspace" class="p-button-text p-button-sm"></button>
-      <button pButton icon="pi pi-home" (click)="goToDashboard()" pTooltip="Dashboard" class="p-button-text p-button-sm"></button>
-      <h1 class="page-title">
-        <i class="pi pi-chart-bar"></i>
-        {{ workspace?.name || 'Workspace' }} — Overview
-      </h1>
+      <app-btn icon="arrow-left" (click)="goBack()" title="Back to Workspace" variant="ghost" size="sm"></app-btn>
+      <app-btn icon="home" (click)="goToDashboard()" title="Dashboard" variant="ghost" size="sm"></app-btn>
+      <div class="title-stack">
+        <h1 class="page-title">
+          <app-icon name="chart-bar"></app-icon>
+          <span>Overview</span>
+        </h1>
+        @if (workspace?.name) {
+          <p class="page-subtitle">{{ workspace?.name }}</p>
+        }
+      </div>
     </div>
     <div class="header-right">
-      <button pButton icon="pi pi-sparkles" label="AI Analysis" (click)="openAIAnalysis()" pTooltip="Get AI-powered workspace insights" class="p-button-sm"></button>
+      <app-btn class="ai-cta" icon="sparkles" label="AI Analysis" (click)="openAIAnalysis()" title="Get AI-powered workspace insights"></app-btn>
     </div>
   </header>
 
-  <!-- Content -->
+  
   <div class="overview-content">
-    <!-- Summary Cards -->
+    
     <div class="summary-grid">
       <div class="stat-card">
-        <div class="stat-icon nodes"><i class="pi pi-file-edit"></i></div>
+        <div class="stat-icon nodes"><app-icon name="file-edit"></app-icon></div>
         <div class="stat-body">
           <span class="stat-value">{{ totalNodes }}</span>
           <span class="stat-label">Total Nodes</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon collections"><i class="pi pi-folder-open"></i></div>
+        <div class="stat-icon collections"><app-icon name="folder-open"></app-icon></div>
         <div class="stat-body">
           <span class="stat-value">{{ totalCollections }}</span>
           <span class="stat-label">Collections</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon members"><i class="pi pi-users"></i></div>
+        <div class="stat-icon members"><app-icon name="users"></app-icon></div>
         <div class="stat-body">
           <span class="stat-value">{{ activeMembers.length }}/{{ workspace?.memberLimit }}</span>
           <span class="stat-label">Members</span>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon star"><i class="pi pi-star"></i></div>
+        <div class="stat-icon star"><app-icon name="star"></app-icon></div>
         <div class="stat-body">
           @if (topContributor && topContributor.nodeCount > 0) {
             <span class="stat-value contributor-name">{{ topContributor.member.displayName }}</span>
@@ -53,18 +58,20 @@
       </div>
     </div>
 
-    <!-- Two Column Layout -->
+    
     <div class="two-column-layout">
-      <!-- Left Column: Member Contributions -->
+      
       <div class="section">
         <div class="section-header">
           <div class="section-title">
-            <i class="pi pi-chart-bar"></i>
+            <app-icon name="chart-bar"></app-icon>
             <span>Member Contributions</span>
           </div>
-          <p-select [options]="sortOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedSort" (onChange)="sortMembers()"
-            styleClass="section-sort-select" appendTo="body" placeholder="Sort by"></p-select>
+          <select class="dl-select section-sort-select" [(ngModel)]="selectedSort" (change)="sortMembers()">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
         </div>
 
         <div class="member-stats-list">
@@ -72,10 +79,9 @@
             <div class="member-stat-row">
               <div class="member-stat-info">
                 @if (stat.member.photoURL) {
-                  <p-avatar [image]="stat.member.photoURL" shape="circle" [style]="{ width: '32px', height: '32px' }"></p-avatar>
+                  <app-avatar [image]="stat.member.photoURL" [size]="32"></app-avatar>
                 } @else {
-                  <p-avatar [label]="getMemberInitial(stat.member)" shape="circle"
-                    [style]="{ width: '32px', height: '32px', 'font-size': '0.75rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+                  <app-avatar [label]="getMemberInitial(stat.member)" [size]="32"></app-avatar>
                 }
                 <div class="member-stat-details">
                   <span class="member-stat-name">{{ stat.member.displayName }}</span>
@@ -89,28 +95,31 @@
               </div>
               <div class="member-stat-bar">
                 <div class="bar-label">{{ stat.nodeCount }} ({{ getContributionPercent(stat.nodeCount) }}%)</div>
-                <p-progressBar [value]="getContributionPercent(stat.nodeCount)" [showValue]="false"
-                  [style]="{ height: '6px', width: '100%' }"></p-progressBar>
+                <div class="h-1.5 w-full overflow-hidden rounded bg-white/10">
+                  <div class="h-full bg-dl-accent" [style.width.%]="getContributionPercent(stat.nodeCount)"></div>
+                </div>
               </div>
             </div>
           }
 
           @if (memberStats.length === 0) {
-            <div class="empty-msg"><i class="pi pi-info-circle"></i> No members found.</div>
+            <div class="empty-msg"><app-icon name="info-circle"></app-icon> No members found.</div>
           }
         </div>
       </div>
 
-      <!-- Right Column: Recent Activity / All Nodes -->
+      
       <div class="section">
         <div class="section-header">
           <div class="section-title">
-            <i class="pi pi-history"></i>
+            <app-icon name="history"></app-icon>
             <span>All Nodes ({{ totalNodes }})</span>
           </div>
-          <p-select [options]="recentSortOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedRecentSort" (onChange)="sortRecentNodes()"
-            styleClass="section-sort-select" appendTo="body" placeholder="Sort by"></p-select>
+          <select class="dl-select section-sort-select" [(ngModel)]="selectedRecentSort" (change)="sortRecentNodes()">
+            @for (opt of recentSortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
         </div>
 
         <div class="activity-list">
@@ -119,10 +128,9 @@
               <div class="activity-index">{{ i + 1 }}</div>
               <div class="activity-avatar">
                 @if (row.node.creatorPhotoURL) {
-                  <p-avatar [image]="row.node.creatorPhotoURL" shape="circle" [style]="{ width: '28px', height: '28px' }"></p-avatar>
+                  <app-avatar [image]="row.node.creatorPhotoURL" [size]="28"></app-avatar>
                 } @else {
-                  <p-avatar [label]="(row.node.creatorName || 'U').charAt(0).toUpperCase()" shape="circle"
-                    [style]="{ width: '28px', height: '28px', 'font-size': '0.65rem', background: 'rgba(76,175,80,0.2)', color: 'var(--p-green-400)' }"></p-avatar>
+                  <app-avatar [label]="(row.node.creatorName || 'U').charAt(0).toUpperCase()" [size]="28"></app-avatar>
                 }
               </div>
               <div class="activity-body">
@@ -132,15 +140,15 @@
                 </span>
               </div>
               @if (row.node.fields && row.node.fields.length) {
-                <span class="activity-fields-count" [pTooltip]="'Has ' + row.node.fields.length + ' custom field' + (row.node.fields.length !== 1 ? 's' : '')">
-                  <i class="pi pi-list"></i> {{ row.node.fields.length }}
+                <span class="activity-fields-count" [title]="'Has ' + row.node.fields.length + ' custom field' + (row.node.fields.length !== 1 ? 's' : '')">
+                  <app-icon name="list"></app-icon> {{ row.node.fields.length }}
                 </span>
               }
             </div>
           }
 
           @if (recentNodes.length === 0) {
-            <div class="empty-msg"><i class="pi pi-inbox"></i> No nodes yet. Add some to see activity!</div>
+            <div class="empty-msg"><app-icon name="inbox"></app-icon> No nodes yet. Add some to see activity!</div>
           }
         </div>
       </div>

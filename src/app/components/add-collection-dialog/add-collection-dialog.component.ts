@@ -1,36 +1,25 @@
-import { Component, Output, EventEmitter, Input, Inject, OnInit } from '@angular/core';
+import { Component, Input, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 
-// PrimeNG Imports
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { MessageModule } from 'primeng/message';
+import { DynamicDialogRef, DynamicDialogConfig } from '../../ui/dialog';
+import { BtnComponent } from '../../ui/btn.component';
 
 import { Collection } from '../../models/data.model';
 
 @Component({
-  selector: 'app-add-collection-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    InputTextarea,
-    ButtonModule,
-    CardModule,
-    MessageModule
-  ],
-  templateUrl: './add-collection-dialog.component.html',
-  styleUrl: './add-collection-dialog.component.scss'
+    selector: 'app-add-collection-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        BtnComponent
+    ],
+    templateUrl: './add-collection-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './add-collection-dialog.component.scss'
 })
 export class AddCollectionDialogComponent implements OnInit {
   @Input() parentCollectionId: string | null = null;
-  @Output() closeDialog = new EventEmitter<void>();
-  @Output() addCollection = new EventEmitter<{ name: string; description: string | null; parentCollectionId: string | null }>();
 
   collectionForm = new FormGroup({
     name: new FormControl('', Validators.required),

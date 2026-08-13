@@ -1,5 +1,5 @@
 <div class="view-node-container">
-  <!-- Compact Header with Image (if exists) -->
+  
   @if (imageUrl) {
     <div class="node-image-header">
       <img [src]="getBannerUrl(imageUrl)" alt="Node Image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'" />
@@ -7,13 +7,13 @@
     </div>
   }
 
-  <!-- Scrollable Content -->
+  
   <div class="node-content-wrapper">
-    <!-- Description -->
+    
     @if (node.description) {
       <div class="info-block">
         <div class="block-title">
-          <i class="pi pi-align-left"></i>
+          <app-icon name="align-left"></app-icon>
           <span>Description</span>
         </div>
         @if (isHtmlContent(node.description)) {
@@ -24,11 +24,11 @@
       </div>
     }
 
-    <!-- Custom Fields -->
+    
     @if (displayCustomFields && displayCustomFields.length > 0) {
       <div class="info-block">
         <div class="block-title">
-          <i class="pi pi-list"></i>
+          <app-icon name="list"></app-icon>
           <span>Additional Details</span>
         </div>
         <div class="fields-list">
@@ -37,19 +37,19 @@
               <div class="field-name">
                 @switch (field.fieldType) {
                   @case ('url') {
-                    <i class="pi pi-link"></i>
+                    <app-icon name="link"></app-icon>
                   }
                   @case ('imageUrl') {
-                    <i class="pi pi-image"></i>
+                    <app-icon name="image"></app-icon>
                   }
                   @case ('date') {
-                    <i class="pi pi-calendar"></i>
+                    <app-icon name="calendar"></app-icon>
                   }
                   @case ('number') {
-                    <i class="pi pi-hashtag"></i>
+                    <app-icon name="hashtag"></app-icon>
                   }
                   @default {
-                    <i class="pi pi-tag"></i>
+                    <app-icon name="tag"></app-icon>
                   }
                 }
                 <span>{{ field.fieldName }}</span>
@@ -59,7 +59,7 @@
                   @case ('url') {
                     <a [href]="field.fieldValue" target="_blank" class="field-link">
                       {{ field.fieldValue }}
-                      <i class="pi pi-external-link"></i>
+                      <app-icon name="external-link"></app-icon>
                     </a>
                   }
                   @case ('imageUrl') {
@@ -68,7 +68,7 @@
                         <img [src]="getDetailImageUrl(field.fieldValue)" alt="Image" class="field-image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
                       </div>
                       <a [href]="field.fieldValue" target="_blank" class="field-link image-source-link">
-                        Open original <i class="pi pi-external-link"></i>
+                        Open original <app-icon name="external-link"></app-icon>
                       </a>
                     }
                   }
@@ -93,23 +93,22 @@
       </div>
     }
 
-    <!-- Empty State -->
+    
     @if (!(node.description) && !(displayCustomFields && displayCustomFields.length > 0) && !imageUrl) {
       <div class="empty-state">
-        <i class="pi pi-inbox"></i>
+        <app-icon name="inbox"></app-icon>
         <p>No details available for this node</p>
       </div>
     }
   </div>
 
-  <!-- Compact Footer -->
+  
   <div class="node-footer">
-    <button 
-      pButton 
-      icon="pi pi-times" 
-      label="Close" 
-      (click)="onClose()" 
-      class="p-button-text p-button-sm">
-    </button>
+    @if (primaryUrl) {
+      <app-btn icon="external-link" label="Open" (click)="openLink()"></app-btn>
+      <app-btn icon="share-alt" label="Share" variant="outline" (click)="shareLink()"></app-btn>
+    }
+    <app-btn icon="times" label="Close" (click)="onClose()" variant="ghost">
+    </app-btn>
   </div>
-</div> 
+</div>

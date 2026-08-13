@@ -9,38 +9,29 @@
     background: rgba(76, 175, 80, 0.3);
     border-radius: 3px;
   }
-
-  ::ng-deep .p-tablist-tab-list {
-    width: 100%;
-  }
-
-  ::ng-deep .p-tab {
-    flex: 1;
-    justify-content: center;
-    gap: 0.4rem;
-  }
 }
 
 .info-section, .members-section, .invite-section {
-  padding: 0.5rem 0;
+  padding: 0.85rem 0 0.25rem;
 }
 
 .info-item {
-  margin-bottom: 0.625rem;
+  margin-bottom: 1rem;
 }
 
 .info-label {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.45rem;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--p-text-color-secondary);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
 
-  i { font-size: 0.75rem; color: var(--p-green-500); }
+  i { font-size: 0.85rem; color: var(--p-green-500); }
+  app-icon { font-size: 0.85rem; color: var(--p-green-500); }
 }
 
 .info-value {
@@ -74,18 +65,18 @@
 .schema-items {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
 }
 
 .schema-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
+  gap: 0.6rem;
+  padding: 0.65rem 0.75rem;
   background: var(--p-surface-800);
-  border-radius: 6px;
-  font-size: 0.8rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
 }
 
 .schema-field-name {
@@ -121,9 +112,10 @@
 .owner-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--p-surface-border);
 }
 
@@ -140,14 +132,27 @@
     margin: 0 0 0.625rem;
     line-height: 1.5;
 
-    i { margin-right: 0.3rem; }
+    i, app-icon { margin-right: 0.3rem; }
   }
 }
 
 .delete-confirm-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .delete-confirm-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-confirm-actions app-btn,
+  .owner-actions app-btn {
+    width: 100%;
+    display: flex;
+  }
 }
 
 .dialog-footer {
@@ -168,6 +173,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   padding: 0.45rem 0.625rem;
   background: var(--p-surface-800);
   border-radius: 6px;
@@ -254,9 +261,11 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  min-width: 0;
 
   .invite-input {
     flex: 1;
+    min-width: 0;
     font-size: 0.8rem;
     background: var(--p-surface-800) !important;
   }

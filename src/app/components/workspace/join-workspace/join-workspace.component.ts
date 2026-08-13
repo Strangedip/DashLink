@@ -1,36 +1,37 @@
-import { Component, OnInit, DestroyRef } from '@angular/core';
+import { Component, OnInit, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, take, filter, map } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { switchMap, take, filter, of, catchError } from 'rxjs';
+import { BtnComponent } from '../../../ui/btn.component';
+import { IconComponent } from '../../../ui/icon.component';
 import { AuthService } from '../../../services/auth.service';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
-import { Workspace, WorkspaceMember } from '../../../models/workspace.model';
+import { Workspace, WorkspaceInvite, WorkspaceMember } from '../../../models/workspace.model';
 
 @Component({
-  selector: 'app-join-workspace',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, ProgressSpinnerModule],
-  templateUrl: './join-workspace.component.html',
-  styleUrl: './join-workspace.component.scss'
+    selector: 'app-join-workspace',
+    imports: [CommonModule, BtnComponent, IconComponent],
+    templateUrl: './join-workspace.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrl: './join-workspace.component.scss'
 })
 export class JoinWorkspaceComponent implements OnInit {
   isLoading = true;
   isJoining = false;
   workspace: Workspace | null = null;
-  inviteCode: string = '';
-  error: string = '';
+  invite: WorkspaceInvite | null = null;
+  inviteCode = '';
+  error = '';
   alreadyMember = false;
   isBanned = false;
   isFull = false;
 
   private currentUserId: string | null = null;
-  private currentUserEmail: string = '';
-  private currentUserName: string = '';
-  private currentUserPhoto: string = '';
+  private currentUserEmail = '';
+  private currentUserName = '';
+  private currentUserPhoto = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -67,31 +68,32 @@ export class JoinWorkspaceComponent implements OnInit {
           this.isLoading = false;
           throw new Error('Invalid invite');
         }
-        return this.workspaceService.getWorkspace(invite.workspaceId);
+        this.invite = invite;
+        return this.workspaceService.getWorkspace(invite.workspaceId).pipe(
+          take(1),
+          catchError(() => of(null))
+        );
       }),
-      take(1),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (workspace) => {
         this.workspace = workspace;
         this.isLoading = false;
 
-        if (!workspace) {
-          this.error = 'Workspace not found.';
-          return;
-        }
-
-        if (workspace.memberIds?.includes(this.currentUserId!)) {
+        if (workspace?.memberIds?.includes(this.currentUserId!)) {
           this.alreadyMember = true;
         }
 
-        const member = workspace.members?.find(m => m.userId === this.currentUserId);
+        const member = workspace?.members?.find(m => m.userId === this.currentUserId);
         if (member?.banned) {
           this.isBanned = true;
         }
 
-        const activeMembers = workspace.members?.filter(m => !m.banned).length || 0;
-        if (activeMembers >= workspace.memberLimit) {
+        const activeMembers = workspace?.members?.filter(m => !m.banned).length
+          ?? this.invite?.memberCount
+          ?? 0;
+        const limit = workspace?.memberLimit ?? this.invite?.memberLimit ?? 12;
+        if (activeMembers >= limit && !this.alreadyMember) {
           this.isFull = true;
         }
       },
@@ -104,12 +106,37 @@ export class JoinWorkspaceComponent implements OnInit {
     });
   }
 
+  get previewName(): string {
+    return this.workspace?.name || this.invite?.workspaceName || 'Workspace';
+  }
+
+  get previewDescription(): string {
+    return this.workspace?.description || this.invite?.description || '';
+  }
+
+  get previewGoal(): string {
+    return this.workspace?.metadata?.goal || this.invite?.goal || '';
+  }
+
+  get previewCategory(): string {
+    return this.workspace?.metadata?.category || this.invite?.category || '';
+  }
+
+  get previewOwner(): string {
+    return this.workspace?.ownerName || this.invite?.ownerName || '';
+  }
+
   get activeMemberCount(): number {
-    return this.workspace?.members?.filter(m => !m.banned).length || 0;
+    return this.workspace?.members?.filter(m => !m.banned).length || this.invite?.memberCount || 0;
+  }
+
+  get memberLimit(): number {
+    return this.workspace?.memberLimit || this.invite?.memberLimit || 12;
   }
 
   async joinWorkspace(): Promise<void> {
-    if (!this.workspace?.id || !this.currentUserId || this.isJoining) return;
+    const workspaceId = this.workspace?.id || this.invite?.workspaceId;
+    if (!workspaceId || !this.currentUserId || this.isJoining) return;
 
     this.isJoining = true;
     try {
@@ -123,18 +150,19 @@ export class JoinWorkspaceComponent implements OnInit {
         banned: false
       };
 
-      await this.workspaceService.joinWorkspace(this.workspace.id, newMember);
-      this.toastService.showSuccess('Joined!', `You have joined "${this.workspace.name}".`);
-      this.router.navigate(['/workspaces', this.workspace.id]);
-    } catch (error: unknown) {
+      await this.workspaceService.joinWorkspace(workspaceId, newMember);
+      this.toastService.showSuccess('Joined!', `You have joined "${this.previewName}".`);
+      this.router.navigate(['/workspaces', workspaceId]);
+    } catch {
       this.toastService.showError('Failed', 'Could not join workspace. Please try again.');
       this.isJoining = false;
     }
   }
 
   goToWorkspace(): void {
-    if (this.workspace?.id) {
-      this.router.navigate(['/workspaces', this.workspace.id]);
+    const workspaceId = this.workspace?.id || this.invite?.workspaceId;
+    if (workspaceId) {
+      this.router.navigate(['/workspaces', workspaceId]);
     }
   }
 

@@ -1,14 +1,11 @@
-// ─── Container ──────────────────────────────────────────────
 .overview-page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: var(--p-surface-ground);
+  min-height: calc(100dvh - var(--dl-nav-height));
+  background: var(--dl-bg);
   color: var(--p-text-color);
-  padding-top: 60px;
 }
 
-// ─── Page Header ────────────────────────────────────────────
 .page-header {
   display: flex;
   align-items: center;
@@ -17,7 +14,7 @@
   background: var(--p-surface-900);
   border-bottom: 1px solid var(--p-surface-border);
   position: sticky;
-  top: 60px;
+  top: calc(var(--dl-nav-height) + env(safe-area-inset-top));
   z-index: 10;
   gap: 0.5rem;
   min-width: 0;
@@ -29,6 +26,19 @@
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
+}
+
+.title-stack {
+  min-width: 0;
+}
+
+.page-subtitle {
+  margin: 0.1rem 0 0;
+  font-size: 0.75rem;
+  color: var(--dl-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-right {
@@ -56,24 +66,28 @@
     font-size: 1rem;
     flex-shrink: 0;
   }
+
+  app-icon {
+    color: var(--p-green-500);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
 }
 
-// ─── Content ────────────────────────────────────────────────
 .overview-content {
   flex: 1;
-  padding: 1.25rem;
+  padding: 1.25rem 1.15rem 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   min-width: 0;
 }
 
-// ─── Summary Cards ──────────────────────────────────────────
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  gap: 0.85rem;
+  margin-bottom: 1.35rem;
 
   @media (min-width: 640px) {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -85,19 +99,21 @@
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem;
+  gap: 0.8rem;
+  padding: 1rem 0.9rem;
   background: var(--p-surface-card);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--p-surface-border);
   transition: all 0.2s ease;
   min-width: 0;
 
-  &:hover {
-    background: var(--p-surface-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.12);
-    border-color: rgba(76, 175, 80, 0.3);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--p-surface-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(76, 175, 80, 0.12);
+      border-color: rgba(76, 175, 80, 0.3);
+    }
   }
 }
 
@@ -150,7 +166,6 @@
   text-overflow: ellipsis;
 }
 
-// ─── Two Column Layout ──────────────────────────────────────
 .two-column-layout {
   display: grid;
   grid-template-columns: 1fr;
@@ -162,16 +177,15 @@
   }
 }
 
-// ─── Sections ───────────────────────────────────────────────
 .section {
   background: var(--p-surface-card);
-  border-radius: 12px;
-  padding: 0.875rem;
+  border-radius: 14px;
+  padding: 1.05rem;
   border: 1px solid var(--p-surface-border);
   min-width: 0;
 
   @media (min-width: 640px) {
-    padding: 1rem;
+    padding: 1.15rem;
   }
 }
 
@@ -195,15 +209,19 @@
   color: var(--p-text-color);
 
   i { color: var(--p-green-500); font-size: 0.95rem; }
+  app-icon { color: var(--p-green-500); font-size: 0.95rem; }
 }
 
-// Sort selects inside section headers
-::ng-deep .section-sort-select {
+.section-sort-select {
   min-width: 8.5rem;
   font-size: 0.82rem;
 }
 
-// ─── Member Stats ───────────────────────────────────────────
+.ai-cta {
+  flex-shrink: 0;
+  min-height: 3rem;
+}
+
 .member-stats-list {
   display: flex;
   flex-direction: column;
@@ -283,7 +301,6 @@
   }
 }
 
-// ─── Activity / Node List ───────────────────────────────────
 .activity-list {
   display: flex;
   flex-direction: column;
@@ -374,9 +391,9 @@
   white-space: nowrap;
 
   i { font-size: 0.6rem; }
+  app-icon { font-size: 0.6rem; }
 }
 
-// ─── Empty Messages ─────────────────────────────────────────
 .empty-msg {
   padding: 1.5rem 1rem;
   text-align: center;
@@ -387,83 +404,94 @@
     margin-right: 0.4rem;
     color: var(--p-surface-500);
   }
+
+  app-icon {
+    margin-right: 0.4rem;
+    color: var(--p-surface-500);
+  }
 }
 
-// ─── Mobile Overrides (<= 480px) ────────────────────────────
-@media (max-width: 480px) {
-  .overview-page-container {
-    padding-top: 56px;
-  }
-
+@media (max-width: 640px) {
   .page-header {
-    padding: 0.5rem 0.625rem;
-    top: 56px;
+    flex-wrap: wrap;
+    padding: 0.85rem 1rem;
   }
 
-  // Show only icon on very small screens, hide button label
-  .header-right ::ng-deep .p-button-label {
-    display: none;
-  }
-  .header-right ::ng-deep .p-button {
-    padding: 0.45rem 0.55rem;
-    min-width: unset;
+  .header-right {
+    width: 100%;
   }
 
-  .page-title {
-    font-size: 0.88rem;
+  .ai-cta {
+    width: 100%;
+    display: flex;
   }
 
   .overview-content {
-    padding: 0.625rem;
+    padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 0.85rem 1rem;
+    top: calc(var(--dl-nav-height) + env(safe-area-inset-top));
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-size: 1rem;
+  }
+
+  .overview-content {
+    padding: 1rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
   }
 
   .summary-grid {
-    gap: 0.5rem;
-    margin-bottom: 0.875rem;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
   }
 
   .stat-card {
-    padding: 0.625rem;
-    gap: 0.5rem;
-    border-radius: 8px;
+    padding: 0.9rem 0.8rem;
+    gap: 0.7rem;
+    border-radius: 12px;
   }
 
   .stat-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
-    border-radius: 8px;
-  }
-
-  .stat-value {
-    font-size: 1.1rem;
-  }
-
-  .stat-value.contributor-name {
-    font-size: 0.82rem;
-  }
-
-  .two-column-layout {
-    gap: 0.75rem;
-  }
-
-  .section {
-    padding: 0.75rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.05rem;
     border-radius: 10px;
   }
 
-  // On very small screens, stack section header vertically
+  .stat-value {
+    font-size: 1.15rem;
+  }
+
+  .stat-value.contributor-name {
+    font-size: 0.8rem;
+  }
+
+  .two-column-layout {
+    gap: 1rem;
+  }
+
+  .section {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  ::ng-deep .section-header p-select .p-select {
-    width: 100% !important;
-    min-width: unset !important;
+  .section-sort-select {
+    width: 100%;
+    min-width: 0;
   }
 
-  // Member stat bar always full-width on mobile
   .member-stat-row {
     padding: 0.5rem 0.625rem;
   }
