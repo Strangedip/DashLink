@@ -34,7 +34,12 @@ service cloud.firestore {
     }
 
     match /workspaces/{workspaceId} {
-      allow read: if isWorkspaceMember(workspaceId);
+      // Use resource.data (not get()) so list queries like
+      // memberIds array-contains uid / ownerId == uid are allowed.
+      allow read: if signedIn() && (
+        request.auth.uid in resource.data.memberIds
+        || resource.data.ownerId == request.auth.uid
+      );
 
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid

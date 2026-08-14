@@ -3,20 +3,22 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, Observable, of, switchMap, take, map, tap, filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs';
-import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MenuItem } from '../../../ui/menu-item';
 import { DialogService } from '../../../ui/dialog';
 import { BtnComponent } from '../../../ui/btn.component';
 import { BreadcrumbComponent } from '../../../ui/breadcrumb.component';
 import { IconComponent } from '../../../ui/icon.component';
+import { SelectComponent } from '../../../ui/select.component';
 
 import { AuthService } from '../../../services/auth.service';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
 import { LoggerService } from '../../../services/logger.service';
 import { PreferencesService } from '../../../services/preferences.service';
-import { Workspace, WorkspaceNode, WorkspaceCollection, WorkspaceMember } from '../../../models/workspace.model';
+import { compareItems, ITEM_SORT_OPTIONS, ItemSort } from '../../../utils/item-sort';
+import { Workspace, WorkspaceNode, WorkspaceCollection, WorkspaceMember, workspacePurpose, workspaceBadge } from '../../../models/workspace.model';
 import { CollectionCardComponent } from '../../collection-card/collection-card.component';
 import { WorkspaceNodeCardComponent } from '../workspace-node-card/workspace-node-card.component';
 import { AddWorkspaceNodeDialogComponent } from '../add-workspace-node-dialog/add-workspace-node-dialog.component';
@@ -28,8 +30,8 @@ import { CreateWorkspaceDialogComponent } from '../create-workspace-dialog/creat
 @Component({
     selector: 'app-workspace-dashboard',
     imports: [
-        CommonModule, ReactiveFormsModule, FormsModule,
-        BtnComponent, BreadcrumbComponent, IconComponent,
+        CommonModule, ReactiveFormsModule,
+        BtnComponent, BreadcrumbComponent, IconComponent, SelectComponent,
         CollectionCardComponent, WorkspaceNodeCardComponent
     ],
     templateUrl: './workspace-dashboard.component.html',
@@ -60,6 +62,7 @@ export class WorkspaceDashboardComponent implements OnInit {
   home: MenuItem | undefined;
   additionalMenuItems: MenuItem[] = [];
   addSheetOpen = false;
+  readonly sortOptions = ITEM_SORT_OPTIONS;
   private latestItems: ((WorkspaceCollection & { type: 'collection' }) | (WorkspaceNode & { type: 'workspace-node' }))[] = [];
 
   constructor(
@@ -71,7 +74,7 @@ export class WorkspaceDashboardComponent implements OnInit {
     private toastService: ToastService,
     private destroyRef: DestroyRef,
     private logger: LoggerService,
-    private prefs: PreferencesService
+    readonly prefs: PreferencesService
   ) {}
 
   get isOwner(): boolean {
@@ -84,6 +87,14 @@ export class WorkspaceDashboardComponent implements OnInit {
 
   get activeMembers(): WorkspaceMember[] {
     return this.workspace?.members?.filter(m => !m.banned) || [];
+  }
+
+  get purpose(): string {
+    return workspacePurpose(this.workspace?.metadata);
+  }
+
+  get badge(): string {
+    return workspaceBadge(this.workspace?.metadata);
   }
 
   getMemberInitial(member: WorkspaceMember): string {
@@ -144,10 +155,12 @@ export class WorkspaceDashboardComponent implements OnInit {
     this.dashboardItems$ = combineLatest([
       this.workspaceIdSubject.pipe(filter(id => !!id)),
       this.collectionIdSubject,
-      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged())
+      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
+      this.prefs.sort$,
+      this.prefs.recents$
     ]).pipe(
       tap(() => this.isLoading = true),
-      switchMap(([workspaceId, collectionId, searchTerm]) => {
+      switchMap(([workspaceId, collectionId, searchTerm, sort, recents]) => {
         this._searchFilter = searchTerm || '';
 
         const collectionsObs = this.workspaceService.getWorkspaceCollections(workspaceId!, collectionId);
@@ -160,11 +173,7 @@ export class WorkspaceDashboardComponent implements OnInit {
               ...nodes.map(n => ({ ...n, type: 'workspace-node' as const }))
             ];
             return combined
-              .sort((a, b) => {
-                if (a.type === 'collection' && b.type !== 'collection') return -1;
-                if (a.type !== 'collection' && b.type === 'collection') return 1;
-                return (a.name || '').localeCompare(b.name || '');
-              })
+              .sort((a, b) => compareItems(a, b, sort, recents))
               .filter(item => {
                 if (!this._searchFilter) return true;
                 const term = this._searchFilter.toLowerCase();
@@ -209,6 +218,10 @@ export class WorkspaceDashboardComponent implements OnInit {
     return item?.id || index.toString();
   }
 
+  onSortChange(value: string): void {
+    this.prefs.setSort(value as ItemSort);
+  }
+
   goToCollection(collectionId: string): void {
     const collection = this.latestItems.find(item => item.type === 'collection' && item.id === collectionId);
     this.prefs.addRecent({
@@ -226,7 +239,8 @@ export class WorkspaceDashboardComponent implements OnInit {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    this.prefs.setDashboardTab('workspaces');
+    this.router.navigate(['/dashboard'], { queryParams: { tab: 'teams' } });
   }
 
   openAddNodeDialog(existingNode?: WorkspaceNode): void {
@@ -412,7 +426,7 @@ export class WorkspaceDashboardComponent implements OnInit {
 
   private openEditWorkspaceDialog(): void {
     const dialogRef = this.dialogService.open(CreateWorkspaceDialogComponent, {
-      header: 'Edit Workspace',
+      header: 'Edit workspace',
       width: '600px',
       style: { 'max-width': '96vw' },
       data: { workspace: this.workspace }

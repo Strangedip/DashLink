@@ -93,7 +93,7 @@
 
   
   <div class="dialog-footer">
-    <app-btn label="Cancel" icon="times" (click)="onCancel()" [disabled]="isProcessing" variant="ghost">
+    <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="onCancel()" [disabled]="isProcessing" variant="ghost">
     </app-btn>
     <app-btn label="Upload" icon="cloud-upload" (click)="processUpload()" [loading]="isProcessing" [disabled]="!jsonInput.trim()">
     </app-btn>

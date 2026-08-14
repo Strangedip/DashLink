@@ -9,7 +9,7 @@ import { IconComponent } from './icon.component';
     <div class="inline-flex items-center gap-1" [class.pointer-events-none]="readonly">
       @for (star of stars; track star) {
         <button type="button" class="inline-flex h-11 w-11 items-center justify-center text-dl-muted" [class.text-amber-400]="star <= (value || 0)" (click)="set(star)" [disabled]="readonly">
-          <app-icon name="star" />
+          <app-icon [name]="star <= (value || 0) ? 'star-fill' : 'star'" />
         </button>
       }
     </div>

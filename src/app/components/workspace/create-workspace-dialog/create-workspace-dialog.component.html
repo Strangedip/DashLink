@@ -1,83 +1,158 @@
 <div class="dialog-container">
-  
   <div class="step-indicators">
     <div class="step-dot" [class.active]="activeStep === 0" [class.done]="activeStep > 0" (click)="activeStep = 0">
       <span>1</span>
     </div>
     <div class="step-line" [class.done]="activeStep > 0"></div>
-    <div class="step-dot" [class.active]="activeStep === 1" [class.done]="activeStep > 1" (click)="isBasicValid() ? activeStep = 1 : null">
+    <div class="step-dot" [class.active]="activeStep === 1" (click)="isBasicValid() ? activeStep = 1 : null">
       <span>2</span>
-    </div>
-    <div class="step-line" [class.done]="activeStep > 1"></div>
-    <div class="step-dot" [class.active]="activeStep === 2" (click)="isBasicValid() && isMetadataValid() ? activeStep = 2 : null">
-      <span>3</span>
     </div>
   </div>
   <div class="step-labels">
-    <span [class.active]="activeStep === 0">Basics</span>
-    <span [class.active]="activeStep === 1">Details</span>
-    <span [class.active]="activeStep === 2">Schema</span>
+    <span [class.active]="activeStep === 0">The space</span>
+    <span [class.active]="activeStep === 1">How it works</span>
   </div>
 
-  
   @if (activeStep === 0) {
     <div class="step-content" [formGroup]="basicForm">
+      <p class="step-lead">Name it, then tell people what this space is for. You can change everything later.</p>
+
       <div class="p-field">
-        <label for="ws-name">Workspace Name <span class="required">*</span></label>
-        <input id="ws-name" type="text" class="dl-input" formControlName="name" placeholder="e.g. Gym Challenge 2026" maxlength="50">
+        <label for="ws-name">Name <span class="required">*</span></label>
+        <input id="ws-name" type="text" class="dl-input" formControlName="name" placeholder="Weekend trip, studio class, study group…" maxlength="50">
         @if (basicForm.get('name')?.invalid && basicForm.get('name')?.touched) {
-        <p class="dl-field-error">Workspace name is required.</p>
+          <p class="dl-field-error">Give the workspace a name so people can find it.</p>
         }
       </div>
+
+      <div class="p-field">
+        <label for="ws-purpose">What is this for?</label>
+        <textarea class="dl-textarea" id="ws-purpose" formControlName="purpose" placeholder="A short note teammates will see, e.g. “Places we want to visit” or “Track who showed up.”" rows="2" maxlength="200"></textarea>
+        <div class="idea-chips" role="group" aria-label="Purpose ideas">
+          @for (idea of purposeIdeas; track idea.label) {
+            <button type="button" class="idea-chip" (click)="applyPurposeIdea(idea.text)">{{ idea.label }}</button>
+          }
+        </div>
+      </div>
+
       <div class="p-field">
         <label for="ws-desc">Description</label>
-        <textarea class="dl-textarea" id="ws-desc" formControlName="description" placeholder="Brief description of this workspace..." rows="3" maxlength="200"></textarea>
+        <textarea class="dl-textarea" id="ws-desc" formControlName="description" placeholder="Optional extra context for anyone joining." rows="2" maxlength="200"></textarea>
         <small class="char-count">{{ (basicForm.get('description')?.value || '').length }}/200</small>
       </div>
-      <div class="p-field">
-        <label for="ws-limit">Member Limit <span class="required">*</span></label>
-        <input id="ws-limit" type="number" class="dl-input" formControlName="memberLimit" min="2" max="32" placeholder="Max members">
-        <small class="field-hint">Maximum 32 members per workspace</small>
-      </div>
-      <div class="p-field">
-        <label for="ws-ai-key">
-          Google Gemini API Key
-          <app-icon name="info-circle" title="Optional: Add your Gemini API key to enable AI workspace analysis. Get a free key at https://makersuite.google.com/app/apikey"></app-icon>
-        </label>
-        <input id="ws-ai-key" type="password" class="dl-input" formControlName="aiApiKey" placeholder="AIzaSy... (optional)">
-        <small class="field-hint">Required only for AI Analysis feature (10 free analyses/day per user)</small>
-      </div>
+
+      <button type="button" class="advanced-toggle" (click)="showAdvanced = !showAdvanced">
+        <app-icon [name]="showAdvanced ? 'chevron-down' : 'chevron-right'"></app-icon>
+        More options
+      </button>
+      @if (showAdvanced) {
+        <div class="advanced-box">
+          <div class="p-field">
+            <label for="ws-limit">Member limit</label>
+            <input id="ws-limit" type="number" class="dl-input" formControlName="memberLimit" min="2" max="32">
+            <small class="field-hint">2–32 people. Default is 12.</small>
+          </div>
+          <div class="p-field">
+            <label for="ws-ai-key">Gemini API key</label>
+            <input id="ws-ai-key" type="password" class="dl-input" formControlName="aiApiKey" placeholder="Optional, for AI analysis" autocomplete="off">
+            <small class="field-hint">Only needed if you want AI summaries of this workspace.</small>
+          </div>
+        </div>
+      }
     </div>
   }
 
-  
   @if (activeStep === 1) {
-    <div class="step-content" [formGroup]="metadataForm">
-      <div class="p-field">
-        <label for="ws-goal">Goal <span class="required">*</span></label>
-        <textarea class="dl-textarea" id="ws-goal" formControlName="goal" placeholder="What is this workspace's objective?" rows="2"></textarea>
-        @if (metadataForm.get('goal')?.invalid && metadataForm.get('goal')?.touched) {
-        <p class="dl-field-error">Goal is required.</p>
+    <div class="step-content">
+      <p class="step-lead">How should teammates add items? Pick the easier option now — you can switch later.</p>
+
+      <div class="choice-grid">
+        <button type="button" class="choice-card" [class.on]="!useCustomSchema" (click)="setItemMode(false)">
+          <app-icon name="sparkles"></app-icon>
+          <strong>Flexible items</strong>
+          <p>People add links, notes, and fields as they go. Best if you’re not sure yet.</p>
+        </button>
+        <button type="button" class="choice-card" [class.on]="useCustomSchema" (click)="setItemMode(true)">
+          <app-icon name="list"></app-icon>
+          <strong>Shared form</strong>
+          <p>Everyone fills the same fields. Handy for attendance, check-ins, or tracking.</p>
+        </button>
+      </div>
+
+      @if (useCustomSchema) {
+        <div class="schema-block">
+          <p class="block-label">Start from a template, or add your own fields</p>
+          <div class="starter-row">
+            @for (starter of starters; track starter.id) {
+              <button type="button" class="starter-chip" [class.on]="selectedStarter === starter.id" (click)="applyStarter(starter)">
+                <span>{{ starter.name }}</span>
+                <small>{{ starter.hint }}</small>
+              </button>
+            }
+          </div>
+
+          <div class="schema-fields-list">
+            @for (field of schemaFieldControls; track field; let i = $index) {
+              <div class="schema-field-item" [formGroup]="field">
+                <div class="field-header">
+                  <span class="field-order">Field {{ i + 1 }}</span>
+                  <div class="field-header-actions">
+                    <app-btn type="button" icon="arrow-up" (click)="moveFieldUp(i)" [disabled]="i === 0" title="Move up" variant="ghost" size="sm" [rounded]="true"></app-btn>
+                    <app-btn type="button" icon="arrow-down" (click)="moveFieldDown(i)" [disabled]="i === schemaFieldControls.length - 1" title="Move down" variant="ghost" size="sm" [rounded]="true"></app-btn>
+                    <app-btn type="button" icon="trash" (click)="removeSchemaField(i)" title="Remove" variant="ghost-danger" size="sm" [rounded]="true"></app-btn>
+                  </div>
+                </div>
+                <div class="field-body">
+                  <div class="field-row">
+                    <div class="p-field flex-1">
+                      <label [for]="'sf-name-' + i">Label</label>
+                      <input [id]="'sf-name-' + i" type="text" class="dl-input" formControlName="fieldName" placeholder="e.g. Date, Photo, Status">
+                    </div>
+                    <div class="p-field flex-1">
+                      <label [for]="'sf-type-' + i">Type</label>
+                      <app-select
+                        [inputId]="'sf-type-' + i"
+                        formControlName="fieldType"
+                        [options]="fieldTypeOptions"
+                        placeholder="Choose type">
+                      </app-select>
+                    </div>
+                  </div>
+                  <div class="p-field mandatory-check">
+                    <app-check formControlName="mandatory" [inputId]="'sf-mand-' + i">Required</app-check>
+                  </div>
+                  @if (field.get('fieldType')?.value === 'dropdown') {
+                    <div class="p-field">
+                      <label [for]="'sf-opts-' + i">Choices (comma-separated)</label>
+                      <input [id]="'sf-opts-' + i" type="text" class="dl-input" formControlName="options" placeholder="Present, Absent, Late">
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <app-btn type="button" icon="plus" label="Add field" (click)="addSchemaField()" class="add-field-btn" variant="ghost" size="sm"></app-btn>
+          @if (schemaFieldControls.length === 0) {
+            <p class="empty-hint">No fields yet. Add one, or tap a template above.</p>
+          }
+        </div>
+      }
+
+      <div class="notes-block">
+        <p class="block-label">Notes for the team <span class="optional">optional</span></p>
+        <p class="block-hint">Add any extra facts you want on the workspace — rules, a prize, a meeting spot, a deadline. You name the label.</p>
+
+        @for (detail of detailControls; track detail; let i = $index) {
+          <div class="detail-row" [formGroup]="detail">
+            <input type="text" class="dl-input" formControlName="label" placeholder="Label, e.g. Rules">
+            <input type="text" class="dl-input" formControlName="value" placeholder="Details">
+            <app-btn type="button" icon="times" (click)="removeDetail(i)" ariaLabel="Remove note" variant="ghost" size="sm" [rounded]="true"></app-btn>
+          </div>
         }
+        <app-btn type="button" icon="plus" label="Add a note" (click)="addDetail()" variant="ghost" size="sm"></app-btn>
       </div>
-      <div class="p-field">
-        <label for="ws-rules">Rules</label>
-        <textarea class="dl-textarea" id="ws-rules" formControlName="rules" placeholder="Workspace rules and guidelines..." rows="2"></textarea>
-      </div>
-      <div class="field-row">
-        <div class="p-field flex-1">
-          <label for="ws-duration">Duration</label>
-          <input id="ws-duration" type="text" class="dl-input" formControlName="duration" placeholder="e.g. 30 days">
-        </div>
-        <div class="p-field flex-1">
-          <label for="ws-penalty">Penalty</label>
-          <input id="ws-penalty" type="text" class="dl-input" formControlName="penalty" placeholder="e.g. 500 INR">
-        </div>
-      </div>
-      <div class="p-field">
-        <label for="ws-category">Category</label>
-        <input id="ws-category" type="text" class="dl-input" formControlName="category" placeholder="e.g. Fitness, Study, Work">
-      </div>
+
       <div class="p-field">
         <label>Tags</label>
         <div class="tags-input-wrapper">
@@ -91,90 +166,23 @@
           </div>
           @if (tags.length < 10) {
             <input type="text" class="dl-input tag-input" [(ngModel)]="tagInput" [ngModelOptions]="{standalone: true}" (keydown)="onTagKeydown($event)"
-              placeholder="Type and press Enter...">
+              placeholder="Type a tag and press Enter">
           }
         </div>
       </div>
     </div>
   }
 
-  
-  @if (activeStep === 2) {
-    <div class="step-content">
-      <div class="schema-toggle">
-        <label>Use Custom Schema</label>
-        <app-toggle [(ngModel)]="useCustomSchema" [ngModelOptions]="{standalone: true}"></app-toggle>
-      </div>
-      @if (!useCustomSchema) {
-        <div class="schema-info-box">
-          <app-icon name="info-circle"></app-icon>
-          <p>Members will use free-form node creation with custom fields, similar to your personal collections.</p>
-        </div>
-      } @else {
-        <div class="schema-info-box">
-          <app-icon name="info-circle"></app-icon>
-          <p>Define the fields that members must fill when creating a node in this workspace.</p>
-        </div>
-
-        <div class="schema-fields-list">
-          @for (field of schemaFieldControls; track field; let i = $index) {
-            <div class="schema-field-item" [formGroup]="field">
-              <div class="field-header">
-                <span class="field-order">#{{ i + 1 }}</span>
-                <div class="field-header-actions">
-                  <app-btn type="button" icon="arrow-up" (click)="moveFieldUp(i)" [disabled]="i === 0" title="Move Up" variant="ghost" size="sm" [rounded]="true"></app-btn>
-                  <app-btn type="button" icon="arrow-down" (click)="moveFieldDown(i)" [disabled]="i === schemaFieldControls.length - 1" title="Move Down" variant="ghost" size="sm" [rounded]="true"></app-btn>
-                  <app-btn type="button" icon="trash" (click)="removeSchemaField(i)" title="Remove" variant="ghost-danger" size="sm" [rounded]="true"></app-btn>
-                </div>
-              </div>
-              <div class="field-body">
-                <div class="field-row">
-                  <div class="p-field flex-1">
-                    <label [for]="'sf-name-' + i">Field Name <span class="required">*</span></label>
-                    <input [id]="'sf-name-' + i" type="text" class="dl-input" formControlName="fieldName" placeholder="e.g. Workout Photo">
-                  </div>
-                  <div class="p-field flex-1">
-                    <label [for]="'sf-type-' + i">Field Type <span class="required">*</span></label>
-                    <select class="dl-select" [id]="'sf-type-' + i" formControlName="fieldType">
-                      <option [ngValue]="null" disabled>Select Type</option>
-                      @for (ft of fieldTypes; track ft.code) {
-                        <option [ngValue]="ft.code">{{ ft.name }}</option>
-                      }
-                    </select>
-                  </div>
-                </div>
-                <div class="field-row">
-                  <div class="p-field mandatory-check">
-                    <app-check formControlName="mandatory" [inputId]="'sf-mand-' + i">Mandatory field</app-check>
-                  </div>
-                </div>
-                @if (field.get('fieldType')?.value === 'dropdown') {
-                  <div class="p-field">
-                    <label [for]="'sf-opts-' + i">Options (comma-separated)</label>
-                    <input [id]="'sf-opts-' + i" type="text" class="dl-input" formControlName="options" placeholder="e.g. Option A, Option B, Option C">
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
-
-        <app-btn type="button" icon="plus" label="Add Field" (click)="addSchemaField()" class="add-field-btn" variant="ghost" size="sm"></app-btn>
-      }
-    </div>
-  }
-
-  
   <div class="p-dialog-footer">
-    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
+    <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
     @if (activeStep > 0) {
       <app-btn label="Back" icon="arrow-left" (click)="prevStep()" variant="ghost"></app-btn>
     }
     <div class="footer-spacer"></div>
-    @if (activeStep < 2) {
-      <app-btn label="Next" icon="arrow-right" iconPos="right" (click)="nextStep()" [disabled]="(activeStep === 0 && !isBasicValid()) || (activeStep === 1 && !isMetadataValid())"></app-btn>
+    @if (activeStep === 0) {
+      <app-btn label="Next" icon="arrow-right" iconPos="right" (click)="nextStep()" [disabled]="!isBasicValid()"></app-btn>
     } @else {
-      <app-btn [label]="isEditMode ? 'Update' : 'Create'" icon="check" (click)="onSubmit()" [disabled]="!isBasicValid() || !isMetadataValid() || !isSchemaValid()"></app-btn>
+      <app-btn [label]="isEditMode ? 'Save' : 'Create'" icon="check" (click)="onSubmit()" [disabled]="!isBasicValid() || !isSchemaValid() || !isDetailsValid()"></app-btn>
     }
   </div>
 </div>

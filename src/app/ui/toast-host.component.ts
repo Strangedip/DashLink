@@ -42,7 +42,7 @@ export class ToastHostComponent {
   }
 
   tone(severity: ToastSeverity): string {
-    if (severity === 'success') return 'text-green-400';
+    if (severity === 'success') return 'text-dl-accent-soft';
     if (severity === 'error') return 'text-red-400';
     if (severity === 'warn') return 'text-amber-400';
     return 'text-sky-400';

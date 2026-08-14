@@ -5,4 +5,5 @@ export interface MenuItem {
   routerLink?: string | string[];
   disabled?: boolean;
   separator?: boolean;
+  active?: boolean;
 }

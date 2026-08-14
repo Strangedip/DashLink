@@ -67,11 +67,14 @@
             <app-icon name="chart-bar"></app-icon>
             <span>Member Contributions</span>
           </div>
-          <select class="dl-select section-sort-select" [(ngModel)]="selectedSort" (change)="sortMembers()">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+          <app-select
+            class="section-sort-select"
+            variant="chip"
+            [value]="selectedSort"
+            [options]="sortOptions"
+            ariaLabel="Sort members"
+            (valueChange)="sortMembers($event)">
+          </app-select>
         </div>
 
         <div class="member-stats-list">
@@ -115,11 +118,14 @@
             <app-icon name="history"></app-icon>
             <span>All Nodes ({{ totalNodes }})</span>
           </div>
-          <select class="dl-select section-sort-select" [(ngModel)]="selectedRecentSort" (change)="sortRecentNodes()">
-            @for (opt of recentSortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+          <app-select
+            class="section-sort-select"
+            variant="chip"
+            [value]="selectedRecentSort"
+            [options]="recentSortOptions"
+            ariaLabel="Sort nodes"
+            (valueChange)="sortRecentNodes($event)">
+          </app-select>
         </div>
 
         <div class="activity-list">

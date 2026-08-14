@@ -18,10 +18,10 @@
           <app-icon name="user"></app-icon>
           {{ memberCount }}/{{ workspace.memberLimit }}
         </span>
-        @if (workspace.metadata.category) {
+        @if (badge) {
           <span class="meta-item">
             <app-icon name="tag"></app-icon>
-            {{ workspace.metadata.category }}
+            {{ badge }}
           </span>
         }
       </div>

@@ -8,7 +8,7 @@ import { IconComponent } from '../../../ui/icon.component';
 import { AuthService } from '../../../services/auth.service';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
-import { Workspace, WorkspaceInvite, WorkspaceMember } from '../../../models/workspace.model';
+import { Workspace, WorkspaceInvite, WorkspaceMember, workspacePurpose, workspaceBadge } from '../../../models/workspace.model';
 
 @Component({
     selector: 'app-join-workspace',
@@ -115,11 +115,11 @@ export class JoinWorkspaceComponent implements OnInit {
   }
 
   get previewGoal(): string {
-    return this.workspace?.metadata?.goal || this.invite?.goal || '';
+    return workspacePurpose(this.workspace?.metadata) || this.invite?.purpose || this.invite?.goal || '';
   }
 
   get previewCategory(): string {
-    return this.workspace?.metadata?.category || this.invite?.category || '';
+    return workspaceBadge(this.workspace?.metadata) || this.invite?.category || '';
   }
 
   get previewOwner(): string {

@@ -72,9 +72,11 @@
   </header>
 }
 
+<app-toast-host></app-toast-host>
+<app-dialog-host></app-dialog-host>
+<app-menu-host></app-menu-host>
+
 <div class="app-shell" [class.auth-shell]="isAuthRoute">
-  <app-toast-host></app-toast-host>
-  <app-dialog-host></app-dialog-host>
   <main class="app-main">
     <router-outlet></router-outlet>
   </main>

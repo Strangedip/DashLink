@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../ui/icon.component';
-import { Workspace } from '../../../models/workspace.model';
+import { Workspace, workspaceBadge } from '../../../models/workspace.model';
 
 @Component({
     selector: 'app-workspace-card',
@@ -21,6 +21,10 @@ export class WorkspaceCardComponent {
 
   get memberCount(): number {
     return this.workspace.members?.filter(m => !m.banned).length || 0;
+  }
+
+  get badge(): string {
+    return workspaceBadge(this.workspace?.metadata);
   }
 
   onClick(): void {

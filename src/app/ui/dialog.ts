@@ -78,7 +78,7 @@ export class DialogService {
       <div class="dl-overlay" (click)="onMask(dialog)">
         <section
           class="dl-sheet"
-          [style.maxWidth]="dialog.config.width || '32rem'"
+          [style.--dl-sheet-width]="dialog.config.width || '32rem'"
           (click)="$event.stopPropagation()"
           role="dialog"
           aria-modal="true">

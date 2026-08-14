@@ -25,12 +25,12 @@
         <div [formGroupName]="i" class="custom-field-item">
           <div class="p-field">
             <label [for]="'fieldType' + i">Field Type</label>
-            <select class="dl-select" [id]="'fieldType' + i" formControlName="fieldType" required>
-              <option value="" disabled>Select a Type</option>
-              @for (t of fieldTypes; track t.code) {
-                <option [value]="t.code">{{ t.name }}</option>
-              }
-            </select>
+            <app-select
+              [inputId]="'fieldType' + i"
+              formControlName="fieldType"
+              [options]="fieldTypeOptions"
+              placeholder="Select a type">
+            </app-select>
             @if (field.get('fieldType')?.invalid && field.get('fieldType')?.touched) {
               <p class="dl-field-error">Field Type is required.</p>
             }
@@ -95,7 +95,7 @@
 
   </div>
   <div class="p-dialog-footer">
-    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
+    <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
     <app-btn label="Save" icon="check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></app-btn>
   </div>
 </div>

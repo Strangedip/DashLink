@@ -7,11 +7,12 @@ import { IconComponent } from '../../../ui/icon.component';
 import { CheckComponent } from '../../../ui/check.component';
 import { DateFieldComponent } from '../../../ui/date-field.component';
 import { RatingComponent } from '../../../ui/rating.component';
+import { SelectComponent } from '../../../ui/select.component';
 import { urlValidator } from '../../../validators/url.validator';
 import { CloudinaryService } from '../../../services/cloudinary.service';
 import {
   WorkspaceFieldSchema, WorkspaceNodeField, WorkspaceNode,
-  WORKSPACE_FIELD_TYPES, WorkspaceFieldTypeOption, generateFieldId
+  WORKSPACE_FIELD_TYPES, generateFieldId
 } from '../../../models/workspace.model';
 
 const CLOUD_NAME = 'dkubkgfre';
@@ -21,7 +22,7 @@ const UPLOAD_PRESET = 'Dashlink';
     selector: 'app-add-workspace-node-dialog',
     imports: [
         CommonModule, ReactiveFormsModule,
-        BtnComponent, IconComponent, CheckComponent, DateFieldComponent, RatingComponent
+        BtnComponent, IconComponent, CheckComponent, DateFieldComponent, RatingComponent, SelectComponent
     ],
     templateUrl: './add-workspace-node-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -31,7 +32,7 @@ export class AddWorkspaceNodeDialogComponent implements OnInit {
   nodeForm!: FormGroup;
   schema: WorkspaceFieldSchema[] = [];
   useCustomSchema: boolean = true;
-  fieldTypes: WorkspaceFieldTypeOption[] = WORKSPACE_FIELD_TYPES;
+  readonly fieldTypeOptions = WORKSPACE_FIELD_TYPES.map(type => ({ value: type.code, label: type.name }));
   uploadingFieldIndex: number | null = null;
 
   isEditMode = false;

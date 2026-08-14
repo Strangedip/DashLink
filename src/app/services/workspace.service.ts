@@ -26,11 +26,25 @@ export class WorkspaceService {
   getWorkspaces(userId: string): Observable<Workspace[]> {
     try {
       const workspacesRef = collection(this.firestore, 'workspaces') as CollectionReference<Workspace>;
-      const q = query(workspacesRef, where('memberIds', 'array-contains', userId)) as Query<Workspace>;
-      return (collectionData(q, { idField: 'id' }) as Observable<Workspace[]>).pipe(
-        catchError((error: unknown) => {
-          this.logger.error('Error fetching workspaces:', error);
-          return of([]);
+      const byMember = query(workspacesRef, where('memberIds', 'array-contains', userId)) as Query<Workspace>;
+      const byOwner = query(workspacesRef, where('ownerId', '==', userId)) as Query<Workspace>;
+      const listen = (ref: Query<Workspace>, label: string) =>
+        (collectionData(ref, { idField: 'id' }) as Observable<Workspace[]>).pipe(
+          catchError((error: unknown) => {
+            this.logger.error(`Error fetching workspaces (${label}):`, error);
+            return of([]);
+          })
+        );
+
+      return combineLatest([listen(byMember, 'member'), listen(byOwner, 'owner')]).pipe(
+        map(([members, owned]) => {
+          const byId = new Map<string, Workspace>();
+          for (const workspace of [...owned, ...members]) {
+            if (workspace.id) {
+              byId.set(workspace.id, workspace);
+            }
+          }
+          return [...byId.values()];
         })
       );
     } catch (error: unknown) {
@@ -75,6 +89,7 @@ export class WorkspaceService {
         memberLimit: workspaceData.memberLimit,
         memberCount: workspaceData.memberIds?.length || 1,
         goal: workspaceData.metadata?.goal,
+        purpose: workspaceData.metadata?.purpose || workspaceData.metadata?.goal,
         category: workspaceData.metadata?.category
       });
 
@@ -117,6 +132,7 @@ export class WorkspaceService {
       memberLimit?: number;
       memberCount?: number;
       goal?: string;
+      purpose?: string;
       category?: string;
     }
   ): Promise<void> {
@@ -129,7 +145,8 @@ export class WorkspaceService {
       description: preview.description || '',
       memberLimit: preview.memberLimit || 12,
       memberCount: preview.memberCount || 1,
-      goal: preview.goal || '',
+      goal: preview.goal || preview.purpose || '',
+      purpose: preview.purpose || preview.goal || '',
       category: preview.category || '',
       active: true,
       createdAt: new Date()
@@ -164,6 +181,7 @@ export class WorkspaceService {
         memberLimit: workspace.memberLimit,
         memberCount: workspace.memberIds?.length || 1,
         goal: workspace.metadata?.goal,
+        purpose: workspace.metadata?.purpose || workspace.metadata?.goal,
         category: workspace.metadata?.category
       });
       await this.updateWorkspace(workspace.id!, { inviteCode: newCode });
@@ -233,8 +251,8 @@ export class WorkspaceService {
   getWorkspaceCollections(workspaceId: string, parentCollectionId: string | null): Observable<WorkspaceCollection[]> {
     try {
       const collectionsRef = collection(this.firestore, `workspaces/${workspaceId}/collections`) as CollectionReference<WorkspaceCollection>;
-      const q = query(collectionsRef, where('parentCollectionId', '==', parentCollectionId)) as Query<WorkspaceCollection>;
-      return (collectionData(q, { idField: 'id' }) as Observable<WorkspaceCollection[]>).pipe(
+      return (collectionData(collectionsRef, { idField: 'id' }) as Observable<WorkspaceCollection[]>).pipe(
+        map(collections => collections.filter(item => this.sameParent(item.parentCollectionId, parentCollectionId))),
         catchError((error: unknown) => {
           this.logger.error('Error fetching workspace collections:', error);
           return of([]);
@@ -504,5 +522,10 @@ export class WorkspaceService {
     }
 
     return migratedFields;
+  }
+
+  private sameParent(value: string | null | undefined, expected: string | null): boolean {
+    const normalized = value == null || value === '' ? null : value;
+    return normalized === expected;
   }
 }

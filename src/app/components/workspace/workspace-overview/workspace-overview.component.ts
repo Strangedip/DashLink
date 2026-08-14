@@ -1,6 +1,5 @@
 import { Component, OnInit, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, filter, switchMap, take } from 'rxjs';
@@ -8,6 +7,7 @@ import { DialogService } from '../../../ui/dialog';
 import { BtnComponent } from '../../../ui/btn.component';
 import { AvatarComponent } from '../../../ui/avatar.component';
 import { IconComponent } from '../../../ui/icon.component';
+import { SelectComponent } from '../../../ui/select.component';
 import { Workspace, WorkspaceNode, WorkspaceMember } from '../../../models/workspace.model';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { AuthService } from '../../../services/auth.service';
@@ -28,7 +28,7 @@ interface NodeRow {
 @Component({
     selector: 'app-workspace-overview',
     imports: [
-        CommonModule, FormsModule, BtnComponent, AvatarComponent, IconComponent
+        CommonModule, BtnComponent, AvatarComponent, IconComponent, SelectComponent
     ],
     providers: [DatePipe],
     templateUrl: './workspace-overview.component.html',
@@ -146,7 +146,10 @@ export class WorkspaceOverviewComponent implements OnInit {
     }));
   }
 
-  sortMembers(): void {
+  sortMembers(value?: string): void {
+    if (value) {
+      this.selectedSort = value;
+    }
     const stats = [...this.memberStats];
     switch (this.selectedSort) {
       case 'nodes-desc': stats.sort((a, b) => b.nodeCount - a.nodeCount); break;
@@ -158,7 +161,10 @@ export class WorkspaceOverviewComponent implements OnInit {
     this.memberStats = stats;
   }
 
-  sortRecentNodes(): void {
+  sortRecentNodes(value?: string): void {
+    if (value) {
+      this.selectedRecentSort = value;
+    }
     const nodes = [...this.recentNodes];
     switch (this.selectedRecentSort) {
       case 'newest': nodes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); break;
@@ -202,7 +208,7 @@ export class WorkspaceOverviewComponent implements OnInit {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard'], { queryParams: { tab: 'teams' } });
   }
 
   viewNode(node: WorkspaceNode): void {

@@ -91,7 +91,7 @@
   }
 }
 
-.page-header { margin: 0.35rem 0 1rem; }
+.page-header { margin: 0.35rem 0 0.85rem; }
 
 .header-row {
   display: flex;
@@ -139,4 +139,6 @@
 @media (min-width: 768px) {
   .ws-title-block h1 { font-size: 1.45rem; }
   .desktop-add { display: inline-flex; }
+  .page-header { margin-bottom: 1.1rem; }
+  .dl-list-tools { margin-bottom: 1.1rem; }
 }

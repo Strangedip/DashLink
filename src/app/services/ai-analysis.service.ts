@@ -1,13 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Firestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { FIRESTORE } from '../firebase/firebase.providers';
-import { Workspace, WorkspaceNode, WorkspaceCollection } from '../models/workspace.model';
+import { Workspace, WorkspaceNode, WorkspaceCollection, workspacePurpose, workspaceDetails } from '../models/workspace.model';
 
 export interface AIAnalysisData {
   workspace: {
     name: string;
     description: string;
     goal: string;
+    purpose?: string;
+    notes?: Array<{ label: string; value: string }>;
     rules?: string;
     duration?: string;
     penalty?: string;
@@ -133,12 +135,14 @@ export class AiAnalysisService {
       workspace: {
         name: workspace.name,
         description: workspace.description,
-        goal: workspace.metadata.goal || '',
-        rules: workspace.metadata.rules,
-        duration: workspace.metadata.duration,
-        penalty: workspace.metadata.penalty,
-        category: workspace.metadata.category,
-        tags: workspace.metadata.tags,
+        goal: workspacePurpose(workspace.metadata),
+        purpose: workspacePurpose(workspace.metadata),
+        notes: workspaceDetails(workspace.metadata).map(item => ({ label: item.label, value: item.value })),
+        rules: workspace.metadata?.rules,
+        duration: workspace.metadata?.duration,
+        penalty: workspace.metadata?.penalty,
+        category: workspace.metadata?.category,
+        tags: workspace.metadata?.tags,
         memberLimit: workspace.memberLimit,
         totalMembers: members.length,
         createdAt: this.tsToIso(workspace.createdAt) || new Date().toISOString(),
@@ -236,11 +240,11 @@ export class AiAnalysisService {
       nodes: data.nodes.slice(0, 50),
     };
 
-    const penaltyLine = data.workspace.penalty
-      ? `   - Apply penalties based on this rule: "${data.workspace.penalty}"`
-      : '';
-    const rulesLine = data.workspace.rules
-      ? `   - Check compliance with workspace rules: "${data.workspace.rules}"`
+    const notes = (data.workspace.notes || [])
+      .map(note => `   - ${note.label}: "${note.value}"`)
+      .join('\n');
+    const notesBlock = notes
+      ? `   Use these owner notes when they are relevant:\n${notes}`
       : '';
     const customQLine = customQuestion
       ? `4. Answer this custom question based only on the data: "${customQuestion}"`
@@ -260,9 +264,8 @@ REQUIREMENTS:
    - A paragraph analysing their contribution and activity patterns
    - A "warnings" array (empty array [] if none)
    - A "recommendations" array with at least one personalised tip
-   - A "penalties" array (empty array [] if no penalty rule exists or member is compliant)
-${penaltyLine}
-${rulesLine}
+   - A "penalties" array only if the owner notes describe a penalty or consequence; otherwise use []
+${notesBlock}
 3. Provide 2–4 team-level strengths, concerns, and actionable suggestions each.
 ${customQLine}
 

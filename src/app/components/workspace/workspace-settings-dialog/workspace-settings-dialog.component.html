@@ -1,20 +1,14 @@
 <div class="settings-container">
-  <div class="flex w-full gap-1 overflow-x-auto rounded-full border border-dl-border bg-dl-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Settings sections">
-    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
-      [class.bg-white/10]="activeTab === '0'" [class.text-dl-text]="activeTab === '0'"
-      [attr.aria-selected]="activeTab === '0'" (click)="activeTab = '0'">
+  <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+    <button type="button" role="tab" [class.on]="activeTab === '0'" [attr.aria-selected]="activeTab === '0'" (click)="activeTab = '0'">
       <app-icon name="info-circle"></app-icon> Info
     </button>
-    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
-      [class.bg-white/10]="activeTab === '1'" [class.text-dl-text]="activeTab === '1'"
-      [attr.aria-selected]="activeTab === '1'" (click)="activeTab = '1'">
+    <button type="button" role="tab" [class.on]="activeTab === '1'" [attr.aria-selected]="activeTab === '1'" (click)="activeTab = '1'">
       <app-icon name="users"></app-icon>
-      <span class="hidden sm:inline">Members ({{ activeMembers.length }}/{{ workspace.memberLimit }})</span>
-      <span class="sm:hidden">Team</span>
+      <span class="tab-full">Members ({{ activeMembers.length }}/{{ workspace.memberLimit }})</span>
+      <span class="tab-short">Team</span>
     </button>
-    <button type="button" role="tab" class="inline-flex min-h-11 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 text-sm font-semibold text-dl-muted"
-      [class.bg-white/10]="activeTab === '2'" [class.text-dl-text]="activeTab === '2'"
-      [attr.aria-selected]="activeTab === '2'" (click)="activeTab = '2'">
+    <button type="button" role="tab" [class.on]="activeTab === '2'" [attr.aria-selected]="activeTab === '2'" (click)="activeTab = '2'">
       <app-icon name="share-alt"></app-icon> Invite
     </button>
   </div>
@@ -45,37 +39,19 @@
               }
             </div>
           </div>
-          @if (workspace.metadata.goal) {
+          @if (purpose) {
             <div class="info-item">
-              <span class="info-label"><app-icon name="bullseye"></app-icon> Goal</span>
-              <span class="info-value">{{ workspace.metadata.goal }}</span>
+              <span class="info-label"><app-icon name="bullseye"></app-icon> Purpose</span>
+              <span class="info-value">{{ purpose }}</span>
             </div>
           }
-          @if (workspace.metadata.rules) {
+          @for (note of extraNotes; track note.id) {
             <div class="info-item">
-              <span class="info-label"><app-icon name="book"></app-icon> Rules</span>
-              <span class="info-value">{{ workspace.metadata.rules }}</span>
+              <span class="info-label">{{ note.label }}</span>
+              <span class="info-value">{{ note.value }}</span>
             </div>
           }
-          @if (workspace.metadata.duration) {
-            <div class="info-item">
-              <span class="info-label"><app-icon name="clock"></app-icon> Duration</span>
-              <span class="info-value">{{ workspace.metadata.duration }}</span>
-            </div>
-          }
-          @if (workspace.metadata.penalty) {
-            <div class="info-item">
-              <span class="info-label"><app-icon name="exclamation-triangle"></app-icon> Penalty</span>
-              <span class="info-value">{{ workspace.metadata.penalty }}</span>
-            </div>
-          }
-          @if (workspace.metadata.category) {
-            <div class="info-item">
-              <span class="info-label"><app-icon name="tag"></app-icon> Category</span>
-              <span class="info-value">{{ workspace.metadata.category }}</span>
-            </div>
-          }
-          @if (workspace.metadata.tags?.length) {
+          @if (workspace.metadata?.tags?.length) {
             <div class="info-item">
               <span class="info-label"><app-icon name="tags"></app-icon> Tags</span>
               <div class="tags-display">

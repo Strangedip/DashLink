@@ -1,9 +1,15 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .join-workspace-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100dvh - var(--dl-nav-height));
-  padding: 1rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+  min-height: 100%;
+  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 .loading-state, .error-state {
@@ -28,7 +34,8 @@
   border-radius: 16px;
   width: 100%;
   max-width: 440px;
-  overflow: hidden;
+  max-height: 100%;
+  overflow: auto;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
@@ -143,8 +150,9 @@
 }
 
 @media (max-width: 480px) {
-  .join-card-header { padding: 1.5rem 1rem; }
+  .join-card-header { padding: 1.15rem 1rem 1rem; }
   .join-card-details,
-  .join-card-actions { padding: 1rem; }
-  .join-card-header h2 { font-size: 1.25rem; }
+  .join-card-actions { padding: 0.9rem 1rem; }
+  .join-card-header h2 { font-size: 1.2rem; }
+  .workspace-icon-large { width: 52px; height: 52px; }
 }

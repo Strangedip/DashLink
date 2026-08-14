@@ -6,6 +6,7 @@ import { urlValidator } from '../../validators/url.validator';
 import { DynamicDialogRef, DynamicDialogConfig } from '../../ui/dialog';
 import { BtnComponent } from '../../ui/btn.component';
 import { DateFieldComponent } from '../../ui/date-field.component';
+import { SelectComponent } from '../../ui/select.component';
 
 import { Node, CustomField } from '../../models/data.model';
 import { CloudinaryService } from '../../services/cloudinary.service';
@@ -24,7 +25,8 @@ interface FieldType {
         CommonModule,
         ReactiveFormsModule,
         BtnComponent,
-        DateFieldComponent
+        DateFieldComponent,
+        SelectComponent
     ],
     templateUrl: './add-node-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -42,6 +44,7 @@ export class AddNodeDialogComponent implements OnInit {
     { name: 'Date',         code: 'date'     },
     { name: 'Image Upload', code: 'imageUrl' }
   ];
+  readonly fieldTypeOptions = this.fieldTypes.map(type => ({ value: type.code, label: type.name }));
 
   constructor(
     public ref: DynamicDialogRef,

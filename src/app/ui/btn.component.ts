@@ -83,7 +83,7 @@ export class BtnComponent {
       : (this.size === 'sm' ? 'h-11 px-3.5 text-sm' : 'h-12 px-4 text-[0.95rem]');
     const radius = this.rounded || iconOnly ? 'rounded-full' : 'rounded-xl';
     const variants: Record<BtnVariant, string> = {
-      primary: 'bg-dl-accent text-white hover:bg-green-600',
+      primary: 'bg-dl-accent text-white hover:bg-dl-accent-hover',
       outline: 'border border-dl-border bg-transparent text-dl-text hover:bg-white/5',
       ghost: 'bg-transparent text-dl-muted hover:bg-white/6 hover:text-dl-text',
       'ghost-danger': 'bg-transparent text-red-400 hover:bg-red-500/10',

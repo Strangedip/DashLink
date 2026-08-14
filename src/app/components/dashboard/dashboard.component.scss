@@ -47,11 +47,16 @@
   color: var(--dl-accent-soft);
 }
 
+.page-header {
+  margin-bottom: 0.9rem;
+}
+
 .header-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
+  margin-bottom: 0.15rem;
 }
 
 .header-copy {
@@ -115,6 +120,8 @@
 }
 
 @media (min-width: 768px) {
+  .page-header { margin-bottom: 1.15rem; }
   .title-block h1 { font-size: 1.6rem; }
   .desktop-add { display: inline-flex; }
+  .dl-list-tools { margin-bottom: 1.1rem; }
 }

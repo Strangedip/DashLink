@@ -5,7 +5,7 @@ import { DynamicDialogRef, DynamicDialogConfig } from '../../../ui/dialog';
 import { BtnComponent } from '../../../ui/btn.component';
 import { AvatarComponent } from '../../../ui/avatar.component';
 import { IconComponent } from '../../../ui/icon.component';
-import { Workspace, WorkspaceMember } from '../../../models/workspace.model';
+import { Workspace, WorkspaceMember, workspacePurpose, workspaceDetails } from '../../../models/workspace.model';
 import { WorkspaceService } from '../../../services/workspace.service';
 import { ToastService } from '../../../services/toast.service';
 
@@ -53,6 +53,16 @@ export class WorkspaceSettingsDialogComponent implements OnInit {
 
   get bannedMembers(): WorkspaceMember[] {
     return this.workspace.members?.filter(m => m.banned) || [];
+  }
+
+  get purpose(): string {
+    return workspacePurpose(this.workspace?.metadata);
+  }
+
+  get extraNotes() {
+    return workspaceDetails(this.workspace?.metadata).filter(item =>
+      item.label.toLowerCase() !== 'goal' || item.value !== this.purpose
+    );
   }
 
   getMemberInitial(member: WorkspaceMember): string {

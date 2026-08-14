@@ -24,7 +24,9 @@ import { DialogService } from '../../ui/dialog';
 import { BtnComponent } from '../../ui/btn.component';
 import { BreadcrumbComponent } from '../../ui/breadcrumb.component';
 import { IconComponent } from '../../ui/icon.component';
+import { SelectComponent } from '../../ui/select.component';
 import { PreferencesService, RecentItem } from '../../services/preferences.service';
+import { compareItems, ITEM_SORT_OPTIONS, ItemSort } from '../../utils/item-sort';
 
 @Component({
     selector: 'app-dashboard',
@@ -37,6 +39,7 @@ import { PreferencesService, RecentItem } from '../../services/preferences.servi
         BtnComponent,
         BreadcrumbComponent,
         IconComponent,
+        SelectComponent,
         FormsModule
     ],
     providers: [],
@@ -66,10 +69,12 @@ export class DashboardComponent implements OnInit {
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem | undefined;
 
-  workspaces$: Observable<Workspace[]> | undefined;
+  workspaces: Workspace[] = [];
+  workspacesReady = false;
   activeTab: 'personal' | 'workspaces' = 'personal';
   joinDialogVisible = false;
   joinCode = '';
+  readonly sortOptions = ITEM_SORT_OPTIONS;
   private latestItems: ((Collection & { type: 'collection' }) | (Node & { type: 'node' }))[] = [];
   private pendingOpenNode: string | null = null;
 
@@ -87,6 +92,22 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const inCollection = !!this.route.snapshot.paramMap.get('collectionId');
+    const queryTab = this.route.snapshot.queryParamMap.get('tab');
+    if (inCollection) {
+      this.activeTab = 'personal';
+    } else if (queryTab === 'teams' || queryTab === 'workspaces') {
+      this.activeTab = 'workspaces';
+      this.prefs.setDashboardTab('workspaces');
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    } else {
+      this.activeTab = this.prefs.dashboardTab();
+    }
     this.updateMenuItems();
 
     this.authService.user$.pipe(
@@ -97,11 +118,14 @@ export class DashboardComponent implements OnInit {
       this.currentUserIdSubject.next(uid);
     });
 
-    this.workspaces$ = this.currentUserIdSubject.pipe(
-      filter(uid => !!uid),
-      switchMap(uid => this.workspaceService.getWorkspaces(uid!)),
+    this.currentUserIdSubject.pipe(
+      filter((uid): uid is string => !!uid),
+      switchMap(uid => this.workspaceService.getWorkspaces(uid)),
       takeUntilDestroyed(this.destroyRef)
-    );
+    ).subscribe(list => {
+      this.workspaces = list;
+      this.workspacesReady = true;
+    });
 
     this.home = { icon: 'home', routerLink: '/' };
 
@@ -167,10 +191,12 @@ export class DashboardComponent implements OnInit {
       this.currentCollectionIdSubject,
       this.searchControl.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
       this.isGlobalSearchSubject,
-      this.prefs.pins$
+      this.prefs.pins$,
+      this.prefs.sort$,
+      this.prefs.recents$
     ]).pipe(
       tap(() => this.isLoading = true),
-      switchMap(([userId, collectionId, searchTerm, isGlobal]) => {
+      switchMap(([userId, collectionId, searchTerm, isGlobal, _pins, sort, recents]) => {
         this._searchFilter = searchTerm || '';
 
         let collectionsObs: Observable<Collection[]>;
@@ -206,14 +232,13 @@ export class DashboardComponent implements OnInit {
               ...collections.map(c => ({ ...c, type: 'collection' as const })),
               ...nodes.map(n => ({ ...n, type: 'node' as const }))
             ];
-            return combined.sort((a, b) => {
-              const aPinned = a.type === 'collection' && this.prefs.isPinned(a.id);
-              const bPinned = b.type === 'collection' && this.prefs.isPinned(b.id);
-              if (aPinned !== bPinned) return aPinned ? -1 : 1;
-              if (a.type === 'collection' && b.type === 'node') return -1;
-              if (a.type === 'node' && b.type === 'collection') return 1;
-              return (a.name || '').localeCompare(b.name || '');
-            }).filter(item => {
+            return combined.sort((a, b) => compareItems(
+              a,
+              b,
+              sort,
+              recents,
+              new Set(this.prefs.pins())
+            )).filter(item => {
               if (!this._searchFilter) return true;
               const lowerCaseSearchFilter = this._searchFilter.toLowerCase();
 
@@ -575,7 +600,7 @@ export class DashboardComponent implements OnInit {
     if (!this.currentUserId) return;
 
     const dialogRef = this.dialogService.open(CreateWorkspaceDialogComponent, {
-      header: 'Create Workspace',
+      header: 'New workspace',
       width: '600px',
       style: { 'max-width': '96vw' }
     });
@@ -610,6 +635,7 @@ export class DashboardComponent implements OnInit {
           aiApiKey: result.aiApiKey || ''
         });
 
+        this.prefs.setDashboardTab('workspaces');
         this.toastService.showSuccess('Created', 'Workspace created successfully!');
         this.router.navigate(['/workspaces', workspaceId]);
       } catch (error: unknown) {
@@ -632,6 +658,8 @@ export class DashboardComponent implements OnInit {
 
   setActiveTab(tab: 'personal' | 'workspaces'): void {
     this.activeTab = tab;
+    this.prefs.setDashboardTab(tab);
+    this.searchControl.setValue('');
     if (tab === 'workspaces' && this.isGlobalSearch) {
       this.isGlobalSearch = false;
       this.isGlobalSearchSubject.next(false);
@@ -659,14 +687,26 @@ export class DashboardComponent implements OnInit {
   filteredWorkspaces(workspaces: Workspace[] | null | undefined): Workspace[] {
     const list = workspaces || [];
     const query = (this.searchControl.value || '').trim().toLowerCase();
-    if (!query || this.activeTab !== 'workspaces') {
-      return list;
-    }
-    return list.filter(workspace =>
-      workspace.name?.toLowerCase().includes(query) ||
-      workspace.description?.toLowerCase().includes(query) ||
-      workspace.metadata?.category?.toLowerCase().includes(query)
-    );
+    const filtered = !query || this.activeTab !== 'workspaces'
+      ? list
+      : list.filter(workspace =>
+        workspace.name?.toLowerCase().includes(query) ||
+        workspace.description?.toLowerCase().includes(query) ||
+        workspace.metadata?.category?.toLowerCase().includes(query) ||
+        workspace.metadata?.purpose?.toLowerCase().includes(query) ||
+        workspace.metadata?.goal?.toLowerCase().includes(query)
+      );
+    const recents = this.prefs.recents();
+    return [...filtered].sort((a, b) => compareItems(
+      { ...a, type: 'workspace' },
+      { ...b, type: 'workspace' },
+      this.prefs.sort(),
+      recents
+    ));
+  }
+
+  onSortChange(value: string): void {
+    this.prefs.setSort(value as ItemSort);
   }
 
   openJoinDialog(): void {

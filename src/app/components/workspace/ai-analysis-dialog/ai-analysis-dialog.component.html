@@ -11,7 +11,7 @@
           <ul>
             <li><strong>{{ analysisData.stats.totalNodes }}</strong> nodes across <strong>{{ analysisData.stats.totalCollections }}</strong> collections</li>
             <li><strong>{{ analysisData.members.length }}</strong> members and their contributions</li>
-            <li>Workspace rules, goals{{ workspace.metadata.penalty ? ', and penalties' : '' }}</li>
+            <li>Workspace purpose and any notes the owner added</li>
             <li>Activity patterns and team dynamics</li>
           </ul>
         </div>
@@ -25,25 +25,13 @@
             <span class="preview-value">{{ workspace.name }}</span>
           </div>
           <div class="preview-item">
-            <span class="preview-label">Goal</span>
-            <span class="preview-value">{{ workspace.metadata.goal || '—' }}</span>
+            <span class="preview-label">Purpose</span>
+            <span class="preview-value">{{ analysisData.workspace.purpose || analysisData.workspace.goal || '—' }}</span>
           </div>
-          @if (workspace.metadata.rules) {
+          @for (note of analysisData.workspace.notes; track note.label) {
             <div class="preview-item">
-              <span class="preview-label">Rules</span>
-              <span class="preview-value">{{ workspace.metadata.rules }}</span>
-            </div>
-          }
-          @if (workspace.metadata.penalty) {
-            <div class="preview-item">
-              <span class="preview-label">Penalty</span>
-              <span class="preview-value penalty-value">{{ workspace.metadata.penalty }}</span>
-            </div>
-          }
-          @if (workspace.metadata.duration) {
-            <div class="preview-item">
-              <span class="preview-label">Duration</span>
-              <span class="preview-value">{{ workspace.metadata.duration }}</span>
+              <span class="preview-label">{{ note.label }}</span>
+              <span class="preview-value">{{ note.value }}</span>
             </div>
           }
         </div>
@@ -87,7 +75,7 @@
     </div>
 
     <div class="dialog-footer">
-      <app-btn label="Cancel" icon="times" (click)="close()" variant="ghost"></app-btn>
+      <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="close()" variant="ghost"></app-btn>
       <app-btn label="Analyze with AI" icon="sparkles" (click)="runAnalysis()" [disabled]="!hasApiKey || isAnalyzing">
       </app-btn>
     </div>

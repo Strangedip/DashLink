@@ -89,12 +89,12 @@
                 </div>
               }
               @case ('dropdown') {
-                <select class="dl-select" [id]="'sf-' + i" formControlName="value">
-                  <option value="" disabled>Select an option</option>
-                  @for (opt of getDropdownOptions(i); track opt.value) {
-                    <option [value]="opt.value">{{ opt.label }}</option>
-                  }
-                </select>
+                <app-select
+                  [inputId]="'sf-' + i"
+                  formControlName="value"
+                  [options]="getDropdownOptions(i)"
+                  placeholder="Select an option">
+                </app-select>
               }
               @case ('color') {
                 <input type="color" formControlName="value">
@@ -125,12 +125,11 @@
           <div [formGroupName]="i" class="custom-field-item">
             <div class="p-field flex-grow-1">
               <label>Field Type</label>
-              <select class="dl-select" formControlName="fieldType">
-                <option [ngValue]="null" disabled>Select Type</option>
-                @for (ft of fieldTypes; track ft.code) {
-                  <option [ngValue]="ft.code">{{ ft.name }}</option>
-                }
-              </select>
+              <app-select
+                formControlName="fieldType"
+                [options]="fieldTypeOptions"
+                placeholder="Select type">
+              </app-select>
             </div>
             <div class="p-field flex-grow-1">
               <label>Field Name</label>
@@ -151,7 +150,7 @@
   </div>
 
   <div class="p-dialog-footer">
-    <app-btn label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
+    <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="onCancel()" variant="ghost"></app-btn>
     <app-btn [label]="isEditMode ? 'Update' : 'Save'" icon="check" (click)="onSubmit()" [disabled]="!nodeForm.valid"></app-btn>
   </div>
 </div>

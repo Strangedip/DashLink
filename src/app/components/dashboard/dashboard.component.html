@@ -57,7 +57,22 @@
       }
     </header>
 
-    @if (prefs.recents().length && !searchControl.value) {
+    <div class="dl-list-tools">
+      <app-select
+        variant="chip"
+        label="Sort"
+        [value]="prefs.sort()"
+        [options]="sortOptions"
+        ariaLabel="Sort items"
+        (valueChange)="onSortChange($event)">
+      </app-select>
+      <button type="button" class="dl-tool-chip" [class.on]="prefs.showRecents()" (click)="prefs.toggleShowRecents()">
+        <app-icon name="history"></app-icon>
+        Recents
+      </button>
+    </div>
+
+    @if (prefs.showRecents() && prefs.recents().length && !searchControl.value) {
       <div class="dl-recents" aria-label="Recent items">
         <span class="dl-recents-label"><app-icon name="history"></app-icon> Recent</span>
         <div class="dl-recents-list">
@@ -121,13 +136,28 @@
       <div class="header-row">
         <div class="title-block">
           <h1>Shared workspaces</h1>
-          <p>Collaborate with a team using a shared structure.</p>
+          <p>A shared space for a group — trips, attendance, projects, or anything else.</p>
         </div>
         <app-btn type="button" icon="plus" label="New" (click)="openAddMenu($event)" class="desktop-add"></app-btn>
       </div>
     </header>
 
-    @if (prefs.recents().length && !searchControl.value) {
+    <div class="dl-list-tools">
+      <app-select
+        variant="chip"
+        label="Sort"
+        [value]="prefs.sort()"
+        [options]="sortOptions"
+        ariaLabel="Sort workspaces"
+        (valueChange)="onSortChange($event)">
+      </app-select>
+      <button type="button" class="dl-tool-chip" [class.on]="prefs.showRecents()" (click)="prefs.toggleShowRecents()">
+        <app-icon name="history"></app-icon>
+        Recents
+      </button>
+    </div>
+
+    @if (prefs.showRecents() && prefs.recents().length && !searchControl.value) {
       <div class="dl-recents" aria-label="Recent items">
         <span class="dl-recents-label"><app-icon name="history"></app-icon> Recent</span>
         <div class="dl-recents-list">
@@ -141,7 +171,7 @@
       </div>
     }
 
-    @if (workspaces$ | async; as workspaces) {
+    @if (workspacesReady) {
       @if (filteredWorkspaces(workspaces).length === 0 && searchControl.value) {
         <div class="dl-empty">
           <app-icon name="search"></app-icon>
@@ -174,7 +204,7 @@
 
   @if (addSheetOpen) {
     <div class="dl-overlay" (click)="addSheetOpen = false">
-      <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog" aria-label="Add">
+      <section class="dl-sheet dl-sheet-compact" (click)="$event.stopPropagation()" role="dialog" aria-label="Add">
         <div class="dl-sheet-handle"></div>
         <header class="dl-sheet-head">
           <h2>Add</h2>
@@ -203,7 +233,7 @@
 
 @if (joinDialogVisible) {
   <div class="dl-overlay" (click)="joinDialogVisible = false">
-    <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog">
+    <section class="dl-sheet dl-sheet-compact" (click)="$event.stopPropagation()" role="dialog">
       <div class="dl-sheet-handle"></div>
       <header class="dl-sheet-head">
         <h2>Join a workspace</h2>
@@ -216,7 +246,7 @@
         <label class="join-label" for="join-code">Invite code</label>
         <input id="join-code" type="text" class="dl-input" [(ngModel)]="joinCode" placeholder="e.g. aB3kX9pQ" autocomplete="off" (keyup.enter)="submitJoinCode()">
         <div class="dl-dialog-footer">
-          <app-btn label="Cancel" variant="ghost" (click)="joinDialogVisible = false"></app-btn>
+          <app-btn class="footer-dismiss" label="Cancel" variant="ghost" (click)="joinDialogVisible = false"></app-btn>
           <app-btn label="Continue" icon="arrow-right" (click)="submitJoinCode()"></app-btn>
         </div>
       </div>

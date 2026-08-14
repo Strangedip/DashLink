@@ -7,8 +7,8 @@
           <div class="ws-title-block">
             <h1>{{ workspace.name }}</h1>
             <div class="ws-meta-row">
-              @if (workspace.metadata.category) {
-                <span class="ws-category">{{ workspace.metadata.category }}</span>
+              @if (badge) {
+                <span class="ws-category">{{ badge }}</span>
               }
               <span class="member-count">
                 <app-icon name="users"></app-icon>
@@ -22,8 +22,8 @@
           <app-btn type="button" icon="cog" (click)="openSettings()" ariaLabel="Settings" title="Settings" variant="ghost" [rounded]="true"></app-btn>
         </div>
       </div>
-      @if (workspace.metadata.goal) {
-        <p class="ws-goal"><app-icon name="bullseye"></app-icon> {{ workspace.metadata.goal }}</p>
+      @if (purpose) {
+        <p class="ws-goal"><app-icon name="bullseye"></app-icon> {{ purpose }}</p>
       }
     </section>
   }
@@ -53,6 +53,17 @@
       <app-breadcrumb [items]="breadcrumbItems" [home]="home"></app-breadcrumb>
     }
   </header>
+
+  <div class="dl-list-tools">
+    <app-select
+      variant="chip"
+      label="Sort"
+      [value]="prefs.sort()"
+      [options]="sortOptions"
+      ariaLabel="Sort workspace items"
+      (valueChange)="onSortChange($event)">
+    </app-select>
+  </div>
 
   @if (isBanned) {
     <div class="banned-notice">
@@ -107,7 +118,7 @@
 
   @if (addSheetOpen) {
     <div class="dl-overlay" (click)="addSheetOpen = false">
-      <section class="dl-sheet" (click)="$event.stopPropagation()" role="dialog" aria-label="Add to workspace">
+      <section class="dl-sheet dl-sheet-compact" (click)="$event.stopPropagation()" role="dialog" aria-label="Add to workspace">
         <div class="dl-sheet-handle"></div>
         <header class="dl-sheet-head">
           <h2>Add</h2>

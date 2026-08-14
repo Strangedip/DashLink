@@ -46,7 +46,7 @@
   flex-shrink: 0;
   border-radius: 9px;
   overflow: hidden;
-  background: #1a1a1a;
+  background: var(--dl-card);
   border: 2px solid rgba(76, 175, 80, 0.2);
   transition: all 0.25s ease;
   display: flex;

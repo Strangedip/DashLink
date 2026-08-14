@@ -11,6 +11,7 @@ import { PreferencesService } from './services/preferences.service';
 import { AvatarComponent } from './ui/avatar.component';
 import { ToastHostComponent } from './ui/toast-host.component';
 import { DialogHostComponent, DialogService } from './ui/dialog';
+import { MenuHostComponent } from './ui/menu.component';
 import { LogoComponent } from './components/brand/logo.component';
 import { IconComponent } from './ui/icon.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
@@ -23,6 +24,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
         AvatarComponent,
         ToastHostComponent,
         DialogHostComponent,
+        MenuHostComponent,
         LogoComponent,
         IconComponent
     ],
