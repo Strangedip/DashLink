@@ -214,8 +214,8 @@ export class WorkspaceOverviewComponent implements OnInit {
   viewNode(node: WorkspaceNode): void {
     this.dialogService.open(ViewWorkspaceNodeDialogComponent, {
       header: node.name ?? 'Node Details',
-      width: '550px',
-      style: { 'max-width': '96vw' },
+      width: '32rem',
+      flush: true,
       dismissableMask: true,
       data: { node }
     });

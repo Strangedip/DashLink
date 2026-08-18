@@ -62,7 +62,7 @@ export class AppComponent {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(event => {
         const url = event.urlAfterRedirects.split('?')[0];
-        this.isAuthRoute = url === '/' || url.startsWith('/auth');
+        this.isAuthRoute = url === '/' || url.startsWith('/auth') || url.startsWith('/s');
         this.seo.applyForUrl(url);
         this.accountOpen = false;
       });

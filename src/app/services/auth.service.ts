@@ -48,6 +48,10 @@ export class AuthService {
     return this.auth.currentUser ? this.auth.currentUser.uid : null;
   }
 
+  get currentUser() {
+    return this.auth.currentUser;
+  }
+
   async sendPasswordReset(email: string): Promise<void> {
     return sendPasswordResetEmail(this.auth, email);
   }

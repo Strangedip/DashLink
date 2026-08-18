@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MenuItem } from '../../../ui/menu-item';
 import { BtnComponent } from '../../../ui/btn.component';
@@ -9,7 +9,7 @@ import { WorkspaceNode } from '../../../models/workspace.model';
 import { MenuService } from '../../../services/menu.service';
 import { CloudinaryService } from '../../../services/cloudinary.service';
 import { ShareService } from '../../../services/share.service';
-import { ToastService } from '../../../services/toast.service';
+import { LinkPreviewService } from '../../../services/link-preview.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,10 +20,11 @@ import { Subscription } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './workspace-node-card.component.scss'
 })
-export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
+export class WorkspaceNodeCardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() node!: WorkspaceNode;
   @Input() isOwner: boolean = false;
   @Input() currentUserId: string = '';
+  @Input() canShare = true;
   @Output() nodeClicked = new EventEmitter<WorkspaceNode>();
   @Output() editNode = new EventEmitter<WorkspaceNode>();
   @Output() deleteNodeRequest = new EventEmitter<{ id: string }>();
@@ -32,18 +33,20 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
 
   menuItems: MenuItem[] = [];
   primaryUrl: string | null = null;
+  imageUrl: string | null = null;
+  sharing = false;
   private menuSubscription: Subscription = new Subscription();
+  private previewSub?: Subscription;
 
   constructor(
     private menuService: MenuService,
     private datePipe: DatePipe,
     private cloudinaryService: CloudinaryService,
     private shareService: ShareService,
-    private toastService: ToastService
+    private linkPreview: LinkPreviewService
   ) {}
 
   ngOnInit(): void {
-    this.buildMenuItems();
     this.menuSubscription = this.menuService.menuOpened$.subscribe(openedMenuId => {
       if (openedMenuId !== this.node.id && this.menu?.visible) {
         this.menu.hide();
@@ -51,7 +54,18 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(): void {
+    if (this.node) {
+      this.buildMenuItems();
+      const uploaded = this.node.fields?.find(field => field.fieldType === 'image-upload' && field.value)?.value || null;
+      this.previewSub?.unsubscribe();
+      this.previewSub = this.linkPreview.displayImage(uploaded, this.primaryUrl)
+        .subscribe(url => { this.imageUrl = url; });
+    }
+  }
+
   ngOnDestroy(): void {
+    this.previewSub?.unsubscribe();
     this.menuSubscription.unsubscribe();
   }
 
@@ -66,6 +80,8 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
         label: 'Open link', icon: 'external-link',
         command: (event) => { event?.originalEvent?.stopPropagation(); this.openLink(); }
       });
+    }
+    if (this.canShare) {
       this.menuItems.push({
         label: 'Share', icon: 'share-alt',
         command: (event) => { event?.originalEvent?.stopPropagation(); void this.shareLink(); }
@@ -86,14 +102,7 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
   }
 
   get hasActions(): boolean {
-    return this.menuItems.length > 0 || !!this.primaryUrl;
-  }
-
-  get imageUrl(): string | null {
-    const imageField = this.node.fields?.find(f =>
-      f.fieldType === 'image-upload' && f.value
-    );
-    return imageField?.value || null;
+    return this.menuItems.length > 0 || !!this.primaryUrl || this.canShare;
   }
 
   getThumbnailUrl(imageUrl: string): string {
@@ -132,13 +141,22 @@ export class WorkspaceNodeCardComponent implements OnInit, OnDestroy {
 
   async shareLink(event?: Event): Promise<void> {
     event?.stopPropagation();
-    const result = await this.shareService.share({
-      title: this.node.name,
-      text: this.node.description || this.node.name,
-      url: this.primaryUrl || undefined
-    });
-    if (result === 'copied') {
-      this.toastService.showSuccess('Copied', 'Link copied to clipboard.');
+    if (!this.canShare || this.sharing) {
+      return;
+    }
+    this.sharing = true;
+    try {
+      await this.shareService.shareDashLink({
+        kind: 'node',
+        origin: 'workspace',
+        title: this.node.name,
+        text: this.node.description || this.node.name,
+        workspaceId: this.node.workspaceId,
+        collectionId: this.node.collectionId || null,
+        nodeId: this.node.id
+      });
+    } finally {
+      this.sharing = false;
     }
   }
 

@@ -31,6 +31,7 @@ export class DynamicDialogConfig<T = any> {
   modal?: boolean;
   dismissableMask?: boolean;
   contentStyle?: Record<string, string>;
+  flush?: boolean;
 }
 
 export interface OpenDialog {
@@ -78,11 +79,11 @@ export class DialogService {
       <div class="dl-overlay" (click)="onMask(dialog)">
         <section
           class="dl-sheet"
+          [class.dl-sheet-flush]="dialog.config.flush"
           [style.--dl-sheet-width]="dialog.config.width || '32rem'"
           (click)="$event.stopPropagation()"
           role="dialog"
           aria-modal="true">
-          <div class="dl-sheet-handle"></div>
           @if (dialog.config.header) {
             <header class="dl-sheet-head">
               <h2>{{ dialog.config.header }}</h2>

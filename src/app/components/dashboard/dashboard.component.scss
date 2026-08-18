@@ -1,50 +1,40 @@
 .dl-recents {
   display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  margin: 0 0 1rem;
-}
-
-.dl-recents-label {
-  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--dl-text-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.dl-recents-list {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.15rem;
-  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  flex: 1;
 }
 
 .dl-recent-chip {
   appearance: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  min-height: 40px;
-  padding: 0.4rem 0.75rem;
+  gap: 0.3rem;
+  min-width: 0;
+  max-width: 7.5rem;
+  min-height: 36px;
+  padding: 0.3rem 0.65rem;
   border: 1px solid var(--dl-border);
   border-radius: 999px;
   background: var(--dl-card);
   color: var(--dl-text);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  white-space: nowrap;
   cursor: pointer;
-  flex-shrink: 0;
+}
+
+.dl-recent-chip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dl-recent-chip app-icon {
   color: var(--dl-accent-soft);
+  flex-shrink: 0;
 }
 
 .page-header {
@@ -124,4 +114,8 @@
   .title-block h1 { font-size: 1.6rem; }
   .desktop-add { display: inline-flex; }
   .dl-list-tools { margin-bottom: 1.1rem; }
+  .dl-recent-chip {
+    max-width: 10rem;
+    min-height: 40px;
+  }
 }

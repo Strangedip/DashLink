@@ -13,6 +13,7 @@ export interface RecentItem {
 }
 
 const MAX_RECENTS = 8;
+const VISIBLE_RECENTS = 3;
 const SORTS: ItemSort[] = ['type', 'alpha', 'date', 'recent'];
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +21,6 @@ export class PreferencesService {
   private uid: string | null = null;
   readonly pins = signal<string[]>([]);
   readonly recents = signal<RecentItem[]>([]);
-  readonly showRecents = signal(false);
   readonly sort = signal<ItemSort>('type');
   readonly dashboardTab = signal<'personal' | 'workspaces'>('personal');
   readonly pins$ = new BehaviorSubject<string[]>([]);
@@ -31,7 +31,6 @@ export class PreferencesService {
     this.uid = uid;
     this.pins.set(this.read<string[]>(this.pinKey(), []));
     this.recents.set(this.read<RecentItem[]>(this.recentKey(), []));
-    this.showRecents.set(this.read<boolean>(this.recentsVisibleKey(), false));
     const sort = this.read<ItemSort>(this.sortKey(), 'type');
     this.sort.set(SORTS.includes(sort) ? sort : 'type');
     const tab = this.read<'personal' | 'workspaces'>(this.tabKey(), 'personal');
@@ -65,10 +64,8 @@ export class PreferencesService {
     this.write(this.sortKey(), sort);
   }
 
-  toggleShowRecents(): void {
-    const next = !this.showRecents();
-    this.showRecents.set(next);
-    this.write(this.recentsVisibleKey(), next);
+  visibleRecents(): RecentItem[] {
+    return this.recents().slice(0, VISIBLE_RECENTS);
   }
 
   addRecent(item: Omit<RecentItem, 'openedAt'>): void {
@@ -98,10 +95,6 @@ export class PreferencesService {
 
   private recentKey(): string {
     return `dl.recents.${this.uid || 'anon'}`;
-  }
-
-  private recentsVisibleKey(): string {
-    return `dl.showRecents.${this.uid || 'anon'}`;
   }
 
   private sortKey(): string {

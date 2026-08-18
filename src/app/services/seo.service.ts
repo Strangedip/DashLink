@@ -49,6 +49,9 @@ export class SeoService {
       });
       return;
     }
+    if (clean.startsWith('/s/')) {
+      return;
+    }
     this.apply({
       title: this.title.getTitle() || 'DashLink',
       description: 'DashLink workspace — organize links, notes, and teams.',

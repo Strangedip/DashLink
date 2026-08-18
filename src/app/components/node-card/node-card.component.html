@@ -25,8 +25,8 @@
     <div class="node-actions" (click)="$event.stopPropagation()">
       @if (primaryUrl) {
         <app-btn class="card-quick" icon="external-link" variant="ghost" [rounded]="true" title="Open link" (click)="openLink($event)"></app-btn>
-        <app-btn class="card-quick" icon="share-alt" variant="ghost" [rounded]="true" title="Share" (click)="shareLink($event)"></app-btn>
       }
+      <app-btn class="card-quick" icon="share-alt" variant="ghost" [rounded]="true" title="Share" [loading]="sharing" (click)="shareLink($event)"></app-btn>
       <app-btn #deleteButton icon="ellipsis-v" variant="ghost" [rounded]="true" title="Options" (click)="onMenuToggle($event)"></app-btn>
       <app-menu #menu [items]="menuItems"></app-menu>
     </div>

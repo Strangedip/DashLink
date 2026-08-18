@@ -1,13 +1,12 @@
 <div class="view-node-container">
   @if (imageUrl) {
     <div class="node-image-header">
-      <img [src]="getBannerUrl(imageUrl)" alt="Node Image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
+      <img [src]="getBannerUrl(imageUrl)" alt="" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
       <div class="image-fade-overlay"></div>
     </div>
   }
 
   <div class="node-content-wrapper">
-    
     <div class="node-creator-bar">
       <div class="creator-info">
         @if (node.creatorPhotoURL) {
@@ -17,21 +16,16 @@
         }
         <div class="creator-details">
           <span class="creator-name">{{ node.creatorName }}</span>
-        </div>
-      </div>
-      <div class="date-badges">
-        <span class="date-badge" title="Created">
-          <app-icon name="calendar-plus"></app-icon> {{ createdDate }}
-        </span>
-        @if (updatedDate && updatedDate !== createdDate) {
-          <span class="date-badge" title="Last edited">
-            <app-icon name="pencil"></app-icon> {{ updatedDate }}
+          <span class="creator-meta">
+            {{ createdDate }}
+            @if (updatedDate && updatedDate !== createdDate) {
+              · Edited {{ updatedDate }}
+            }
           </span>
-        }
+        </div>
       </div>
     </div>
 
-    
     @if (node.description) {
       <div class="info-block">
         <div class="block-title">
@@ -42,7 +36,6 @@
       </div>
     }
 
-    
     @if (displayFields.length > 0) {
       <div class="info-block">
         <div class="block-title">
@@ -59,9 +52,14 @@
               <div class="field-value">
                 @switch (field.fieldType) {
                   @case ('url') {
-                    <a [href]="field.value" target="_blank" class="field-link">
-                      {{ field.value }} <app-icon name="external-link"></app-icon>
-                    </a>
+                    @if (fieldHref(field.value); as href) {
+                      <a [href]="href" target="_blank" rel="noopener noreferrer" class="field-link">
+                        <span>{{ field.value }}</span>
+                        <app-icon name="external-link"></app-icon>
+                      </a>
+                    } @else {
+                      <span>{{ field.value }}</span>
+                    }
                   }
                   @case ('email') {
                     <a [href]="'mailto:' + field.value" class="field-link">{{ field.value }}</a>
@@ -74,7 +72,7 @@
                       <div class="field-image-wrapper">
                         <img [src]="getDetailImageUrl(field.value)" alt="Image" class="field-image" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
                       </div>
-                      <a [href]="field.value" target="_blank" class="field-link image-source-link">
+                      <a [href]="field.value" target="_blank" rel="noopener noreferrer" class="field-link image-source-link">
                         Open original <app-icon name="external-link"></app-icon>
                       </a>
                     }
@@ -120,10 +118,9 @@
   </div>
 
   <div class="node-footer">
-    @if (primaryUrl) {
-      <app-btn icon="external-link" label="Open" (click)="openLink()"></app-btn>
-      <app-btn icon="share-alt" label="Share" variant="outline" (click)="shareLink()"></app-btn>
+    <app-btn icon="times" label="Close" variant="outline" (click)="onClose()"></app-btn>
+    @if (canShare) {
+      <app-btn icon="share-alt" label="Share" [loading]="sharing" (click)="shareLink()"></app-btn>
     }
-    <app-btn icon="times" label="Close" (click)="onClose()" variant="ghost"></app-btn>
   </div>
 </div>

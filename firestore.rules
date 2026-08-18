@@ -19,10 +19,6 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read, write: if signedIn() && request.auth.uid == userId;
-
-      match /nodes/{nodeId} {
-        allow read, write: if signedIn() && request.auth.uid == userId;
-      }
     }
 
     match /users/{userId}/collections/{collectionId} {
@@ -82,6 +78,49 @@ service cloud.firestore {
 
     match /aiAnalysisUsage/{docId} {
       allow read, write: if signedIn() && docId.matches(request.auth.uid + '_.*');
+    }
+
+    match /shares/{shareId} {
+      allow get: if true;
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.kind in ['node', 'collection']
+        && request.resource.data.origin in ['personal', 'workspace']
+        && (
+          (
+            request.resource.data.origin == 'personal'
+            && request.resource.data.workspaceId == null
+          )
+          || (
+            request.resource.data.origin == 'workspace'
+            && request.resource.data.workspaceId is string
+            && isWorkspaceMember(request.resource.data.workspaceId)
+          )
+        )
+        && (
+          (
+            request.resource.data.kind == 'node'
+            && request.resource.data.nodeId is string
+          )
+          || (
+            request.resource.data.kind == 'collection'
+            && request.resource.data.collectionId is string
+            && request.resource.data.nodeId == null
+          )
+        );
+
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.kind == resource.data.kind
+        && request.resource.data.origin == resource.data.origin
+        && request.resource.data.workspaceId == resource.data.workspaceId
+        && request.resource.data.collectionId == resource.data.collectionId
+        && request.resource.data.nodeId == resource.data.nodeId;
+
+      allow delete: if false;
     }
   }
 }

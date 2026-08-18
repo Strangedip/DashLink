@@ -1,0 +1,194 @@
+<div class="share-page">
+  <header class="share-top">
+    <app-logo [link]="logoLink"></app-logo>
+    @if (!signedIn) {
+      <app-btn label="Sign in" variant="ghost" size="sm" (click)="login()"></app-btn>
+    }
+  </header>
+
+  @if (loading && !payload) {
+    <div class="share-state">
+      <app-icon name="spinner"></app-icon>
+      <p>Opening this DashLink…</p>
+    </div>
+  } @else if (unavailable) {
+    <div class="share-state">
+      <app-icon name="inbox"></app-icon>
+      <h1>This DashLink is unavailable</h1>
+      <p>The original item may have been deleted. The link itself still exists, but there is nothing left to show.</p>
+      <app-btn [label]="signedIn ? 'Go to dashboard' : 'Go to DashLink'" icon="home" (click)="goHome()"></app-btn>
+    </div>
+  } @else if (payload) {
+    <article class="share-card">
+      @if (payload.coverImage) {
+        <div class="share-hero">
+          <img [src]="heroUrl(payload.coverImage)" alt="" loading="eager" decoding="async" (error)="$any($event.target).style.display='none'">
+        </div>
+      }
+
+      <div class="share-body">
+        <p class="share-by">
+          <app-icon name="user"></app-icon>
+          Shared by {{ payload.ownerName || 'a DashLink user' }}
+        </p>
+        <h1>{{ payload.title }}</h1>
+        @if (payload.kind === 'collection' && payload.collection) {
+          <p class="share-meta">{{ countItems(payload.collection) }} · view only</p>
+        } @else {
+          <p class="share-meta">View only · links open in a new tab</p>
+        }
+
+        @if (payload.node) {
+          <ng-container *ngTemplateOutlet="nodeView; context: { $implicit: payload.node }"></ng-container>
+        } @else if (payload.collection) {
+          @if (payload.collection.description) {
+            <p class="share-desc">{{ plainText(payload.collection.description) }}</p>
+          }
+          <ng-container *ngTemplateOutlet="folderView; context: { $implicit: payload.collection, path: 'root', root: true }"></ng-container>
+        }
+      </div>
+    </article>
+
+    @if (viewerReady) {
+    <div class="share-cta">
+      @if (isOwner) {
+        <p class="cta-note">This is yours. Opening it takes you to the original in DashLink.</p>
+        <div class="cta-row">
+          <app-btn label="Close" icon="times" variant="outline" (click)="goHome()"></app-btn>
+          <app-btn label="Open in DashLink" icon="arrow-right" (click)="openMine()"></app-btn>
+        </div>
+      } @else if (signedIn) {
+        <p class="cta-note">Save a copy to your collections. The copy will not stay in sync with this page.</p>
+        <div class="cta-row">
+          <app-btn label="Close" icon="times" variant="outline" (click)="goHome()"></app-btn>
+          <app-btn label="Add to my collections" icon="folder-open" [loading]="saving" (click)="addToMyStuff()"></app-btn>
+        </div>
+      } @else {
+        <p class="cta-note">Sign in to save a copy into your collections.</p>
+        <div class="cta-row">
+          <app-btn label="Close" icon="times" variant="outline" (click)="goHome()"></app-btn>
+          <app-btn label="Sign in to save" icon="sign-in" (click)="login(true)"></app-btn>
+        </div>
+        <button type="button" class="text-link" (click)="register()">Create a free account</button>
+      }
+    </div>
+    }
+  }
+</div>
+
+<ng-template #nodeView let-node>
+  @if (node.description) {
+    <p class="share-desc">{{ plainText(node.description) }}</p>
+  }
+
+  @if (node.fields?.length) {
+    <div class="fields">
+      @for (field of node.fields; track field.name) {
+        <div class="field">
+          <div class="field-name">
+            <app-icon [name]="fieldIcon(field.type)"></app-icon>
+            <span>{{ field.name }}</span>
+          </div>
+          <div class="field-value">
+            @switch (field.type) {
+              @case ('url') {
+                @if (fieldHref(field); as href) {
+                  <a [href]="href" target="_blank" rel="noopener noreferrer" class="field-link">
+                    <span>{{ field.value }}</span>
+                    <app-icon name="external-link"></app-icon>
+                  </a>
+                } @else {
+                  <span>{{ field.value }}</span>
+                }
+              }
+              @case ('email') {
+                <a [href]="'mailto:' + field.value" class="field-link">{{ field.value }}</a>
+              }
+              @case ('phone') {
+                <a [href]="'tel:' + field.value" class="field-link">{{ field.value }}</a>
+              }
+              @case ('image') {
+                @if (field.value) {
+                  <img class="field-image" [src]="detailUrl('' + field.value)" alt="" loading="lazy" decoding="async" (error)="$any($event.target).style.display='none'">
+                  <a [href]="'' + field.value" target="_blank" rel="noopener noreferrer" class="field-link">Open original <app-icon name="external-link"></app-icon></a>
+                }
+              }
+              @case ('date') {
+                <span>{{ formatDate(field.value) }}</span>
+              }
+              @case ('datetime') {
+                <span>{{ formatDateTime(field.value) }}</span>
+              }
+              @case ('checkbox') {
+                <span>{{ field.value ? 'Yes' : 'No' }}</span>
+              }
+              @case ('color') {
+                <span class="color-row">
+                  <span class="swatch" [style.background]="'' + field.value"></span>
+                  {{ field.value }}
+                </span>
+              }
+              @case ('rating') {
+                <app-rating [ngModel]="+$any(field.value) || 0" [readonly]="true"></app-rating>
+              }
+              @default {
+                <span>{{ plainText(field.value) }}</span>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</ng-template>
+
+<ng-template #folderView let-folder let-path="path" let-root="root">
+  @if (!root) {
+    <div class="folder-head">
+      <app-icon name="folder"></app-icon>
+      <div>
+        <h2>{{ folder.name }}</h2>
+        @if (folder.description) {
+          <p>{{ plainText(folder.description) }}</p>
+        }
+      </div>
+    </div>
+  }
+
+  @if (folder.nodes?.length) {
+    <div class="node-list">
+      @for (node of folder.nodes; track node.name + $index) {
+        <section class="node-block">
+          <button type="button" class="node-row" (click)="toggleNode(nodeKey(path, $index))">
+            @if (node.coverImage) {
+              <img [src]="detailUrl(node.coverImage)" alt="">
+            } @else {
+              <span class="node-icon"><app-icon name="link"></app-icon></span>
+            }
+            <span class="node-copy">
+              <strong>{{ node.name }}</strong>
+              @if (node.description) {
+                <em>{{ plainText(node.description) }}</em>
+              }
+            </span>
+            <app-icon [name]="isExpanded(nodeKey(path, $index)) ? 'chevron-down' : 'chevron-right'"></app-icon>
+          </button>
+          @if (isExpanded(nodeKey(path, $index))) {
+            <div class="node-detail">
+              <ng-container *ngTemplateOutlet="nodeView; context: { $implicit: node }"></ng-container>
+            </div>
+          }
+        </section>
+      }
+    </div>
+  } @else if (!folder.collections?.length) {
+    <p class="empty-folder">This folder is empty.</p>
+  }
+
+  @for (child of folder.collections; track child.name + $index) {
+    <div class="folder-nest">
+      <ng-container *ngTemplateOutlet="folderView; context: { $implicit: child, path: path + '/' + $index, root: false }"></ng-container>
+    </div>
+  }
+</ng-template>

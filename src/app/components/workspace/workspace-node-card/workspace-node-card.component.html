@@ -35,7 +35,9 @@
       <div class="node-actions" (click)="$event.stopPropagation()">
         @if (primaryUrl) {
           <app-btn type="button" icon="external-link" (click)="openLink($event)" class="action-button card-quick" title="Open link" variant="ghost" [rounded]="true"></app-btn>
-          <app-btn type="button" icon="share-alt" (click)="shareLink($event)" class="action-button card-quick" title="Share" variant="ghost" [rounded]="true"></app-btn>
+        }
+        @if (canShare) {
+          <app-btn type="button" icon="share-alt" (click)="shareLink($event)" class="action-button card-quick" title="Share" variant="ghost" [rounded]="true" [loading]="sharing"></app-btn>
         }
         @if (menuItems.length) {
           <app-btn type="button" icon="ellipsis-v" (click)="onMenuToggle($event)" class="action-button" title="Options" variant="ghost" [rounded]="true">

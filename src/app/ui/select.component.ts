@@ -28,7 +28,7 @@ export interface SelectOption {
       <span class="dl-select-value" [class.placeholder]="!currentLabel">{{ currentLabel || placeholder }}</span>
       <app-icon name="chevron-down"></app-icon>
     </button>
-    <app-menu #menu [items]="menuItems" align="start" [matchTrigger]="variant === 'field'"></app-menu>
+    <app-menu #menu [items]="menuItems" [align]="menuAlign" [matchTrigger]="variant === 'field'"></app-menu>
   `,
   styles: [`
     :host { display: block; width: 100%; position: relative; }
@@ -45,6 +45,7 @@ export class SelectComponent implements ControlValueAccessor {
   @Input() placeholder = 'Select';
   @Input() ariaLabel = '';
   @Input() inputId = '';
+  @Input() menuAlign: 'start' | 'end' = 'end';
   @Input() set value(v: string | null | undefined) {
     this.inner = v ?? '';
     this.cdr.markForCheck();

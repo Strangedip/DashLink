@@ -188,6 +188,13 @@ app-icon { color: inherit; }
   display: none;
 }
 
+.dl-sheet-flush .dl-sheet-body {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .dl-sheet-head {
   display: flex;
   align-items: center;
@@ -248,7 +255,6 @@ app-icon { color: inherit; }
 
 .dialog-container,
 .settings-container,
-.view-node-container,
 .ai-analysis-container,
 .bulk-upload-container {
   max-height: none !important;
@@ -558,9 +564,22 @@ app-icon { color: inherit; }
 .dl-list-tools {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0 0 0.95rem;
+}
+
+.dl-list-tools .dl-sort {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.dl-list-tools .dl-select-caption {
+  display: none;
+}
+
+.dl-list-tools .dl-select-trigger.chip {
+  min-width: 0;
+  max-width: 9.5rem;
 }
 
 .dl-select-host {
@@ -628,33 +647,6 @@ app-icon { color: inherit; }
   background: var(--dl-card);
   font-size: 0.82rem;
   font-weight: 600;
-}
-
-.dl-tool-chip {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 40px;
-  padding: 0 0.8rem;
-  border: 1px solid var(--dl-border);
-  border-radius: 999px;
-  background: var(--dl-card);
-  color: var(--dl-text-muted);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.dl-tool-chip.on {
-  background: rgba(76, 175, 80, 0.16);
-  border-color: rgba(76, 175, 80, 0.35);
-  color: var(--dl-text);
-}
-
-.dl-tool-chip app-icon {
-  color: var(--dl-accent-soft);
 }
 
 .p-field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.9rem; }
@@ -766,6 +758,8 @@ input[type="color"] {
   }
   .dl-tabs { margin-top: 0.65rem; }
   .dl-tabs button { min-height: 44px; }
+  .dl-list-tools .dl-select-caption { display: inline; }
+  .dl-list-tools .dl-select-trigger.chip { max-width: 12rem; }
   .dl-dialog-footer app-btn,
   .dl-dialog-footer button,
   .p-dialog-footer app-btn,

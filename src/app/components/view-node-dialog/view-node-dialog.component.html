@@ -17,7 +17,7 @@
           <span>Description</span>
         </div>
         @if (isHtmlContent(node.description)) {
-          <div class="block-text" [innerHTML]="getDescriptionHtml()"></div>
+          <div class="block-text" [innerHTML]="node.description"></div>
         } @else {
           <div class="block-text">{{ node.description }}</div>
         }
@@ -57,10 +57,14 @@
               <div class="field-value">
                 @switch (field.fieldType) {
                   @case ('url') {
-                    <a [href]="field.fieldValue" target="_blank" class="field-link">
-                      {{ field.fieldValue }}
-                      <app-icon name="external-link"></app-icon>
-                    </a>
+                    @if (fieldHref(field.fieldValue); as href) {
+                      <a [href]="href" target="_blank" rel="noopener noreferrer" class="field-link">
+                        <span>{{ field.fieldValue }}</span>
+                        <app-icon name="external-link"></app-icon>
+                      </a>
+                    } @else {
+                      <span>{{ field.fieldValue }}</span>
+                    }
                   }
                   @case ('imageUrl') {
                     @if (field.fieldValue) {
@@ -77,7 +81,7 @@
                   }
                   @case ('richText') {
                     @if (isHtmlContent(field.fieldValue)) {
-                      <div [innerHTML]="getCustomFieldHtml(field.fieldValue)"></div>
+                      <div [innerHTML]="$any(field.fieldValue)"></div>
                     } @else {
                       <span>{{ field.fieldValue }}</span>
                     }
@@ -104,11 +108,7 @@
 
   
   <div class="node-footer">
-    @if (primaryUrl) {
-      <app-btn icon="external-link" label="Open" (click)="openLink()"></app-btn>
-      <app-btn icon="share-alt" label="Share" variant="outline" (click)="shareLink()"></app-btn>
-    }
-    <app-btn icon="times" label="Close" (click)="onClose()" variant="ghost">
-    </app-btn>
+    <app-btn icon="times" label="Close" variant="outline" (click)="onClose()"></app-btn>
+    <app-btn icon="share-alt" label="Share" [loading]="sharing" (click)="shareLink()"></app-btn>
   </div>
 </div>

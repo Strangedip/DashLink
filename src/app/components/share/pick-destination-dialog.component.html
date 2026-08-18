@@ -1,0 +1,39 @@
+<div class="pick-wrap">
+  <p class="pick-hint">{{ hint }}</p>
+
+  @if (loading) {
+    <div class="pick-state">
+      <app-icon name="spinner"></app-icon>
+      <span>Loading your folders…</span>
+    </div>
+  } @else if (error) {
+    <div class="pick-state error">
+      <app-icon name="exclamation-circle"></app-icon>
+      <span>{{ error }}</span>
+    </div>
+  } @else {
+    <div class="pick-list" role="listbox" aria-label="Destination folder">
+      @for (row of rows; track row.id) {
+        <button
+          type="button"
+          class="pick-row"
+          [class.selected]="row.id === selectedId"
+          [style.padding-left.rem]="0.75 + row.depth * 0.9"
+          (click)="select(row.id)"
+          role="option"
+          [attr.aria-selected]="row.id === selectedId">
+          <app-icon [name]="row.id === selectedId ? 'check-circle' : 'folder'"></app-icon>
+          <span class="pick-name">{{ row.name }}</span>
+          @if (row.isDefault) {
+            <span class="pick-badge">Default</span>
+          }
+        </button>
+      }
+    </div>
+  }
+
+  <div class="p-dialog-footer">
+    <app-btn class="footer-dismiss" label="Cancel" icon="times" (click)="cancel()" variant="ghost"></app-btn>
+    <app-btn label="Add here" icon="check" (click)="confirm()" [disabled]="!selectedId || loading"></app-btn>
+  </div>
+</div>

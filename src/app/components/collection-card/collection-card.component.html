@@ -21,6 +21,17 @@
           </app-btn>
         </span>
       }
+      @if (canShare) {
+        <app-btn
+          class="card-quick"
+          icon="share-alt"
+          variant="ghost"
+          [rounded]="true"
+          title="Share"
+          [loading]="sharing"
+          (click)="shareCollection($event)">
+        </app-btn>
+      }
       <app-btn #deleteButton icon="ellipsis-v" variant="ghost" [rounded]="true" title="Options" (click)="onMenuToggle($event)"></app-btn>
       <app-menu #menu [items]="menuItems"></app-menu>
     </div>

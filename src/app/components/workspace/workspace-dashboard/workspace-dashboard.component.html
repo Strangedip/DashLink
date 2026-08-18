@@ -56,6 +56,7 @@
 
   <div class="dl-list-tools">
     <app-select
+      class="dl-sort"
       variant="chip"
       label="Sort"
       [value]="prefs.sort()"
@@ -91,6 +92,8 @@
           @if (item.type === 'collection') {
             <app-collection-card
               [collection]="item"
+              [canShare]="!isBanned"
+              [workspaceId]="workspaceId"
               (viewCollection)="item.id && goToCollection(item.id)"
               (editCollection)="editCollection(item)"
               (deleteCollectionRequest)="item.id && confirmDeleteItem(item.id, 'collection')">
@@ -100,6 +103,7 @@
               [node]="item"
               [isOwner]="isOwner"
               [currentUserId]="currentUserId || ''"
+              [canShare]="!isBanned"
               (nodeClicked)="openViewNodeDialog(item)"
               (editNode)="editNode(item)"
               (deleteNodeRequest)="confirmDeleteItem($event.id, 'workspace-node')">

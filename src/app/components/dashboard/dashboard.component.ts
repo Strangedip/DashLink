@@ -508,10 +508,8 @@ export class DashboardComponent implements OnInit {
     });
     this.dialogService.open(ViewNodeDialogComponent, {
       header: node.name ?? 'Node Details',
-      width: '550px',
-      style: { 
-        'max-width': '96vw'
-      },
+      width: '32rem',
+      flush: true,
       dismissableMask: true,
       data: { node: node }
     });

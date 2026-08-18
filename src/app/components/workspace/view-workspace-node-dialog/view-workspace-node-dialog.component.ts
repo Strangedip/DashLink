@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { WorkspaceNode, WorkspaceNodeField } from '../../../models/workspace.model';
 import { CloudinaryService } from '../../../services/cloudinary.service';
 import { ShareService } from '../../../services/share.service';
-import { ToastService } from '../../../services/toast.service';
+import { LinkPreviewService } from '../../../services/link-preview.service';
 
 @Component({
     selector: 'app-view-workspace-node-dialog',
@@ -24,6 +24,8 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
   imageUrl: string | null = null;
   displayFields: WorkspaceNodeField[] = [];
   primaryUrl: string | null = null;
+  sharing = false;
+  canShare = true;
 
   constructor(
     public ref: DynamicDialogRef,
@@ -31,14 +33,18 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
     private datePipe: DatePipe,
     private cloudinaryService: CloudinaryService,
     private shareService: ShareService,
-    private toastService: ToastService
+    private linkPreview: LinkPreviewService
   ) {}
 
   ngOnInit(): void {
     if (this.config.data?.node) {
       this.node = this.config.data.node;
+      this.canShare = this.config.data.canShare !== false;
       this.primaryUrl = this.shareService.primaryUrlFromWorkspaceNode(this.node);
       this.processFields();
+      this.linkPreview.displayImage(this.imageUrl, this.primaryUrl).subscribe(url => {
+        this.imageUrl = url;
+      });
     }
   }
 
@@ -66,25 +72,25 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
     return this.cloudinaryService.getDetailUrl(imageUrl);
   }
 
-  getThumbnailUrl(imageUrl: string): string {
-    return this.cloudinaryService.getThumbnailUrl(imageUrl);
-  }
-
   get createdDate(): string {
-    return this.formatTimestamp(this.node.createdAt);
+    return this.formatTimestamp(this.node.createdAt, 'MMM d, y');
   }
 
   get updatedDate(): string {
-    return this.formatTimestamp(this.node.updatedAt);
+    return this.formatTimestamp(this.node.updatedAt, 'MMM d, y');
   }
 
-  formatTimestamp(ts: any): string {
+  fieldHref(value: unknown): string | null {
+    return this.shareService.hrefFromValue(value);
+  }
+
+  formatTimestamp(ts: any, format = 'MMM d, y'): string {
     if (!ts) return '';
     if (typeof ts === 'object' && 'toDate' in ts && typeof ts.toDate === 'function') {
-      return this.datePipe.transform(ts.toDate(), 'MMM d, y, h:mm a') || '';
+      return this.datePipe.transform(ts.toDate(), format) || '';
     }
     if (ts instanceof Date) {
-      return this.datePipe.transform(ts, 'MMM d, y, h:mm a') || '';
+      return this.datePipe.transform(ts, format) || '';
     }
     return String(ts);
   }
@@ -134,20 +140,23 @@ export class ViewWorkspaceNodeDialogComponent implements OnInit {
     this.ref.close();
   }
 
-  openLink(): void {
-    if (this.primaryUrl) {
-      this.shareService.open(this.primaryUrl);
-    }
-  }
-
   async shareLink(): Promise<void> {
-    const result = await this.shareService.share({
-      title: this.node.name,
-      text: this.node.description || this.node.name,
-      url: this.primaryUrl || undefined
-    });
-    if (result === 'copied') {
-      this.toastService.showSuccess('Copied', 'Link copied to clipboard.');
+    if (!this.canShare || this.sharing) {
+      return;
+    }
+    this.sharing = true;
+    try {
+      await this.shareService.shareDashLink({
+        kind: 'node',
+        origin: 'workspace',
+        title: this.node.name,
+        text: this.node.description || this.node.name,
+        workspaceId: this.node.workspaceId,
+        collectionId: this.node.collectionId || null,
+        nodeId: this.node.id
+      });
+    } finally {
+      this.sharing = false;
     }
   }
 }

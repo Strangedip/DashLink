@@ -7,7 +7,7 @@ import { IconComponent } from '../../ui/icon.component';
 import { Node, CustomField } from '../../models/data.model';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { ShareService } from '../../services/share.service';
-import { ToastService } from '../../services/toast.service';
+import { LinkPreviewService } from '../../services/link-preview.service';
 
 @Component({
     selector: 'app-view-node-dialog',
@@ -26,6 +26,7 @@ export class ViewNodeDialogComponent implements OnInit {
   imageUrl: string | null = null;
   displayCustomFields: CustomField[] = [];
   primaryUrl: string | null = null;
+  sharing = false;
 
   constructor(
     public ref: DynamicDialogRef,
@@ -33,7 +34,7 @@ export class ViewNodeDialogComponent implements OnInit {
     private datePipe: DatePipe,
     private cloudinaryService: CloudinaryService,
     private shareService: ShareService,
-    private toastService: ToastService
+    private linkPreview: LinkPreviewService
   ) { }
 
   ngOnInit(): void {
@@ -41,6 +42,9 @@ export class ViewNodeDialogComponent implements OnInit {
       this.node = this.config.data.node;
       this.primaryUrl = this.shareService.primaryUrlFromNode(this.node);
       this.processCustomFields();
+      this.linkPreview.displayImage(this.imageUrl, this.primaryUrl).subscribe(url => {
+        this.imageUrl = url;
+      });
     }
   }
 
@@ -68,21 +72,7 @@ export class ViewNodeDialogComponent implements OnInit {
 
   isHtmlContent(content: unknown): boolean {
     if (typeof content !== 'string') return false;
-    const htmlRegex = /<\/?[a-z][\s\S]*>/i;
-    return htmlRegex.test(content);
-  }
-
-  getDescriptionHtml(): string {
-    return this.sanitizeHtml(this.node.description);
-  }
-
-  getCustomFieldHtml(value: unknown): string {
-    return this.sanitizeHtml(value as string);
-  }
-
-  private sanitizeHtml(html: string | undefined | null): string {
-    if (!html) return '';
-    return html;
+    return /<\/?[a-z][\s\S]*>/i.test(content);
   }
 
   getBannerUrl(imageUrl: string): string {
@@ -93,24 +83,30 @@ export class ViewNodeDialogComponent implements OnInit {
     return this.cloudinaryService.getDetailUrl(imageUrl);
   }
 
+  fieldHref(value: unknown): string | null {
+    return this.shareService.hrefFromValue(value);
+  }
+
   onClose(): void {
     this.ref.close();
   }
 
-  openLink(): void {
-    if (this.primaryUrl) {
-      this.shareService.open(this.primaryUrl);
-    }
-  }
-
   async shareLink(): Promise<void> {
-    const result = await this.shareService.share({
-      title: this.node.name,
-      text: this.node.description || this.node.name,
-      url: this.primaryUrl || undefined
-    });
-    if (result === 'copied') {
-      this.toastService.showSuccess('Copied', 'Link copied to clipboard.');
+    if (this.sharing) {
+      return;
+    }
+    this.sharing = true;
+    try {
+      await this.shareService.shareDashLink({
+        kind: 'node',
+        origin: 'personal',
+        title: this.node.name,
+        text: this.node.description || this.node.name,
+        collectionId: this.node.collectionId,
+        nodeId: this.node.id
+      });
+    } finally {
+      this.sharing = false;
     }
   }
 }
